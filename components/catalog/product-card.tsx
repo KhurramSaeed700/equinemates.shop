@@ -2,41 +2,30 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
+import { ProductPreviewModal } from "@/components/catalog/product-preview-modal";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
-import { useWishlist } from "@/components/providers/wishlist-provider";
-import { HeartIcon } from "@/components/ui/icons";
 import { Product } from "@/lib/types";
 
 export function ProductCard({ product }: { product: Product }) {
   const { formatFromPkr } = useCurrency();
   const { addToCart } = useCart();
-  const { toggle, has } = useWishlist();
-  const wished = has(product.slug);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   return (
-    <article className="product-card reveal">
-      <Link href={`/products/${product.slug}`} className="product-image-wrap">
-        <button
-          aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
-          className="product-wishlist"
-          onClick={(event) => {
-            event.preventDefault();
-            toggle(product.slug);
-          }}
-          type="button"
-        >
-          <HeartIcon height={14} width={14} />
-        </button>
-        <Image
-          alt={product.name}
-          className="product-image"
-          height={420}
-          src={product.images[0]}
-          width={640}
-        />
-      </Link>
+    <>
+      <article className="product-card reveal">
+        <div className="product-image-wrap">
+          <Image
+            alt={product.name}
+            className="product-image"
+            height={420}
+            src={product.images[0]}
+            width={640}
+          />
+        </div>
       <div className="product-body">
         <p className="product-meta">
           <span>{product.category}</span>
@@ -53,20 +42,24 @@ export function ProductCard({ product }: { product: Product }) {
             onClick={() => addToCart(product, 1)}
             type="button"
           >
-            Quick Add
+            Add to Cart
           </button>
-          <Link className="btn-secondary" href={`/products/${product.slug}`}>
-            View Product
-          </Link>
           <button
             className="btn-secondary"
-            onClick={() => toggle(product.slug)}
+            onClick={() => setIsPreviewOpen(true)}
             type="button"
           >
-            {wished ? "Saved" : "Wishlist"}
+            See Preview
           </button>
         </div>
       </div>
     </article>
+
+      <ProductPreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        product={product}
+      />
+    </>
   );
 }

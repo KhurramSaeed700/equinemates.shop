@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 
+import { useToast } from "@/lib/use-toast";
 import { CartItem, Product } from "@/lib/types";
 
 const CART_STORAGE_KEY = "eqm_cart_items";
@@ -27,6 +28,7 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const toast = useToast();
   const [items, setItems] = useState<CartItem[]>(() => {
     if (typeof window === "undefined") {
       return [];
@@ -54,12 +56,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prevItems) => {
       const existing = prevItems.find((item) => item.productSlug === product.slug);
       if (existing) {
+        toast.success(`${product.name} quantity updated`, `Now ${existing.quantity + quantity} in cart`);
         return prevItems.map((item) =>
           item.productSlug === product.slug
             ? { ...item, quantity: item.quantity + quantity }
             : item,
         );
       }
+      toast.success(`${product.name} added to cart`, `Quantity: ${quantity}`);
       return [
         ...prevItems,
         {
@@ -71,13 +75,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
         },
       ];
     });
-  }, []);
+  }, [toast]);
 
   const removeFromCart = useCallback((productSlug: string) => {
-    setItems((prevItems) =>
-      prevItems.filter((item) => item.productSlug !== productSlug),
-    );
-  }, []);
+    setItems((prevItems) => {
+      const item = prevItems.find((i) => i.productSlug === productSlug);
+      if (item) {
+        toast.info(`${item.name} removed from cart`);
+      }
+      return prevItems.filter((item) => item.productSlug !== productSlug);
+    });
+  }, [toast]);
 
   const setQuantity = useCallback((productSlug: string, quantity: number) => {
     setItems((prevItems) =>

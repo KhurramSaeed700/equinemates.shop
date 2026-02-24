@@ -10,6 +10,8 @@ import {
   useState,
 } from "react";
 
+import { useToast } from "@/lib/use-toast";
+
 const WISHLIST_STORAGE_KEY = "eqm_wishlist_items";
 
 interface WishlistContextValue {
@@ -21,6 +23,7 @@ interface WishlistContextValue {
 const WishlistContext = createContext<WishlistContextValue | undefined>(undefined);
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
+  const toast = useToast();
   const [productSlugs, setProductSlugs] = useState<string[]>(() => {
     if (typeof window === "undefined") {
       return [];
@@ -45,12 +48,18 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   }, [productSlugs]);
 
   const toggle = useCallback((productSlug: string) => {
-    setProductSlugs((prevSlugs) =>
-      prevSlugs.includes(productSlug)
+    setProductSlugs((prevSlugs) => {
+      const isAdding = !prevSlugs.includes(productSlug);
+      if (isAdding) {
+        toast.success('Added to wishlist');
+      } else {
+        toast.info('Removed from wishlist');
+      }
+      return prevSlugs.includes(productSlug)
         ? prevSlugs.filter((slug) => slug !== productSlug)
-        : [...prevSlugs, productSlug],
-    );
-  }, []);
+        : [...prevSlugs, productSlug];
+    });
+  }, [toast]);
 
   const value = useMemo<WishlistContextValue>(
     () => ({
