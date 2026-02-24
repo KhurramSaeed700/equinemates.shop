@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="AeroFit Riding Helmet">
+  <rect width="640" height="420" fill="#ede8dc"/>
+  <path d="M180 250c0-88 62-150 140-150s140 62 140 150v24H180v-24Z" fill="#2f5b4a"/>
+  <path d="M250 274h140v36H250z" fill="#8d5b2b"/>
+  <path d="M420 250h30v75h-30z" fill="#1f3b31"/>
+  <text x="320" y="360" fill="#6e4521" font-family="Segoe UI, sans-serif" font-size="34" text-anchor="middle">AeroFit Helmet</text>
+</svg>

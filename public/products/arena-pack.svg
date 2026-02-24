@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Arena Commute Backpack">
+  <rect width="640" height="420" fill="#f0e8d8"/>
+  <rect x="215" y="100" width="210" height="240" rx="28" fill="#ffffff" stroke="#8d5b2b" stroke-width="4"/>
+  <rect x="255" y="70" width="130" height="50" rx="24" fill="#d3e2d4" stroke="#2f5b4a" stroke-width="4"/>
+  <rect x="250" y="160" width="140" height="60" rx="10" fill="#dceadc"/>
+  <rect x="250" y="238" width="140" height="70" rx="10" fill="#ecf3ec"/>
+  <text x="320" y="378" fill="#6e4521" font-family="Segoe UI, sans-serif" font-size="30" text-anchor="middle">Arena Backpack</text>
+</svg>

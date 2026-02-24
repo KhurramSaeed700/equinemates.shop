@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Saddle Cover">
+  <rect width="640" height="420" fill="#efe7d2"/>
+  <path d="M80 300c120-120 340-140 480-40" fill="none" stroke="#2f5b4a" stroke-width="22" stroke-linecap="round"/>
+  <rect x="150" y="130" width="340" height="180" rx="30" fill="#fff7ea" stroke="#8d5b2b" stroke-width="4"/>
+  <text x="320" y="225" fill="#2f5b4a" font-family="Segoe UI, sans-serif" font-size="40" text-anchor="middle">Saddle Cover</text>
+</svg>
