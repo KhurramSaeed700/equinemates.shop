@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Equinemates hero banner">
+  <defs>
+    <linearGradient id="heroBg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f4f4f1"/>
+      <stop offset="100%" stop-color="#ddd8cf"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#heroBg)"/>
+  <circle cx="1260" cy="230" r="240" fill="#c7bda8" opacity=".5"/>
+  <circle cx="360" cy="760" r="280" fill="#d4dbd1" opacity=".45"/>
+  <path d="M320 690c120-210 310-320 560-320 195 0 365 72 500 220" fill="none" stroke="#8b7f67" stroke-width="20" stroke-linecap="round"/>
+  <rect x="240" y="150" width="320" height="470" rx="26" fill="#faf8f3" stroke="#a09175" stroke-width="5"/>
+  <rect x="1040" y="210" width="300" height="430" rx="24" fill="#f5f2ea" stroke="#9d8f73" stroke-width="5"/>
+  <text x="800" y="250" fill="#2a2a2a" font-family="Segoe UI, sans-serif" font-size="72" text-anchor="middle">Equinemates</text>
+  <text x="800" y="330" fill="#494949" font-family="Segoe UI, sans-serif" font-size="42" text-anchor="middle">Rider & Stable Collection</text>
+</svg>

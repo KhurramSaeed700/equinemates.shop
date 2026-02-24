@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="SmartFeed Pro Dispenser">
+  <rect width="640" height="420" fill="#e2efe5"/>
+  <rect x="210" y="80" width="220" height="260" rx="20" fill="#ffffff" stroke="#2f5b4a" stroke-width="5"/>
+  <rect x="250" y="130" width="140" height="90" rx="12" fill="#d7e7dc"/>
+  <circle cx="320" cy="265" r="32" fill="#8d5b2b"/>
+  <text x="320" y="182" fill="#2f5b4a" font-family="Segoe UI, sans-serif" font-size="28" text-anchor="middle">SmartFeed</text>
+  <text x="320" y="304" fill="#fff" font-family="Segoe UI, sans-serif" font-size="22" text-anchor="middle">PRO</text>
+</svg>

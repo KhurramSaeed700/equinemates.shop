@@ -1,36 +1,160 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Equinemates Shop
 
-## Getting Started
+Equinemates is a Next.js ecommerce foundation focused on:
 
-First, run the development server:
+- Pet Products
+- Horse Products
+- Rider Products
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+This project includes a production-oriented frontend structure and backend-ready API modules for catalog browsing, account/auth flows, wishlist/cart, wholesale quoting, checkout, and admin operations.
+
+## Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Tailwind v4 base import + custom CSS design system
+- In-memory service layer (replaceable with database-backed adapters)
+
+## Key Features
+
+- Global header/footer on all pages
+- Center-positioned brand logo in top navigation
+- Category dropdown + SKU/name search + auto suggestions
+- Multi-currency support (`PKR`, `USD`, `EUR`) with:
+  - PKR default
+  - locale-based auto-detect
+  - manual currency switcher
+- Account workflows:
+  - email signup/login
+  - Google login integration entry point
+  - password recovery token endpoint
+  - profile and address management
+  - order history
+  - wishlist synchronization interface
+- Core pages:
+  - home
+  - about
+  - contact (with map + support hours)
+  - catalog request
+  - wholesale quotation
+  - wishlist
+  - cart and checkout
+- Product system:
+  - gallery
+  - SKU
+  - variants
+  - reviews
+  - related products
+- Wholesale dashboard:
+  - quote history
+  - edit request module placeholder
+  - invoice module placeholder
+  - messaging module placeholder
+- Admin panel modules:
+  - products
+  - orders
+  - users
+  - wholesale
+  - reports
+  - promotions
+  - currency rates
+- SEO and discoverability:
+  - route-level metadata
+  - `robots.ts`
+  - `sitemap.ts`
+
+## Project Structure
+
+```text
+app/
+  api/
+    auth/
+    account/
+    catalog/request
+    wholesale/request
+    checkout
+    search
+    currency/rates
+  about/
+  contact/
+  catalog-request/
+  wholesale/
+  wholesale/dashboard/
+  products/
+  products/[slug]/
+  search/
+  wishlist/
+  cart/
+  account/
+  account/orders/
+  account/addresses/
+  admin/
+components/
+  layout/
+  providers/
+  catalog/
+  forms/
+  account/
+lib/
+  catalog.ts
+  currency.ts
+  navigation.ts
+  types.ts
+  server/
+    db.ts
+    profile-service.ts   # replaced previous auth-service logic
+    submissions-service.ts
+    checkout-service.ts
+    currency-service.ts
+public/
+  products/*.svg
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Run Locally
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open `http://localhost:3000`.
 
-## Learn More
+## Authentication is delegated to Clerk, so demo accounts are no longer seeded locally
 
-To learn more about Next.js, take a look at the following resources:
+Use the Clerk dashboard or test user fixtures instead.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API Endpoints
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+<!-- authentication is now handled by Clerk; the built-in API routes above have been removed -->
+- `GET /api/account/profile`
+- `PUT /api/account/profile`
+- `GET /api/account/orders`
+- `GET /api/account/wishlist`
+- `POST /api/account/wishlist`
+- `POST /api/contact`
+- `POST /api/catalog/request`
+- `POST /api/wholesale/request`
+- `POST /api/checkout`
+- `GET /api/search`
+- `GET /api/currency/rates`
 
-## Deploy on Vercel
+## Production Readiness Steps
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Replace in-memory store with PostgreSQL/MySQL (Prisma/Drizzle).
+2. Integrate NextAuth/Auth.js for secure sessions and OAuth.
+3. Connect payment processors for live card and bank settlement.
+4. Add transactional email provider (catalog requests, order updates).
+5. Add object storage for upload persistence.
+6. Add role-based access control for admin and wholesale dashboards.
+7. Add observability (structured logs, traces, error monitoring).
+8. Add integration and e2e tests.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Branding Assets
+
+Place these in `public/`:
+
+- `logo-t.png` (transparent logo)
+- `logo-small.png` (favicon)
+
+The layout already references both files.

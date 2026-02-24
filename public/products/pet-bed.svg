@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="ComfortNest Orthopedic Bed">
+  <rect width="640" height="420" fill="#e8f1e8"/>
+  <ellipse cx="320" cy="250" rx="210" ry="95" fill="#fffaf0" stroke="#8d5b2b" stroke-width="5"/>
+  <ellipse cx="320" cy="250" rx="170" ry="66" fill="#dfeadf"/>
+  <text x="320" y="150" fill="#2f5b4a" font-family="Segoe UI, sans-serif" font-size="36" text-anchor="middle">ComfortNest</text>
+  <text x="320" y="185" fill="#2f5b4a" font-family="Segoe UI, sans-serif" font-size="24" text-anchor="middle">Orthopedic Bed</text>
+</svg>

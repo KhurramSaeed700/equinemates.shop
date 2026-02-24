@@ -1,65 +1,132 @@
+import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
+
+import { ProductGrid } from "@/components/catalog/product-grid";
+import { HomeHeroCarousel } from "@/components/home/home-hero-carousel";
+import { SectionHeading } from "@/components/ui/section-heading";
+import { FEATURED_CATEGORY_SUMMARY, getBestSellers, getNewArrivals } from "@/lib/catalog";
+
+export const metadata: Metadata = {
+  title: "Home",
+  description:
+    "Equinemates storefront for pet, horse, and rider products with wholesale-ready workflows.",
+};
+
+const valueProps = [
+  {
+    title: "Free Delivery Available",
+    text: "Nationwide shipping support across Pakistan for qualifying orders.",
+  },
+  {
+    title: "Top Product Access",
+    text: "Stable, rider, and pet best sellers from one unified catalog.",
+  },
+  {
+    title: "Wholesale Assistance",
+    text: "Business quote workflows for clubs, stables, and distributors.",
+  },
+];
 
 export default function Home() {
+  const bestSellers = getBestSellers(4);
+  const newArrivals = getNewArrivals(4);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      <section className="home-hero reveal">
+        <div className="hero-media">
+          <HomeHeroCarousel />
+        </div>
+        <div className="hero-copy">
+          <p className="hero-kicker">Built for performance</p>
+          <h1>Premium equestrian, rider, and pet essentials.</h1>
+          <p>
+            Discover category-focused collections with responsive ordering, account
+            tools, and wholesale-ready operations.
           </p>
+          <div className="hero-actions">
+            <Link className="btn-primary" href="/products">
+              Shop Collection
+            </Link>
+            <Link className="btn-secondary" href="/wholesale">
+              Wholesale Quote
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="usp-strip section-spacing">
+        {valueProps.map((item) => (
+          <article key={item.title}>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="category-ribbon section-spacing">
+        {FEATURED_CATEGORY_SUMMARY.map((category) => (
+          <Link href={category.href} key={category.id}>
+            {category.name}
+          </Link>
+        ))}
+      </section>
+
+      <section className="split-promos section-spacing">
+        <article className="promo-card">
+          <Image
+            alt="Horse collection"
+            height={700}
+            src="/banners/promo-yard.svg"
+            width={1200}
+          />
+          <div>
+            <p className="section-eyebrow">Horse Products</p>
+            <h3>Stable season essentials</h3>
+            <Link className="text-link" href="/products?category=Horse%20Products">
+              Shop Horse Range
+            </Link>
+          </div>
+        </article>
+        <article className="promo-card">
+          <Image
+            alt="Rider collection"
+            height={700}
+            src="/banners/promo-rider.svg"
+            width={1200}
+          />
+          <div>
+            <p className="section-eyebrow">Rider Products</p>
+            <h3>This season&apos;s rider favourites</h3>
+            <Link className="text-link" href="/products?category=Rider%20Products">
+              Shop Rider Range
+            </Link>
+          </div>
+        </article>
+      </section>
+
+      <section className="section-spacing">
+        <SectionHeading
+          eyebrow="Best Sellers"
+          ctaHref="/products"
+          ctaLabel="View all"
+          description="Our most purchased lines across stables, riders, and households."
+          title="Explore the collection"
+        />
+        <ProductGrid products={bestSellers} />
+      </section>
+
+      <section className="home-highlight section-spacing">
+        <SectionHeading
+          eyebrow="New Arrivals"
+          ctaHref="/search?tag=new"
+          ctaLabel="Discover new"
+          description="Fresh inventory added for weekly demand and upcoming events."
+          title="Latest additions"
+        />
+        <ProductGrid products={newArrivals} />
+      </section>
+    </>
   );
 }

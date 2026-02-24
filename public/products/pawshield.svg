@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="PawShield Care Bundle">
+  <rect width="640" height="420" fill="#f6ead8"/>
+  <circle cx="320" cy="210" r="120" fill="#fff" stroke="#8d5b2b" stroke-width="4"/>
+  <circle cx="320" cy="210" r="40" fill="#2f5b4a" opacity=".2"/>
+  <circle cx="268" cy="154" r="25" fill="#2f5b4a" opacity=".25"/>
+  <circle cx="372" cy="154" r="25" fill="#2f5b4a" opacity=".25"/>
+  <circle cx="250" cy="224" r="22" fill="#2f5b4a" opacity=".25"/>
+  <circle cx="390" cy="224" r="22" fill="#2f5b4a" opacity=".25"/>
+  <text x="320" y="344" fill="#6e4521" font-family="Segoe UI, sans-serif" font-size="36" text-anchor="middle">PawShield</text>
+</svg>
