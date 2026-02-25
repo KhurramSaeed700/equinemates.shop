@@ -12,7 +12,7 @@ import { HeartIcon } from "@/components/ui/icons";
 import { Product } from "@/lib/types";
 
 export function ProductCard({ product }: { product: Product }) {
-  const { formatFromPkr } = useCurrency();
+  const { formatFromPkr, isHydrated } = useCurrency();
   const { addToCart } = useCart();
   const { has: hasInWishlist, toggle } = useWishlist();
   const isFavorited = hasInWishlist(product.slug);
@@ -36,39 +36,43 @@ export function ProductCard({ product }: { product: Product }) {
             onClick={() => toggle(product.slug)}
           >
             <HeartIcon
-              className="w-5 h-5 text-red-500"
-              style={{ fill: isFavorited ? "currentColor" : "none" }}
+              className={`w-5 h-5 text-red-500 ${isFavorited ? "fill-current" : ""}`}
             />
           </button>
         </div>
-      <div className="product-body">
-        <p className="product-meta">
-          <span>{product.category}</span>
-          <span>{product.sku}</span>
-        </p>
-        <Link href={`/products/${product.slug}`} className="product-title-link">
-          <h3>{product.name}</h3>
-        </Link>
-        <p className="product-description">{product.shortDescription}</p>
-        <p className="product-price">{formatFromPkr(product.basePricePkr)}</p>
-        <div className="product-actions">
-          <button
-            className="btn-primary"
-            onClick={() => addToCart(product, 1)}
-            type="button"
+        <div className="product-body">
+          <p className="product-meta">
+            <span>{product.category}</span>
+            <span>{product.sku}</span>
+          </p>
+          <Link
+            href={`/products/${product.slug}`}
+            className="product-title-link"
           >
-            Add to Cart
-          </button>
-          <button
-            className="btn-secondary"
-            onClick={() => setIsPreviewOpen(true)}
-            type="button"
-          >
-            See Preview
-          </button>
+            <h3>{product.name}</h3>
+          </Link>
+          <p className="product-description">{product.shortDescription}</p>
+          <p className="product-price">
+            {isHydrated ? formatFromPkr(product.basePricePkr) : "Rs -"}
+          </p>
+          <div className="product-actions">
+            <button
+              className="btn-primary"
+              onClick={() => addToCart(product, 1)}
+              type="button"
+            >
+              Add to Cart
+            </button>
+            <button
+              className="btn-secondary"
+              onClick={() => setIsPreviewOpen(true)}
+              type="button"
+            >
+              See Preview
+            </button>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
 
       <ProductPreviewModal
         isOpen={isPreviewOpen}
