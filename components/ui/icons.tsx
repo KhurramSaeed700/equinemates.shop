@@ -27,4 +27,3 @@ export const InstagramIcon = FiInstagram;
 export const WhatsAppIcon = FaWhatsapp;
 export const YouTubeIcon = FiYoutube;
 export const LinkedInIcon = FiLinkedin;
-

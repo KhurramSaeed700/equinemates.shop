@@ -65,7 +65,12 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
   const { itemCount } = useCart();
   const { productSlugs } = useWishlist();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -139,11 +144,11 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
           </Link>
           <Link aria-label="Wishlist" className="icon-link" href="/wishlist">
             <HeartIcon height={17} width={17} />
-            <span className="counter-dot">{productSlugs.length}</span>
+            {isHydrated && <span className="counter-dot">{productSlugs.length}</span>}
           </Link>
           <Link aria-label="Cart" className="icon-link" href="/cart">
             <CartIcon height={17} width={17} />
-            <span className="counter-dot">{itemCount}</span>
+            {isHydrated && <span className="counter-dot">{itemCount}</span>}
           </Link>
           <CurrencySwitcher />
           {clerkEnabled ? (
