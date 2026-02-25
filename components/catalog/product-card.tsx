@@ -7,17 +7,21 @@ import { useState } from "react";
 import { ProductPreviewModal } from "@/components/catalog/product-preview-modal";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
+import { useWishlist } from "@/components/providers/wishlist-provider";
+import { HeartIcon } from "@/components/ui/icons";
 import { Product } from "@/lib/types";
 
 export function ProductCard({ product }: { product: Product }) {
   const { formatFromPkr } = useCurrency();
   const { addToCart } = useCart();
+  const { has: hasInWishlist, toggle } = useWishlist();
+  const isFavorited = hasInWishlist(product.slug);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   return (
     <>
       <article className="product-card reveal">
-        <div className="product-image-wrap">
+        <div className="product-image-wrap relative">
           <Image
             alt={product.name}
             className="product-image"
@@ -25,6 +29,17 @@ export function ProductCard({ product }: { product: Product }) {
             src={product.images[0]}
             width={640}
           />
+          {/* favorite heart overlay */}
+          <button
+            type="button"
+            className="absolute top-2 right-2 p-1 bg-white/80 rounded-full hover:bg-white"
+            onClick={() => toggle(product.slug)}
+          >
+            <HeartIcon
+              className="w-5 h-5 text-red-500"
+              style={{ fill: isFavorited ? "currentColor" : "none" }}
+            />
+          </button>
         </div>
       <div className="product-body">
         <p className="product-meta">
