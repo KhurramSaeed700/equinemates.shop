@@ -87,20 +87,6 @@ export function SiteFooter() {
           </div>
         </section>
 
-        <section>
-          <h3>App Download (Future)</h3>
-          <p>Mobile app modules are planned for rider tracking and loyalty rewards.</p>
-          <div className="future-app">
-            <span>App Store</span>
-            <span>Google Play</span>
-          </div>
-          <h4>Trust Badges</h4>
-          <ul className="trust-list">
-            <li>Secure checkout architecture</li>
-            <li>COD + Bank Transfer + Card-ready flow</li>
-            <li>Invoice-supported fulfillment</li>
-          </ul>
-        </section>
       </div>
 
       <div className="footer-policy-strip">
