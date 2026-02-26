@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { IBM_Plex_Sans, Sora } from "next/font/google";
+import { Toaster } from "sonner";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -64,25 +65,16 @@ export default function RootLayout({
   return (
     <html lang="en-PK">
       <body className={`${sora.variable} ${plexSans.variable}`}>
-        {clerkEnabled ? (
-          <ClerkProvider>
-            <AppProviders>
-              <div className="site-shell">
-                <SiteHeader clerkEnabled />
-                <main className="site-main">{children}</main>
-                <SiteFooter />
-              </div>
-            </AppProviders>
-          </ClerkProvider>
-        ) : (
+        <ClerkProvider>
           <AppProviders>
             <div className="site-shell">
-              <SiteHeader clerkEnabled={false} />
+              <SiteHeader clerkEnabled={clerkEnabled} />
               <main className="site-main">{children}</main>
               <SiteFooter />
             </div>
           </AppProviders>
-        )}
+        </ClerkProvider>
+        <Toaster position="bottom-right" richColors theme="light" />
       </body>
     </html>
   );

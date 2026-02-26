@@ -51,7 +51,6 @@ export function ProfileOverview() {
       method: "PUT",
       headers: {
         "content-type": "application/json",
-        "x-session-token": token,
       },
       body: JSON.stringify(payload),
     });

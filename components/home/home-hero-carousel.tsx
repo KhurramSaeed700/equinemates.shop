@@ -4,9 +4,9 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const banners = [
-  "/home%20banners/banner-1.jpg",
-  "/home%20banners/banner-2.jpg",
-  "/home%20banners/banner-3.jpg",
+  "/home%20banners/banner-1.webp",
+  "/home%20banners/banner-2.webp",
+  "/home%20banners/banner-3.webp",
 ];
 
 export function HomeHeroCarousel() {
@@ -33,7 +33,9 @@ export function HomeHeroCarousel() {
         {banners.map((banner, index) => (
           <button
             aria-label={`Show banner ${index + 1}`}
-            className={index === active ? "hero-dot hero-dot-active" : "hero-dot"}
+            className={
+              index === active ? "hero-dot hero-dot-active" : "hero-dot"
+            }
             key={banner}
             onClick={() => setActive(index)}
             type="button"

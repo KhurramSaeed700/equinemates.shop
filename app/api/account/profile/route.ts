@@ -7,8 +7,8 @@ import {
 } from "@/lib/server/profile-service";
 import { Address } from "@/lib/types";
 
-export function GET(request: Request) {
-  const { userId } = auth();
+export async function GET(request: Request) {
+  const { userId } = await auth();
   if (!userId) {
     return NextResponse.json(
       { message: "Not authenticated." },
@@ -28,7 +28,7 @@ export function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const { userId } = auth();
+  const { userId } = await auth();
   if (!userId) {
     return NextResponse.json(
       { message: "Not authenticated." },

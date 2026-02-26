@@ -6,8 +6,8 @@ import {
   toggleWishlistItem,
 } from "@/lib/server/profile-service";
 
-export function GET(request: Request) {
-  const { userId } = auth();
+export async function GET(request: Request) {
+  const { userId } = await auth();
   if (!userId) {
     return NextResponse.json(
       { message: "Not authenticated." },
@@ -27,7 +27,7 @@ export function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { userId } = auth();
+  const { userId } = await auth();
   if (!userId) {
     return NextResponse.json(
       { message: "Not authenticated." },

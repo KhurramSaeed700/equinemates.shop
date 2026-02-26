@@ -27,6 +27,23 @@ export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="container footer-grid">
+        <section className="social-prominent">
+          <h3>Follow Equinemates</h3>
+          <div className="social-links prominent">
+            {socialLinks.map(({ href, label, Icon }) => (
+              <Link
+                aria-label={label}
+                href={href}
+                key={label}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <Icon height={24} width={24} />
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section>
           <h3>Customer Care</h3>
           <ul>
@@ -65,42 +82,19 @@ export function SiteFooter() {
 
         <section>
           <h3>Newsletter Signup</h3>
-          <p>Sign up for product launches, promotions, and stable supply updates.</p>
+          <p>
+            Sign up for product launches, promotions, and stable supply updates.
+          </p>
           <form className="newsletter-form">
             <input placeholder="Email address" type="email" />
             <button className="btn-primary" type="button">
               Join
             </button>
           </form>
-          <div className="social-links">
-            {socialLinks.map(({ href, label, Icon }) => (
-              <Link
-                aria-label={label}
-                href={href}
-                key={label}
-                rel="noreferrer"
-                target="_blank"
-              >
-                <Icon height={18} width={18} />
-              </Link>
-            ))}
-          </div>
+          {/* social icons moved to prominent location */}
         </section>
 
-        <section>
-          <h3>App Download (Future)</h3>
-          <p>Mobile app modules are planned for rider tracking and loyalty rewards.</p>
-          <div className="future-app">
-            <span>App Store</span>
-            <span>Google Play</span>
-          </div>
-          <h4>Trust Badges</h4>
-          <ul className="trust-list">
-            <li>Secure checkout architecture</li>
-            <li>COD + Bank Transfer + Card-ready flow</li>
-            <li>Invoice-supported fulfillment</li>
-          </ul>
-        </section>
+        {/* Removed App Download / future mobile app section per request */}
       </div>
 
       <div className="footer-policy-strip">

@@ -142,7 +142,7 @@ Use the Clerk dashboard or test user fixtures instead.
 ## Production Readiness Steps
 
 1. Replace in-memory store with PostgreSQL/MySQL (Prisma/Drizzle).
-2. Integrate NextAuth/Auth.js for secure sessions and OAuth.
+2. Integrate Clerk for secure sessions.
 3. Connect payment processors for live card and bank settlement.
 4. Add transactional email provider (catalog requests, order updates).
 5. Add object storage for upload persistence.

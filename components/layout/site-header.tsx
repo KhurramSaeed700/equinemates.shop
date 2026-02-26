@@ -66,6 +66,7 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
   const { productSlugs } = useWishlist();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -88,6 +89,10 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
       document.removeEventListener("keydown", handleEsc);
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
     };
   }, []);
 
@@ -182,12 +187,23 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
                   : "mega-item"
               }
               key={menu.label}
-              onMouseEnter={() => setOpenMenu(menu.label)}
-              onMouseLeave={() =>
-                setOpenMenu((current) =>
-                  current === menu.label ? null : current,
-                )
-              }
+              onMouseEnter={() => {
+                if (closeTimerRef.current) {
+                  clearTimeout(closeTimerRef.current);
+                  closeTimerRef.current = null;
+                }
+                setOpenMenu(menu.label);
+              }}
+              onMouseLeave={() => {
+                if (closeTimerRef.current) {
+                  clearTimeout(closeTimerRef.current);
+                }
+                closeTimerRef.current = window.setTimeout(() => {
+                  setOpenMenu((current) =>
+                    current === menu.label ? null : current,
+                  );
+                }, 220);
+              }}
             >
               <button
                 aria-expanded={openMenu === menu.label}
@@ -208,7 +224,25 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
                 <span>{menu.label}</span>
                 <ChevronDownIcon height={13} width={13} />
               </button>
-              <div className="mega-panel">
+              <div
+                className="mega-panel"
+                onMouseEnter={() => {
+                  if (closeTimerRef.current) {
+                    clearTimeout(closeTimerRef.current);
+                    closeTimerRef.current = null;
+                  }
+                  setOpenMenu(menu.label);
+                }}
+                onMouseLeave={() => {
+                  if (closeTimerRef.current) {
+                    clearTimeout(closeTimerRef.current);
+                  }
+                  closeTimerRef.current = window.setTimeout(
+                    () => setOpenMenu(null),
+                    220,
+                  );
+                }}
+              >
                 <Link href={menu.href} onClick={() => setOpenMenu(null)}>
                   Shop All {menu.label}
                 </Link>

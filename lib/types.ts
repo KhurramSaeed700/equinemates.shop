@@ -42,6 +42,8 @@ export interface Product {
   isNewArrival: boolean;
   relatedSlugs: string[];
   stock: number;
+  careInstructions?: string;
+  shippingInfo?: string;
 }
 
 export interface Promotion {
