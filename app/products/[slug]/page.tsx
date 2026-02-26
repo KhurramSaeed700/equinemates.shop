@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 
 import { ProductDetailActions } from "@/components/catalog/product-detail-actions";
 import { ProductGrid } from "@/components/catalog/product-grid";
+import { ProductGallery } from "@/components/catalog/product-gallery";
 import { SectionHeading } from "@/components/ui/section-heading";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
 
 interface ProductDetailPageProps {
@@ -43,53 +46,85 @@ export default async function ProductDetailPage({
 
   return (
     <>
+      <Breadcrumb
+        items={[
+          { href: "/products", label: "Products" },
+          { label: product.name },
+        ]}
+      />
+
       <SectionHeading
         eyebrow={product.category}
         title={product.name}
         description={product.longDescription}
       />
 
-      <div className="grid-two">
-        <section className="panel">
-          <h3>Product Gallery</h3>
-          <Image
-            alt={product.name}
-            className="product-image"
-            height={420}
-            src={product.images[0]}
-            style={{ height: "340px", borderRadius: "12px" }}
-            width={640}
-          />
-          <div className="grid-two section-spacing">
-            {product.images.slice(1).map((image) => (
-              <Image
-                alt={`${product.name} gallery`}
-                className="product-image"
-                height={420}
-                key={image}
-                src={image}
-                style={{ borderRadius: "10px", height: "150px" }}
-                width={640}
-              />
-            ))}
-          </div>
-        </section>
+      {/* rating & quick review link */}
+      <div className="product-top-meta">
+        <div className="rating-row">
+          <span className="stars">
+            {Array.from({ length: 5 })
+              .map((_, i) => (i < Math.round(product.rating) ? "★" : "☆"))
+              .join("")}
+          </span>
+          <a href="#reviews" className="text-link tiny">
+            {product.reviewCount} reviews
+          </a>
+        </div>
+      </div>
+
+      <div className="grid-two product-detail-grid">
+        <div className="left-column">
+          <section className="panel product-gallery">
+            <h3 className="visually-hidden">Product images</h3>
+            <ProductGallery images={product.images} name={product.name} />
+          </section>
+          {product.reviews.length > 0 && (
+            <section className="panel reviews-panel left-reviews">
+              <h4>Customer Reviews</h4>
+              <div className="review-highlight">
+                <strong>Most helpful review</strong>
+                <div>
+                  <p className="tiny">
+                    {product.reviews[0].author} — Rating:{" "}
+                    {product.reviews[0].rating}/5
+                  </p>
+                  <p>{product.reviews[0].comment}</p>
+                </div>
+              </div>
+              <div className="review-list">
+                {product.reviews.map((r) => (
+                  <article className="review-item" key={r.id}>
+                    <strong>{r.headline}</strong>
+                    <p className="tiny">
+                      {r.author} | {r.date} | Rating: {r.rating}/5
+                    </p>
+                    <p>{r.comment}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
         <ProductDetailActions product={product} />
       </div>
 
-      <section className="section-spacing panel">
-        <h3>Customer Reviews</h3>
-        <div className="review-list">
-          {product.reviews.map((review) => (
-            <article className="review-item" key={review.id}>
-              <strong>{review.headline}</strong>
-              <p className="tiny">
-                {review.author} | {review.date} | Rating: {review.rating}/5
-              </p>
-              <p>{review.comment}</p>
-            </article>
-          ))}
-        </div>
+      <section className="section-spacing">
+        <CollapsibleSection title="Description">
+          <p>{product.longDescription}</p>
+        </CollapsibleSection>
+        <CollapsibleSection title="Care Instructions">
+          <p>
+            {product.careInstructions ??
+              "Care instructions will be provided soon."}
+          </p>
+        </CollapsibleSection>
+        <CollapsibleSection title="Shipping & Returns">
+          <p>
+            {product.shippingInfo ??
+              "Standard shipping within Pakistan. Returns accepted within 15 days."}
+          </p>
+        </CollapsibleSection>
       </section>
 
       <section className="section-spacing">

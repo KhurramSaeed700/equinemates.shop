@@ -26,13 +26,13 @@ export function useToast() {
     dismiss: (toastId?: string | number) => {
       toast.dismiss(toastId);
     },
-    promise: <T,>(
+    promise: <T>(
       promise: Promise<T>,
       messages: {
         loading: string;
         success: string;
         error: string;
-      }
+      },
     ) => {
       return toast.promise(promise, messages);
     },

@@ -12,7 +12,11 @@ interface ProductPreviewModalProps {
   onClose: () => void;
 }
 
-export function ProductPreviewModal({ product, isOpen, onClose }: ProductPreviewModalProps) {
+export function ProductPreviewModal({
+  product,
+  isOpen,
+  onClose,
+}: ProductPreviewModalProps) {
   const { formatFromPkr } = useCurrency();
 
   useEffect(() => {
@@ -33,7 +37,10 @@ export function ProductPreviewModal({ product, isOpen, onClose }: ProductPreview
   return (
     <div className="preview-modal-overlay" onClick={onClose}>
       <div className="preview-modal-backdrop" />
-      <div className="preview-modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="preview-modal-content"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           aria-label="Close preview"
           className="preview-modal-close"
@@ -56,9 +63,12 @@ export function ProductPreviewModal({ product, isOpen, onClose }: ProductPreview
 
           <div className="preview-modal-info">
             <h2 className="preview-modal-title">{product.name}</h2>
-            <p className="preview-modal-price">{formatFromPkr(product.basePricePkr)}</p>
+            <p className="preview-modal-price">
+              {formatFromPkr(product.basePricePkr)}
+            </p>
             <p className="preview-modal-category">
-              <span className="preview-modal-label">Category:</span> {product.category}
+              <span className="preview-modal-label">Category:</span>{" "}
+              {product.category}
             </p>
             <p className="preview-modal-sku">
               <span className="preview-modal-label">SKU:</span> {product.sku}

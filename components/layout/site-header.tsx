@@ -65,12 +65,8 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
   const { itemCount } = useCart();
   const { productSlugs } = useWishlist();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
+  const closeTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -93,6 +89,10 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
       document.removeEventListener("keydown", handleEsc);
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
     };
   }, []);
 
@@ -144,11 +144,11 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
           </Link>
           <Link aria-label="Wishlist" className="icon-link" href="/wishlist">
             <HeartIcon height={17} width={17} />
-            {isHydrated && <span className="counter-dot">{productSlugs.length}</span>}
+            <span className="counter-dot">{productSlugs.length}</span>
           </Link>
           <Link aria-label="Cart" className="icon-link" href="/cart">
             <CartIcon height={17} width={17} />
-            {isHydrated && <span className="counter-dot">{itemCount}</span>}
+            <span className="counter-dot">{itemCount}</span>
           </Link>
           <CurrencySwitcher />
           {clerkEnabled ? (
@@ -187,12 +187,23 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
                   : "mega-item"
               }
               key={menu.label}
-              onMouseEnter={() => setOpenMenu(menu.label)}
-              onMouseLeave={() =>
-                setOpenMenu((current) =>
-                  current === menu.label ? null : current,
-                )
-              }
+              onMouseEnter={() => {
+                if (closeTimerRef.current) {
+                  clearTimeout(closeTimerRef.current);
+                  closeTimerRef.current = null;
+                }
+                setOpenMenu(menu.label);
+              }}
+              onMouseLeave={() => {
+                if (closeTimerRef.current) {
+                  clearTimeout(closeTimerRef.current);
+                }
+                closeTimerRef.current = window.setTimeout(() => {
+                  setOpenMenu((current) =>
+                    current === menu.label ? null : current,
+                  );
+                }, 220);
+              }}
             >
               <button
                 aria-expanded={openMenu === menu.label}
@@ -213,7 +224,25 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
                 <span>{menu.label}</span>
                 <ChevronDownIcon height={13} width={13} />
               </button>
-              <div className="mega-panel">
+              <div
+                className="mega-panel"
+                onMouseEnter={() => {
+                  if (closeTimerRef.current) {
+                    clearTimeout(closeTimerRef.current);
+                    closeTimerRef.current = null;
+                  }
+                  setOpenMenu(menu.label);
+                }}
+                onMouseLeave={() => {
+                  if (closeTimerRef.current) {
+                    clearTimeout(closeTimerRef.current);
+                  }
+                  closeTimerRef.current = window.setTimeout(
+                    () => setOpenMenu(null),
+                    220,
+                  );
+                }}
+              >
                 <Link href={menu.href} onClick={() => setOpenMenu(null)}>
                   Shop All {menu.label}
                 </Link>

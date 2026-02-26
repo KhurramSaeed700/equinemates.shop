@@ -5,7 +5,6 @@ import {
   ReactNode,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -17,7 +16,6 @@ const CURRENCY_STORAGE_KEY = "eqm_currency";
 
 interface CurrencyContextValue {
   currency: CurrencyCode;
-  isHydrated: boolean;
   supportedCurrencies: readonly CurrencyCode[];
   setCurrency: (currency: CurrencyCode) => void;
   formatFromPkr: (amountPkr: number) => string;
@@ -42,12 +40,6 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     return detectCurrencyFromLocale(window.navigator.language);
   });
 
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
   const setCurrency = useCallback((nextCurrency: CurrencyCode) => {
     setCurrencyState(nextCurrency);
     window.localStorage.setItem(CURRENCY_STORAGE_KEY, nextCurrency);
@@ -56,12 +48,11 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   const value = useMemo<CurrencyContextValue>(
     () => ({
       currency,
-      isHydrated,
       supportedCurrencies: SUPPORTED_CURRENCIES,
       setCurrency,
       formatFromPkr: (amountPkr: number) => formatMoneyFromPkr(amountPkr, currency),
     }),
-    [currency, setCurrency, isHydrated],
+    [currency, setCurrency],
   );
 
   return (

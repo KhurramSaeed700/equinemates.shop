@@ -78,7 +78,7 @@ export default function Home() {
           <Image
             alt="Horse collection"
             height={700}
-            src="/banners/promo-yard.svg"
+            src="/collection banner/horse-banner.webp"
             width={1200}
           />
           <div>
@@ -93,7 +93,7 @@ export default function Home() {
           <Image
             alt="Rider collection"
             height={700}
-            src="/banners/promo-rider.svg"
+            src="/collection banner/rider-banner.webp"
             width={1200}
           />
           <div>

@@ -3,8 +3,8 @@ import { auth } from "@clerk/nextjs/server";
 
 import { getProfileById } from "@/lib/server/profile-service";
 
-export function GET(request: Request) {
-  const { userId } = auth();
+export async function GET(request: Request) {
+  const { userId } = await auth();
   if (!userId) {
     return NextResponse.json(
       { message: "Not authenticated." },

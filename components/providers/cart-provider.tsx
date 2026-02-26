@@ -7,8 +7,10 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
+import { useUser } from "@clerk/nextjs";
 
 import { useToast } from "@/lib/use-toast";
 import { CartItem, Product } from "@/lib/types";
@@ -29,64 +31,143 @@ const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const toast = useToast();
-  const [items, setItems] = useState<CartItem[]>(() => {
-    if (typeof window === "undefined") {
-      return [];
-    }
+  const { user, isSignedIn, isLoaded } = useUser();
+  const userId = user?.id;
 
-    const stored = window.localStorage.getItem(CART_STORAGE_KEY);
-    if (!stored) {
-      return [];
-    }
+  // always start empty; we'll hydrate once we know the auth state
+  const [items, setItems] = useState<CartItem[]>([]);
+  const lastActionRef = useRef<{
+    type: "add" | "update" | "remove";
+    productName: string;
+    quantity?: number;
+  } | null>(null);
 
-    try {
-      const parsed = JSON.parse(stored) as CartItem[];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      window.localStorage.removeItem(CART_STORAGE_KEY);
-      return [];
+  // load items from the appropriate per-user key when the auth status changes
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    if (isSignedIn && userId) {
+      const key = `${CART_STORAGE_KEY}_${userId}`;
+      let itemsToLoad: CartItem[] = [];
+
+      // prefer a previously saved user-specific cart
+      const storedUser = window.localStorage.getItem(key);
+      if (storedUser) {
+        try {
+          const parsed = JSON.parse(storedUser) as CartItem[];
+          itemsToLoad = Array.isArray(parsed) ? parsed : [];
+        } catch {
+          window.localStorage.removeItem(key);
+          itemsToLoad = [];
+        }
+      } else {
+        // if nothing for this user yet, see if there is an anonymous cart and migrate it
+        const anon = window.localStorage.getItem(CART_STORAGE_KEY);
+        if (anon) {
+          try {
+            const parsed = JSON.parse(anon) as CartItem[];
+            itemsToLoad = Array.isArray(parsed) ? parsed : [];
+          } catch {
+            // ignore malformed anonymous store
+          }
+          window.localStorage.removeItem(CART_STORAGE_KEY);
+        }
+      }
+      setItems(itemsToLoad);
+    } else {
+      // clear when not signed in
+      setItems([]);
     }
-  });
+  }, [isLoaded, isSignedIn, userId]);
+
+  // persist items for the signed‑in user only
+  useEffect(() => {
+    if (isSignedIn && userId) {
+      const key = `${CART_STORAGE_KEY}_${userId}`;
+      window.localStorage.setItem(key, JSON.stringify(items));
+    }
+  }, [items, isSignedIn, userId]);
 
   useEffect(() => {
     window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
-  const addToCart = useCallback((product: Product, quantity = 1) => {
-    setItems((prevItems) => {
-      const existing = prevItems.find((item) => item.productSlug === product.slug);
-      if (existing) {
-        toast.success(`${product.name} quantity updated`, `Now ${existing.quantity + quantity} in cart`);
-        return prevItems.map((item) =>
-          item.productSlug === product.slug
-            ? { ...item, quantity: item.quantity + quantity }
-            : item,
+  // Toast effect: fire toast only when lastActionRef is set
+  useEffect(() => {
+    if (lastActionRef.current) {
+      const action = lastActionRef.current;
+      if (action.type === "add") {
+        toast.success(
+          `${action.productName} added to cart`,
+          `Quantity: ${action.quantity}`,
         );
+      } else if (action.type === "update") {
+        toast.success(
+          `${action.productName} quantity updated`,
+          `Now ${action.quantity} in cart`,
+        );
+      } else if (action.type === "remove") {
+        toast.info(`${action.productName} removed from cart`);
       }
-      toast.success(`${product.name} added to cart`, `Quantity: ${quantity}`);
-      return [
-        ...prevItems,
-        {
-          sku: product.sku,
-          productSlug: product.slug,
-          name: product.name,
-          unitPricePkr: product.basePricePkr,
+      lastActionRef.current = null;
+    }
+  }, [items, toast]);
+
+  const addToCart = useCallback(
+    (product: Product, quantity = 1) => {
+      if (!isSignedIn) {
+        toast.info("Please sign in to add items to your cart.");
+        return;
+      }
+
+      setItems((prevItems) => {
+        const existing = prevItems.find(
+          (item) => item.productSlug === product.slug,
+        );
+        if (existing) {
+          lastActionRef.current = {
+            type: "update",
+            productName: product.name,
+            quantity: existing.quantity + quantity,
+          };
+          return prevItems.map((item) =>
+            item.productSlug === product.slug
+              ? { ...item, quantity: item.quantity + quantity }
+              : item,
+          );
+        }
+        lastActionRef.current = {
+          type: "add",
+          productName: product.name,
           quantity,
-        },
-      ];
-    });
-  }, [toast]);
+        };
+        return [
+          ...prevItems,
+          {
+            sku: product.sku,
+            productSlug: product.slug,
+            name: product.name,
+            unitPricePkr: product.basePricePkr,
+            quantity,
+          },
+        ];
+      });
+    },
+    [isSignedIn, toast],
+  );
 
   const removeFromCart = useCallback((productSlug: string) => {
     setItems((prevItems) => {
       const item = prevItems.find((i) => i.productSlug === productSlug);
       if (item) {
-        toast.info(`${item.name} removed from cart`);
+        lastActionRef.current = {
+          type: "remove",
+          productName: item.name,
+        };
       }
       return prevItems.filter((item) => item.productSlug !== productSlug);
     });
-  }, [toast]);
-
+  }, []);
   const setQuantity = useCallback((productSlug: string, quantity: number) => {
     setItems((prevItems) =>
       prevItems
