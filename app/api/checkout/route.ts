@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 
+import { getProductBySlug } from "@/lib/catalog";
 import { createCheckout } from "@/lib/server/checkout-service";
-import { CartItem, CurrencyCode } from "@/lib/types";
+import { CartItem, CurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/types";
+
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
@@ -20,12 +23,40 @@ export async function POST(request: Request) {
       );
     }
 
-    const order = createCheckout({
-      items: body.items,
+    const normalizedItems: CartItem[] = [];
+    for (const item of body.items) {
+      const product = getProductBySlug(item.productSlug);
+      const quantity = Math.floor(item.quantity);
+      if (!product || !Number.isFinite(quantity) || quantity <= 0) {
+        continue;
+      }
+
+      normalizedItems.push({
+        sku: product.sku,
+        productSlug: product.slug,
+        name: product.name,
+        unitPricePkr: product.basePricePkr,
+        quantity,
+      });
+    }
+
+    if (!normalizedItems.length) {
+      return NextResponse.json(
+        { message: "No valid cart items were provided." },
+        { status: 400 },
+      );
+    }
+
+    const selectedCurrency = SUPPORTED_CURRENCIES.includes(body.currency as CurrencyCode)
+      ? (body.currency as CurrencyCode)
+      : "PKR";
+
+    const order = await createCheckout({
+      items: normalizedItems,
       shippingCity: body.shippingCity,
       shippingAddress: body.shippingAddress,
       paymentMethod: body.paymentMethod,
-      currency: body.currency ?? "PKR",
+      currency: selectedCurrency,
     });
 
     return NextResponse.json({
