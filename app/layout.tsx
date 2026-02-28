@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { SitePagination } from "@/components/layout/site-pagination";
 import { AppProviders } from "@/components/providers/app-providers";
 import { isClerkEnabledFromKey } from "@/lib/clerk";
 
@@ -69,7 +70,10 @@ export default function RootLayout({
           <AppProviders>
             <div className="site-shell">
               <SiteHeader clerkEnabled={clerkEnabled} />
-              <main className="site-main">{children}</main>
+              <main className="site-main">
+                {children}
+                <SitePagination />
+              </main>
               <SiteFooter />
             </div>
           </AppProviders>

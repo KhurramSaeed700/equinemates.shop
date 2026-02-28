@@ -50,8 +50,16 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
 
   const refreshRates = useCallback(async () => {
     try {
-      const response = await fetch("/api/currency/rates", { cache: "no-store" });
+      let response = await fetch("/api/currency/rates", { cache: "no-store" });
+      if (response.status === 404) {
+        response = await fetch("/api/currency/rates/", { cache: "no-store" });
+      }
+
       if (!response.ok) {
+        if (response.status === 404) {
+          setRatesStale(true);
+          return;
+        }
         throw new Error(`Rate fetch failed (${response.status})`);
       }
 
@@ -69,6 +77,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       setRatesUpdatedAt(payload.updatedAt ?? null);
       setRatesStale(Boolean(payload.stale));
     } catch (error) {
+      // Keep storefront usable if the rate endpoint is unavailable in this runtime.
       console.error("Currency rate refresh failed:", error);
       setRatesStale(true);
     }

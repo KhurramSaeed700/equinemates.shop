@@ -4,6 +4,7 @@ import { CatalogFilter } from "@/components/catalog/catalog-filter";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { filterProducts } from "@/lib/catalog";
+import { clampPage, parsePageParam, parsePerPageParam } from "@/lib/pagination";
 import { ProductCategory } from "@/lib/types";
 
 export const metadata: Metadata = {
@@ -19,6 +20,8 @@ interface SearchPageProps {
     min?: string;
     max?: string;
     tag?: string;
+    page?: string;
+    perPage?: string;
   }>;
 }
 
@@ -31,6 +34,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     maxPricePkr: params.max ? Number(params.max) : undefined,
     tag: params.tag,
   });
+  const perPage = parsePerPageParam(params.perPage);
+  const totalPages = Math.max(1, Math.ceil(products.length / perPage));
+  const currentPage = clampPage(parsePageParam(params.page), totalPages);
+  const start = (currentPage - 1) * perPage;
+  const pagedProducts = products.slice(start, start + perPage);
 
   return (
     <>
@@ -41,7 +49,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       />
       <CatalogFilter />
       <section className="section-spacing">
-        <ProductGrid products={products} emptyLabel="No products matched this search." />
+        <ProductGrid products={pagedProducts} emptyLabel="No products matched this search." />
       </section>
     </>
   );

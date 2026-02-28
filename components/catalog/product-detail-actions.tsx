@@ -11,10 +11,8 @@ import { FrequentlyBoughtTogether } from "./frequently-bought-together";
 
 export function ProductDetailActions({
   product,
-  reviews,
 }: {
   product: Product;
-  reviews?: Product[`reviews`];
 }) {
   const { addToCart } = useCart();
   const { formatFromPkr } = useCurrency();
@@ -35,51 +33,54 @@ export function ProductDetailActions({
     return () => window.removeEventListener("scroll", handle);
   }, []);
 
+  const decreaseQuantity = () => {
+    setQuantity((current) => Math.max(1, current - 1));
+  };
+
+  const increaseQuantity = () => {
+    setQuantity((current) => current + 1);
+  };
+
   return (
     <>
       <section ref={actionsRef} className="panel product-detail-actions">
         <p className="tiny">SKU: {product.sku}</p>
-        <p className="product-price highlight">
-          {formatFromPkr(product.basePricePkr)}
-        </p>
-        <div className="trust-indicators tiny">
-          <span>🔒 Secure checkout</span> • <span>🚚 Fast shipping</span> •{" "}
-          <span>🔄 Easy returns</span>
-        </div>
+        <p className="product-price highlight">{formatFromPkr(product.basePricePkr)}</p>
         <p className="tiny">
-          Rating {product.rating}/5 ({product.reviewCount} reviews)
-        </p>
-        <p className="tiny microcopy">
-          Ships within 24 hours • Free shipping over €50
+          Rating {product.rating.toFixed(1)}/5 ({product.reviewCount} reviews)
         </p>
         <p>{product.shortDescription}</p>
 
-        <div className="variant-list">
-          {product.variants.map((variant) => (
-            <div key={variant.id}>
-              <p className="tiny strong">{variant.label}</p>
-              <div className="chip-row">
-                {variant.options.map((option) => (
-                  <span className="chip" key={option}>
-                    {option}
-                  </span>
-                ))}
+        {product.variants.length > 0 ? (
+          <div className="variant-list">
+            {product.variants.map((variant) => (
+              <div key={variant.id}>
+                <p className="tiny strong">{variant.label}</p>
+                <div className="chip-row">
+                  {variant.options.map((option) => (
+                    <span className="chip" key={option}>
+                      {option}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : null}
 
-        {/* primary quantity and action buttons */}
-
-        <label>
-          Quantity
-          <input
-            min={1}
-            onChange={(event) => setQuantity(Number(event.target.value))}
-            type="number"
-            value={quantity}
-          />
+        <label className="quantity-label">
+          <span>Quantity</span>
+          <div className="quantity-stepper">
+            <button className="qty-btn" onClick={decreaseQuantity} type="button">
+              -
+            </button>
+            <span className="qty-value">{quantity}</span>
+            <button className="qty-btn" onClick={increaseQuantity} type="button">
+              +
+            </button>
+          </div>
         </label>
+
         <div className="action-row">
           <button
             className="btn-primary strong-cta"
@@ -103,43 +104,14 @@ export function ProductDetailActions({
           </button>
         </div>
 
-        {/* frequently bought together moved below primary CTA to reduce clutter */}
         <FrequentlyBoughtTogether product={product} />
 
-        {/* reviews live in fixed-height box next to gallery */}
-        {reviews && reviews.length > 0 && (
-          <section id="reviews" className="reviews-panel">
-            <h4>Customer Reviews</h4>
-            <div className="review-highlight">
-              <strong>Most helpful review</strong>
-              <div>
-                <p className="tiny">
-                  {reviews[0].author} — Rating: {reviews[0].rating}/5
-                </p>
-                <p>{reviews[0].comment}</p>
-              </div>
-            </div>
-            <div className="review-list">
-              {reviews.map((r) => (
-                <article className="review-item" key={r.id}>
-                  <strong>{r.headline}</strong>
-                  <p className="tiny">
-                    {r.author} | {r.date} | Rating: {r.rating}/5
-                  </p>
-                  <p>{r.comment}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
       </section>
 
-      {sticky && (
+      {sticky ? (
         <div className="sticky-addbar">
           <div className="action-row">
-            <span className="product-price highlight">
-              {formatFromPkr(product.basePricePkr)}
-            </span>
+            <span className="product-price highlight">{formatFromPkr(product.basePricePkr)}</span>
             <button
               className="btn-primary strong-cta"
               onClick={() => addToCart(product, quantity)}
@@ -150,7 +122,7 @@ export function ProductDetailActions({
             </button>
           </div>
         </div>
-      )}
+      ) : null}
     </>
   );
 }

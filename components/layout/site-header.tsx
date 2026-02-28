@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
@@ -10,6 +9,7 @@ import { CurrencySwitcher } from "@/components/layout/currency-switcher";
 import { SiteSearch } from "@/components/layout/site-search";
 import { useCart } from "@/components/providers/cart-provider";
 import { useWishlist } from "@/components/providers/wishlist-provider";
+import { getNavbarMenus } from "@/lib/catalog";
 import {
   CartIcon,
   ChevronDownIcon,
@@ -17,53 +17,10 @@ import {
   UserIcon,
 } from "@/components/ui/icons";
 
-const shopMenus = [
-  {
-    label: "Horse",
-    href: "/products?category=Horse%20Products",
-    items: [
-      { label: "Grooming Essentials", href: "/products/stablecore-groom-kit" },
-      { label: "Stable Care", href: "/products/allweather-saddle-cover" },
-      { label: "Feeding Solutions", href: "/products/smartfeed-pro-dispenser" },
-    ],
-  },
-  {
-    label: "Rider",
-    href: "/products?category=Rider%20Products",
-    items: [
-      { label: "Safety Helmets", href: "/products/aerofit-riding-helmet" },
-      { label: "Gloves & Apparel", href: "/products/stridegrip-riding-gloves" },
-      { label: "Travel Accessories", href: "/products/arena-commute-backpack" },
-    ],
-  },
-  {
-    label: "Pet",
-    href: "/products?category=Pet%20Products",
-    items: [
-      { label: "Daily Care", href: "/products/pawshield-care-bundle" },
-      { label: "Beds & Comfort", href: "/products/comfortnest-orthopedic-bed" },
-      {
-        label: "Travel Essentials",
-        href: "/products/trailbuddy-hydration-flask",
-      },
-    ],
-  },
-];
-
-const quickLinks = [
-  { label: "Home", href: "/" },
-  { label: "Collections", href: "/products" },
-  { label: "Wholesale", href: "/wholesale" },
-  { label: "Catalog Request", href: "/catalog-request" },
-  { label: "Sale", href: "/search?tag=best-seller" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-];
-
 export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
-  const pathname = usePathname();
   const { itemCount } = useCart();
   const { productSlugs } = useWishlist();
+  const shopMenus = getNavbarMenus();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
@@ -163,22 +120,6 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
 
       <nav aria-label="Main navigation" className="site-nav">
         <div className="container nav-inner" ref={navRef}>
-          {quickLinks.slice(0, 1).map((item) => (
-            <Link
-              className={
-                pathname === item.href ||
-                (item.href !== "/" && pathname.startsWith(item.href))
-                  ? "nav-link nav-link-active"
-                  : "nav-link"
-              }
-              href={item.href}
-              key={item.label}
-              onClick={() => setOpenMenu(null)}
-            >
-              {item.label}
-            </Link>
-          ))}
-
           {shopMenus.map((menu) => (
             <div
               className={
@@ -243,36 +184,41 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
                   );
                 }}
               >
-                <Link href={menu.href} onClick={() => setOpenMenu(null)}>
+                <Link
+                  className="mega-shop-all"
+                  href={menu.href}
+                  onClick={() => setOpenMenu(null)}
+                >
                   Shop All {menu.label}
                 </Link>
-                {menu.items.map((item) => (
-                  <Link
-                    href={item.href}
-                    key={item.label}
-                    onClick={() => setOpenMenu(null)}
-                  >
-                    {item.label}
-                  </Link>
+                {menu.columns.map((column) => (
+                  <div key={column.heading} className="mega-column">
+                    {column.href ? (
+                      <Link
+                        className="mega-heading mega-heading-link"
+                        href={column.href}
+                        onClick={() => setOpenMenu(null)}
+                      >
+                        {column.heading}
+                      </Link>
+                    ) : (
+                      <strong className="mega-heading">{column.heading}</strong>
+                    )}
+                    <div className="mega-links">
+                      {column.items.map((item) => (
+                        <Link
+                          href={item.href}
+                          key={`${column.heading}-${item.label}`}
+                          onClick={() => setOpenMenu(null)}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
-          ))}
-
-          {quickLinks.slice(1).map((item) => (
-            <Link
-              className={
-                pathname === item.href ||
-                (item.href !== "/" && pathname.startsWith(item.href))
-                  ? "nav-link nav-link-active"
-                  : "nav-link"
-              }
-              href={item.href}
-              key={item.label}
-              onClick={() => setOpenMenu(null)}
-            >
-              {item.label}
-            </Link>
           ))}
         </div>
       </nav>
