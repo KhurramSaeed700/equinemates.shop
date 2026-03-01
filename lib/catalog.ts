@@ -620,6 +620,7 @@ export function getNavbarMenus(): NavMenu[] {
           const leafPaths = collectLeafPaths(grandChild, [top.name, child.name, grandChild.name]);
           columns.push({
             heading: grandChild.name,
+            href: buildCategoryPathHref([top.name, child.name, grandChild.name]),
             items: leafPaths.map((path) => ({
               label: path[path.length - 1],
               href: buildCategoryPathHref(path),

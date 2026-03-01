@@ -48,6 +48,9 @@ export function SiteFooter() {
           <h3>Customer Care</h3>
           <ul>
             <li>
+              <Link href="/contact">Help</Link>
+            </li>
+            <li>
               <Link href="/contact">Contact Us</Link>
             </li>
             <li>

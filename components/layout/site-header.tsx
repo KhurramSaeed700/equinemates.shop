@@ -18,33 +18,28 @@ import {
 } from "@/components/ui/icons";
 
 export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
+  const TOUCH_NAV_QUERY = "(max-width: 1024px)";
   const { itemCount } = useCart();
   const { productSlugs } = useWishlist();
   const shopMenus = getNavbarMenus();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [isCondensed, setIsCondensed] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
+  const lastScrollYRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const condensedRef = useRef(false);
+  const toggleAnchorYRef = useRef(0);
 
   useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (!navRef.current) {
-        return;
-      }
-      if (!navRef.current.contains(event.target as Node)) {
-        setOpenMenu(null);
-      }
-    };
-
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpenMenu(null);
       }
     };
 
-    document.addEventListener("mousedown", handleOutsideClick);
     document.addEventListener("keydown", handleEsc);
     return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
       document.removeEventListener("keydown", handleEsc);
       if (closeTimerRef.current) {
         clearTimeout(closeTimerRef.current);
@@ -53,8 +48,99 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!openMenu) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!navRef.current) {
+        return;
+      }
+      if (!navRef.current.contains(event.target as Node)) {
+        setOpenMenu(null);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [openMenu]);
+
+  useEffect(() => {
+    const updateOnScroll = () => {
+      const currentScrollY = window.scrollY;
+      const delta = currentScrollY - lastScrollYRef.current;
+
+      // Always show full header near the top.
+      if (currentScrollY <= 16) {
+        if (condensedRef.current) {
+          condensedRef.current = false;
+          setIsCondensed(false);
+          toggleAnchorYRef.current = currentScrollY;
+        }
+        lastScrollYRef.current = currentScrollY;
+        return;
+      }
+
+      // Ignore tiny scroll noise that causes flicker.
+      if (Math.abs(delta) < 8) {
+        lastScrollYRef.current = currentScrollY;
+        return;
+      }
+
+      if (!condensedRef.current) {
+        // Hide only after meaningful downward scroll beyond trigger zone.
+        const crossedHideThreshold =
+          delta > 0 &&
+          currentScrollY > 140 &&
+          currentScrollY - toggleAnchorYRef.current > 56;
+        if (crossedHideThreshold) {
+          condensedRef.current = true;
+          setIsCondensed(true);
+          setOpenMenu(null);
+          toggleAnchorYRef.current = currentScrollY;
+        }
+      } else {
+        // Show only after meaningful upward scroll to avoid rapid toggles.
+        const crossedShowThreshold =
+          delta < 0 && toggleAnchorYRef.current - currentScrollY > 34;
+        if (crossedShowThreshold) {
+          condensedRef.current = false;
+          setIsCondensed(false);
+          toggleAnchorYRef.current = currentScrollY;
+        }
+      }
+
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    const handleScroll = () => {
+      if (rafRef.current !== null) {
+        return;
+      }
+      rafRef.current = window.requestAnimationFrame(() => {
+        rafRef.current = null;
+        updateOnScroll();
+      });
+    };
+
+    lastScrollYRef.current = window.scrollY;
+    toggleAnchorYRef.current = window.scrollY;
+    condensedRef.current = false;
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafRef.current !== null) {
+        window.cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <header className="site-header">
+    <header className={isCondensed ? "site-header site-header-condensed" : "site-header"}>
       <div className="announcement-bar">
         <p>
           Free Pakistan shipping on qualifying orders. Wholesale support
@@ -81,9 +167,6 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
         </div>
 
         <div className="header-utility-right">
-          <Link className="utility-link" href="/contact">
-            Help
-          </Link>
           {clerkEnabled ? (
             <SignedOut>
               <SignInButton>
@@ -118,7 +201,10 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
         </div>
       </div>
 
-      <nav aria-label="Main navigation" className="site-nav">
+      <nav
+        aria-label="Main navigation"
+        className="site-nav"
+      >
         <div className="container nav-inner" ref={navRef}>
           {shopMenus.map((menu) => (
             <div
@@ -129,6 +215,9 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
               }
               key={menu.label}
               onMouseEnter={() => {
+                if (window.matchMedia(TOUCH_NAV_QUERY).matches) {
+                  return;
+                }
                 if (closeTimerRef.current) {
                   clearTimeout(closeTimerRef.current);
                   closeTimerRef.current = null;
@@ -136,6 +225,9 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
                 setOpenMenu(menu.label);
               }}
               onMouseLeave={() => {
+                if (window.matchMedia(TOUCH_NAV_QUERY).matches) {
+                  return;
+                }
                 if (closeTimerRef.current) {
                   clearTimeout(closeTimerRef.current);
                 }
@@ -146,28 +238,54 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
                 }, 220);
               }}
             >
-              <button
-                aria-expanded={openMenu === menu.label}
-                aria-haspopup="true"
-                className={
-                  openMenu === menu.label
-                    ? "nav-link nav-link-active mega-trigger"
-                    : "nav-link mega-trigger"
-                }
-                onFocus={() => setOpenMenu(menu.label)}
-                onClick={() =>
-                  setOpenMenu((current) =>
-                    current === menu.label ? null : menu.label,
-                  )
-                }
-                type="button"
-              >
-                <span>{menu.label}</span>
-                <ChevronDownIcon height={13} width={13} />
-              </button>
+              <div className="mega-trigger-row">
+                <Link
+                  className={
+                    openMenu === menu.label
+                      ? "nav-link nav-link-active mega-trigger mega-trigger-link"
+                      : "nav-link mega-trigger mega-trigger-link"
+                  }
+                  href={menu.href}
+                  onFocus={() => setOpenMenu(menu.label)}
+                  onClick={(event) => {
+                    if (window.matchMedia(TOUCH_NAV_QUERY).matches) {
+                      event.preventDefault();
+                      setOpenMenu((current) =>
+                        current === menu.label ? null : menu.label,
+                      );
+                      return;
+                    }
+                    setOpenMenu(null);
+                  }}
+                >
+                  <span>{menu.label}</span>
+                </Link>
+                <button
+                  aria-expanded={openMenu === menu.label}
+                  aria-haspopup="true"
+                  aria-label={`Toggle ${menu.label} menu`}
+                  className={
+                    openMenu === menu.label
+                      ? "nav-link nav-link-active mega-trigger mega-trigger-toggle"
+                      : "nav-link mega-trigger mega-trigger-toggle"
+                  }
+                  onFocus={() => setOpenMenu(menu.label)}
+                  onClick={() =>
+                    setOpenMenu((current) =>
+                      current === menu.label ? null : menu.label,
+                    )
+                  }
+                  type="button"
+                >
+                  <ChevronDownIcon height={13} width={13} />
+                </button>
+              </div>
               <div
                 className="mega-panel"
                 onMouseEnter={() => {
+                  if (window.matchMedia(TOUCH_NAV_QUERY).matches) {
+                    return;
+                  }
                   if (closeTimerRef.current) {
                     clearTimeout(closeTimerRef.current);
                     closeTimerRef.current = null;
@@ -175,6 +293,9 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
                   setOpenMenu(menu.label);
                 }}
                 onMouseLeave={() => {
+                  if (window.matchMedia(TOUCH_NAV_QUERY).matches) {
+                    return;
+                  }
                   if (closeTimerRef.current) {
                     clearTimeout(closeTimerRef.current);
                   }

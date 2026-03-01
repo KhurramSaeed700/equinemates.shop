@@ -20,6 +20,7 @@ interface WishlistContextValue {
   productSlugs: string[];
   toggle: (productSlug: string) => void;
   has: (productSlug: string) => boolean;
+  clearWishlist: () => void;
 }
 
 const WishlistContext = createContext<WishlistContextValue | undefined>(
@@ -121,6 +122,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       productSlugs,
       toggle,
       has: (productSlug: string) => productSlugs.includes(productSlug),
+      clearWishlist: () => setProductSlugs([]),
     }),
     [productSlugs, toggle],
   );

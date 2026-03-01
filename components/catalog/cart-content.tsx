@@ -52,7 +52,22 @@ export function CartContent() {
     <>
       <div className="grid-two cart-grid">
         <section className="panel">
-          <h2>Cart Items</h2>
+          <div className="action-row wishlist-header-row">
+            <h2>Cart Items</h2>
+            <button
+              className="empty-wishlist-btn"
+              onClick={() => {
+                if (!items.length) return;
+                if (window.confirm("Empty cart? This will remove all items.")) {
+                  clearCart();
+                }
+              }}
+              type="button"
+              aria-disabled={!items.length}
+            >
+              Empty cart
+            </button>
+          </div>
           {!items.length ? (
             <p>
               Your cart is empty. Add products from{" "}
@@ -85,7 +100,7 @@ export function CartContent() {
                         <span className="tiny">{item.sku}</span>
                       </div>
                       <p className="item-price-large">
-                        {formatFromPkr(item.unitPricePkr)} each
+                        {formatFromPkr(item.unitPricePkr)}
                       </p>
                       <div className="action-row qty-controls">
                         <button

@@ -33,9 +33,9 @@ export function SitePagination() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const shouldRender = pathname !== "/";
   const isListingPage = pathname === "/products" || pathname === "/search";
   const perPage = parsePerPageParam(searchParams.get("perPage") ?? undefined);
+  const shouldRender = isListingPage;
 
   const totalItems = useMemo(() => {
     if (pathname === "/products") {
@@ -60,7 +60,7 @@ export function SitePagination() {
       }).length;
     }
 
-    return 1;
+    return 0;
   }, [pathname, searchParams]);
 
   const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
