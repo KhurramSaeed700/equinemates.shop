@@ -1,13 +1,17 @@
 import { CurrencyCode } from "@/lib/types";
 
-export const CURRENCY_RATES_FROM_PKR: Record<CurrencyCode, number> = {
-  PKR: 1,
-  USD: 0.00358,
-  EUR: 0.0033,
-};
+export type RatesFromPkr = Partial<Record<CurrencyCode, number>>;
 
-export function convertFromPkr(amountPkr: number, currency: CurrencyCode): number {
-  return amountPkr * CURRENCY_RATES_FROM_PKR[currency];
+export function convertFromPkr(
+  amountPkr: number,
+  currency: CurrencyCode,
+  ratesFromPkr: RatesFromPkr,
+): number {
+  const rate = ratesFromPkr[currency];
+  if (typeof rate !== "number" || !Number.isFinite(rate) || rate <= 0) {
+    return amountPkr;
+  }
+  return amountPkr * rate;
 }
 
 function currencyLocale(currency: CurrencyCode): string {
@@ -23,12 +27,13 @@ function currencyLocale(currency: CurrencyCode): string {
 export function formatMoneyFromPkr(
   amountPkr: number,
   currency: CurrencyCode,
+  ratesFromPkr: RatesFromPkr,
 ): string {
   return new Intl.NumberFormat(currencyLocale(currency), {
     style: "currency",
     currency,
     maximumFractionDigits: currency === "PKR" ? 0 : 2,
-  }).format(convertFromPkr(amountPkr, currency));
+  }).format(convertFromPkr(amountPkr, currency, ratesFromPkr));
 }
 
 export function detectCurrencyFromLocale(locale?: string): CurrencyCode {

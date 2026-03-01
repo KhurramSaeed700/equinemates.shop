@@ -37,17 +37,14 @@ export function ProductPreviewModal({
   return (
     <div className="preview-modal-overlay" onClick={onClose}>
       <div className="preview-modal-backdrop" />
-      <div
-        className="preview-modal-content"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="preview-modal-content" onClick={(e) => e.stopPropagation()}>
         <button
           aria-label="Close preview"
           className="preview-modal-close"
           onClick={onClose}
           type="button"
         >
-          ✕
+          X
         </button>
 
         <div className="preview-modal-body">
@@ -63,12 +60,9 @@ export function ProductPreviewModal({
 
           <div className="preview-modal-info">
             <h2 className="preview-modal-title">{product.name}</h2>
-            <p className="preview-modal-price">
-              {formatFromPkr(product.basePricePkr)}
-            </p>
+            <p className="preview-modal-price">{formatFromPkr(product.basePricePkr)}</p>
             <p className="preview-modal-category">
-              <span className="preview-modal-label">Category:</span>{" "}
-              {product.category}
+              <span className="preview-modal-label">Category:</span> {product.category}
             </p>
             <p className="preview-modal-sku">
               <span className="preview-modal-label">SKU:</span> {product.sku}
@@ -77,7 +71,7 @@ export function ProductPreviewModal({
               <p>{product.shortDescription}</p>
             </div>
             <div className="preview-modal-rating">
-              <span>Rating: {product.rating}/5</span>
+              <span>Rating: {product.rating.toFixed(1)}/5</span>
               <span>({product.reviewCount} reviews)</span>
             </div>
           </div>

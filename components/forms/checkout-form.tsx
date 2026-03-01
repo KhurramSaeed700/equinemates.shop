@@ -38,6 +38,9 @@ export function CheckoutForm() {
         message?: string;
         invoiceId?: string;
         orderId?: string;
+        exchangeRateFromPkr?: number;
+        exchangeRateUpdatedAt?: string;
+        currency?: string;
       };
 
       if (!response.ok) {
@@ -45,7 +48,7 @@ export function CheckoutForm() {
       }
 
       setStatus(
-        `${payload.message ?? "Order created."} Order ${payload.orderId} Invoice ${payload.invoiceId}`,
+        `${payload.message ?? "Order created."} Order ${payload.orderId} Invoice ${payload.invoiceId}. Locked ${payload.currency} rate: ${payload.exchangeRateFromPkr} (updated ${payload.exchangeRateUpdatedAt ?? "unknown"}).`,
       );
       clearCart();
       event.currentTarget.reset();

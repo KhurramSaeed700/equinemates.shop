@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { ProductDetailActions } from "@/components/catalog/product-detail-actions";
-import { ProductGrid } from "@/components/catalog/product-grid";
 import { ProductGallery } from "@/components/catalog/product-gallery";
-import { SectionHeading } from "@/components/ui/section-heading";
+import { ProductGrid } from "@/components/catalog/product-grid";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
-import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
+import { SectionHeading } from "@/components/ui/section-heading";
+import { getProductBySlug, getRelatedProducts, PRODUCTS } from "@/lib/catalog";
 
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export function generateStaticParams() {
+  return PRODUCTS.map((product) => ({ slug: product.slug }));
 }
 
 export async function generateMetadata({
@@ -56,22 +59,7 @@ export default async function ProductDetailPage({
       <SectionHeading
         eyebrow={product.category}
         title={product.name}
-        description={product.longDescription}
       />
-
-      {/* rating & quick review link */}
-      <div className="product-top-meta">
-        <div className="rating-row">
-          <span className="stars">
-            {Array.from({ length: 5 })
-              .map((_, i) => (i < Math.round(product.rating) ? "★" : "☆"))
-              .join("")}
-          </span>
-          <a href="#reviews" className="text-link tiny">
-            {product.reviewCount} reviews
-          </a>
-        </div>
-      </div>
 
       <div className="grid-two product-detail-grid">
         <div className="left-column">
@@ -79,32 +67,38 @@ export default async function ProductDetailPage({
             <h3 className="visually-hidden">Product images</h3>
             <ProductGallery images={product.images} name={product.name} />
           </section>
-          {product.reviews.length > 0 && (
-            <section className="panel reviews-panel left-reviews">
-              <h4>Customer Reviews</h4>
-              <div className="review-highlight">
-                <strong>Most helpful review</strong>
-                <div>
-                  <p className="tiny">
-                    {product.reviews[0].author} — Rating:{" "}
-                    {product.reviews[0].rating}/5
-                  </p>
-                  <p>{product.reviews[0].comment}</p>
-                </div>
-              </div>
-              <div className="review-list">
-                {product.reviews.map((r) => (
-                  <article className="review-item" key={r.id}>
-                    <strong>{r.headline}</strong>
+          <section id="reviews" className="panel reviews-panel left-reviews">
+            <h4>Customer Reviews</h4>
+            {product.reviews.length > 0 ? (
+              <>
+                <div className="review-highlight">
+                  <strong>Most helpful review</strong>
+                  <div>
                     <p className="tiny">
-                      {r.author} | {r.date} | Rating: {r.rating}/5
+                      {product.reviews[0].author} - Rating: {product.reviews[0].rating}/5
                     </p>
-                    <p>{r.comment}</p>
-                  </article>
-                ))}
-              </div>
-            </section>
-          )}
+                    <p>{product.reviews[0].comment}</p>
+                  </div>
+                </div>
+                <div className="review-list">
+                  {product.reviews.map((r) => (
+                    <article className="review-item" key={r.id}>
+                      <strong>{r.headline}</strong>
+                      <p className="tiny">
+                        {r.author} | {r.date} | Rating: {r.rating}/5
+                      </p>
+                      <p>{r.comment}</p>
+                    </article>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="tiny">
+                No customer reviews yet. Reviews will appear here once customers
+                submit them and they are approved for publishing.
+              </p>
+            )}
+          </section>
         </div>
         <ProductDetailActions product={product} />
       </div>
@@ -114,16 +108,7 @@ export default async function ProductDetailPage({
           <p>{product.longDescription}</p>
         </CollapsibleSection>
         <CollapsibleSection title="Care Instructions">
-          <p>
-            {product.careInstructions ??
-              "Care instructions will be provided soon."}
-          </p>
-        </CollapsibleSection>
-        <CollapsibleSection title="Shipping & Returns">
-          <p>
-            {product.shippingInfo ??
-              "Standard shipping within Pakistan. Returns accepted within 15 days."}
-          </p>
+          <p>{product.careInstructions ?? "Care instructions will be provided soon."}</p>
         </CollapsibleSection>
       </section>
 

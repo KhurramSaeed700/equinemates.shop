@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
@@ -10,6 +9,7 @@ import { CurrencySwitcher } from "@/components/layout/currency-switcher";
 import { SiteSearch } from "@/components/layout/site-search";
 import { useCart } from "@/components/providers/cart-provider";
 import { useWishlist } from "@/components/providers/wishlist-provider";
+import { getNavbarMenus } from "@/lib/catalog";
 import {
   CartIcon,
   ChevronDownIcon,
@@ -17,77 +17,29 @@ import {
   UserIcon,
 } from "@/components/ui/icons";
 
-const shopMenus = [
-  {
-    label: "Horse",
-    href: "/products?category=Horse%20Products",
-    items: [
-      { label: "Grooming Essentials", href: "/products/stablecore-groom-kit" },
-      { label: "Stable Care", href: "/products/allweather-saddle-cover" },
-      { label: "Feeding Solutions", href: "/products/smartfeed-pro-dispenser" },
-    ],
-  },
-  {
-    label: "Rider",
-    href: "/products?category=Rider%20Products",
-    items: [
-      { label: "Safety Helmets", href: "/products/aerofit-riding-helmet" },
-      { label: "Gloves & Apparel", href: "/products/stridegrip-riding-gloves" },
-      { label: "Travel Accessories", href: "/products/arena-commute-backpack" },
-    ],
-  },
-  {
-    label: "Pet",
-    href: "/products?category=Pet%20Products",
-    items: [
-      { label: "Daily Care", href: "/products/pawshield-care-bundle" },
-      { label: "Beds & Comfort", href: "/products/comfortnest-orthopedic-bed" },
-      {
-        label: "Travel Essentials",
-        href: "/products/trailbuddy-hydration-flask",
-      },
-    ],
-  },
-];
-
-const quickLinks = [
-  { label: "Home", href: "/" },
-  { label: "Collections", href: "/products" },
-  { label: "Wholesale", href: "/wholesale" },
-  { label: "Catalog Request", href: "/catalog-request" },
-  { label: "Sale", href: "/search?tag=best-seller" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-];
-
 export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
-  const pathname = usePathname();
+  const TOUCH_NAV_QUERY = "(max-width: 1024px)";
   const { itemCount } = useCart();
   const { productSlugs } = useWishlist();
+  const shopMenus = getNavbarMenus();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [isCondensed, setIsCondensed] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
+  const lastScrollYRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const condensedRef = useRef(false);
+  const toggleAnchorYRef = useRef(0);
 
   useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (!navRef.current) {
-        return;
-      }
-      if (!navRef.current.contains(event.target as Node)) {
-        setOpenMenu(null);
-      }
-    };
-
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpenMenu(null);
       }
     };
 
-    document.addEventListener("mousedown", handleOutsideClick);
     document.addEventListener("keydown", handleEsc);
     return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
       document.removeEventListener("keydown", handleEsc);
       if (closeTimerRef.current) {
         clearTimeout(closeTimerRef.current);
@@ -96,8 +48,99 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!openMenu) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!navRef.current) {
+        return;
+      }
+      if (!navRef.current.contains(event.target as Node)) {
+        setOpenMenu(null);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [openMenu]);
+
+  useEffect(() => {
+    const updateOnScroll = () => {
+      const currentScrollY = window.scrollY;
+      const delta = currentScrollY - lastScrollYRef.current;
+
+      // Always show full header near the top.
+      if (currentScrollY <= 16) {
+        if (condensedRef.current) {
+          condensedRef.current = false;
+          setIsCondensed(false);
+          toggleAnchorYRef.current = currentScrollY;
+        }
+        lastScrollYRef.current = currentScrollY;
+        return;
+      }
+
+      // Ignore tiny scroll noise that causes flicker.
+      if (Math.abs(delta) < 8) {
+        lastScrollYRef.current = currentScrollY;
+        return;
+      }
+
+      if (!condensedRef.current) {
+        // Hide only after meaningful downward scroll beyond trigger zone.
+        const crossedHideThreshold =
+          delta > 0 &&
+          currentScrollY > 140 &&
+          currentScrollY - toggleAnchorYRef.current > 56;
+        if (crossedHideThreshold) {
+          condensedRef.current = true;
+          setIsCondensed(true);
+          setOpenMenu(null);
+          toggleAnchorYRef.current = currentScrollY;
+        }
+      } else {
+        // Show only after meaningful upward scroll to avoid rapid toggles.
+        const crossedShowThreshold =
+          delta < 0 && toggleAnchorYRef.current - currentScrollY > 34;
+        if (crossedShowThreshold) {
+          condensedRef.current = false;
+          setIsCondensed(false);
+          toggleAnchorYRef.current = currentScrollY;
+        }
+      }
+
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    const handleScroll = () => {
+      if (rafRef.current !== null) {
+        return;
+      }
+      rafRef.current = window.requestAnimationFrame(() => {
+        rafRef.current = null;
+        updateOnScroll();
+      });
+    };
+
+    lastScrollYRef.current = window.scrollY;
+    toggleAnchorYRef.current = window.scrollY;
+    condensedRef.current = false;
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafRef.current !== null) {
+        window.cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <header className="site-header">
+    <header className={isCondensed ? "site-header site-header-condensed" : "site-header"}>
       <div className="announcement-bar">
         <p>
           Free Pakistan shipping on qualifying orders. Wholesale support
@@ -124,9 +167,6 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
         </div>
 
         <div className="header-utility-right">
-          <Link className="utility-link" href="/contact">
-            Help
-          </Link>
           {clerkEnabled ? (
             <SignedOut>
               <SignInButton>
@@ -161,24 +201,11 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
         </div>
       </div>
 
-      <nav aria-label="Main navigation" className="site-nav">
+      <nav
+        aria-label="Main navigation"
+        className="site-nav"
+      >
         <div className="container nav-inner" ref={navRef}>
-          {quickLinks.slice(0, 1).map((item) => (
-            <Link
-              className={
-                pathname === item.href ||
-                (item.href !== "/" && pathname.startsWith(item.href))
-                  ? "nav-link nav-link-active"
-                  : "nav-link"
-              }
-              href={item.href}
-              key={item.label}
-              onClick={() => setOpenMenu(null)}
-            >
-              {item.label}
-            </Link>
-          ))}
-
           {shopMenus.map((menu) => (
             <div
               className={
@@ -188,6 +215,9 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
               }
               key={menu.label}
               onMouseEnter={() => {
+                if (window.matchMedia(TOUCH_NAV_QUERY).matches) {
+                  return;
+                }
                 if (closeTimerRef.current) {
                   clearTimeout(closeTimerRef.current);
                   closeTimerRef.current = null;
@@ -195,6 +225,9 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
                 setOpenMenu(menu.label);
               }}
               onMouseLeave={() => {
+                if (window.matchMedia(TOUCH_NAV_QUERY).matches) {
+                  return;
+                }
                 if (closeTimerRef.current) {
                   clearTimeout(closeTimerRef.current);
                 }
@@ -205,28 +238,54 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
                 }, 220);
               }}
             >
-              <button
-                aria-expanded={openMenu === menu.label}
-                aria-haspopup="true"
-                className={
-                  openMenu === menu.label
-                    ? "nav-link nav-link-active mega-trigger"
-                    : "nav-link mega-trigger"
-                }
-                onFocus={() => setOpenMenu(menu.label)}
-                onClick={() =>
-                  setOpenMenu((current) =>
-                    current === menu.label ? null : menu.label,
-                  )
-                }
-                type="button"
-              >
-                <span>{menu.label}</span>
-                <ChevronDownIcon height={13} width={13} />
-              </button>
+              <div className="mega-trigger-row">
+                <Link
+                  className={
+                    openMenu === menu.label
+                      ? "nav-link nav-link-active mega-trigger mega-trigger-link"
+                      : "nav-link mega-trigger mega-trigger-link"
+                  }
+                  href={menu.href}
+                  onFocus={() => setOpenMenu(menu.label)}
+                  onClick={(event) => {
+                    if (window.matchMedia(TOUCH_NAV_QUERY).matches) {
+                      event.preventDefault();
+                      setOpenMenu((current) =>
+                        current === menu.label ? null : menu.label,
+                      );
+                      return;
+                    }
+                    setOpenMenu(null);
+                  }}
+                >
+                  <span>{menu.label}</span>
+                </Link>
+                <button
+                  aria-expanded={openMenu === menu.label}
+                  aria-haspopup="true"
+                  aria-label={`Toggle ${menu.label} menu`}
+                  className={
+                    openMenu === menu.label
+                      ? "nav-link nav-link-active mega-trigger mega-trigger-toggle"
+                      : "nav-link mega-trigger mega-trigger-toggle"
+                  }
+                  onFocus={() => setOpenMenu(menu.label)}
+                  onClick={() =>
+                    setOpenMenu((current) =>
+                      current === menu.label ? null : menu.label,
+                    )
+                  }
+                  type="button"
+                >
+                  <ChevronDownIcon height={13} width={13} />
+                </button>
+              </div>
               <div
                 className="mega-panel"
                 onMouseEnter={() => {
+                  if (window.matchMedia(TOUCH_NAV_QUERY).matches) {
+                    return;
+                  }
                   if (closeTimerRef.current) {
                     clearTimeout(closeTimerRef.current);
                     closeTimerRef.current = null;
@@ -234,6 +293,9 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
                   setOpenMenu(menu.label);
                 }}
                 onMouseLeave={() => {
+                  if (window.matchMedia(TOUCH_NAV_QUERY).matches) {
+                    return;
+                  }
                   if (closeTimerRef.current) {
                     clearTimeout(closeTimerRef.current);
                   }
@@ -243,36 +305,41 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
                   );
                 }}
               >
-                <Link href={menu.href} onClick={() => setOpenMenu(null)}>
+                <Link
+                  className="mega-shop-all"
+                  href={menu.href}
+                  onClick={() => setOpenMenu(null)}
+                >
                   Shop All {menu.label}
                 </Link>
-                {menu.items.map((item) => (
-                  <Link
-                    href={item.href}
-                    key={item.label}
-                    onClick={() => setOpenMenu(null)}
-                  >
-                    {item.label}
-                  </Link>
+                {menu.columns.map((column) => (
+                  <div key={column.heading} className="mega-column">
+                    {column.href ? (
+                      <Link
+                        className="mega-heading mega-heading-link"
+                        href={column.href}
+                        onClick={() => setOpenMenu(null)}
+                      >
+                        {column.heading}
+                      </Link>
+                    ) : (
+                      <strong className="mega-heading">{column.heading}</strong>
+                    )}
+                    <div className="mega-links">
+                      {column.items.map((item) => (
+                        <Link
+                          href={item.href}
+                          key={`${column.heading}-${item.label}`}
+                          onClick={() => setOpenMenu(null)}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
-          ))}
-
-          {quickLinks.slice(1).map((item) => (
-            <Link
-              className={
-                pathname === item.href ||
-                (item.href !== "/" && pathname.startsWith(item.href))
-                  ? "nav-link nav-link-active"
-                  : "nav-link"
-              }
-              href={item.href}
-              key={item.label}
-              onClick={() => setOpenMenu(null)}
-            >
-              {item.label}
-            </Link>
           ))}
         </div>
       </nav>

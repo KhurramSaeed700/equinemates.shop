@@ -9,7 +9,7 @@ import { PRODUCTS } from "@/lib/catalog";
 
 export function WishlistContent() {
   const { isSignedIn } = useUser();
-  const { productSlugs } = useWishlist();
+  const { productSlugs, clearWishlist } = useWishlist();
   const products = PRODUCTS.filter((product) =>
     productSlugs.includes(product.slug),
   );
@@ -46,7 +46,22 @@ export function WishlistContent() {
 
   return (
     <section>
-      <h2>Saved Products</h2>
+      <div className="action-row wishlist-header-row">
+        <h2>Saved Products</h2>
+        <button
+          className="empty-wishlist-btn"
+          onClick={() => {
+            if (!products.length) return;
+            if (window.confirm("Empty wishlist? This will remove all saved items.")) {
+              clearWishlist();
+            }
+          }}
+          type="button"
+          aria-disabled={!products.length}
+        >
+          Empty wishlist
+        </button>
+      </div>
       <p className="tiny">
         Wishlist sync across devices is supported through the account API layer.
       </p>

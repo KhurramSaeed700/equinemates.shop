@@ -120,6 +120,11 @@ pnpm dev
 
 Open `http://localhost:3000`.
 
+## Live Deployment
+
+- Production domain: `https://equinemates-shop.vercel.app`
+- Vercel project: `https://vercel.com/khurrams-projects/equinemates-shop`
+
 ## Authentication is delegated to Clerk, so demo accounts are no longer seeded locally
 
 Use the Clerk dashboard or test user fixtures instead.

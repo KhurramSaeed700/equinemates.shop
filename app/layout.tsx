@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { IBM_Plex_Sans, Sora } from "next/font/google";
+import { Suspense } from "react";
 import { Toaster } from "sonner";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { SitePagination } from "@/components/layout/site-pagination";
 import { AppProviders } from "@/components/providers/app-providers";
 import { isClerkEnabledFromKey } from "@/lib/clerk";
 
@@ -58,18 +60,28 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const clerkEnabled = isClerkEnabledFromKey(
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-  );
+  const configuredPublishableKey =
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const clerkEnabled = isClerkEnabledFromKey(configuredPublishableKey);
+  // Prevent prerender failures when env keys are missing in build environments.
+  const clerkPublishableKey =
+    configuredPublishableKey && configuredPublishableKey.trim().length > 0
+      ? configuredPublishableKey
+      : "pk_test_placeholder_do_not_use_in_production";
 
   return (
     <html lang="en-PK">
       <body className={`${sora.variable} ${plexSans.variable}`}>
-        <ClerkProvider>
+        <ClerkProvider publishableKey={clerkPublishableKey}>
           <AppProviders>
             <div className="site-shell">
               <SiteHeader clerkEnabled={clerkEnabled} />
-              <main className="site-main">{children}</main>
+              <main className="site-main">
+                {children}
+                <Suspense fallback={null}>
+                  <SitePagination />
+                </Suspense>
+              </main>
               <SiteFooter />
             </div>
           </AppProviders>

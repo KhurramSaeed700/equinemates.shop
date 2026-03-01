@@ -18,8 +18,8 @@ const adminModules = [
   "Currency Rates",
 ];
 
-export default function AdminPage() {
-  const rates = getCurrencyRates();
+export default async function AdminPage() {
+  const rates = await getCurrencyRates();
 
   return (
     <div className="grid-two">
