@@ -4,10 +4,13 @@ import path from "node:path";
 import { CurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/types";
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const RATE_REVALIDATE_SECONDS = 60 * 60;
 const CACHE_DIR = path.join(process.cwd(), ".cache");
 const CACHE_FILE = path.join(CACHE_DIR, "exchange-rates.json");
-const LIVE_ENDPOINT = "https://api.exchangerate.host/live";
+const LIVE_ENDPOINT = "https://v6.exchangerate-api.com/v6";
+const FALLBACK_LIVE_ENDPOINT = "https://api.exchangerate.host/live";
 const SOURCE_CURRENCY = "USD";
+type CurrencyProvider = "exchangerate-api.com" | "exchangerate.host";
 
 interface ExchangeRateHostResponse {
   success?: boolean;
@@ -21,6 +24,15 @@ interface ExchangeRateHostResponse {
   };
 }
 
+interface ExchangeRateApiResponse {
+  result?: "success" | "error";
+  base_code?: string;
+  conversion_rates?: Record<string, number>;
+  time_last_update_utc?: string;
+  time_next_update_utc?: string;
+  "error-type"?: string;
+}
+
 export interface CurrencyRatesSnapshot {
   base: "PKR";
   rates: Record<CurrencyCode, number>;
@@ -28,7 +40,7 @@ export interface CurrencyRatesSnapshot {
   expiresAt: string;
   stale: boolean;
   source: "live" | "cache";
-  provider: "exchangerate.host";
+  provider: CurrencyProvider;
 }
 
 interface CachedRateRecord {
@@ -36,7 +48,7 @@ interface CachedRateRecord {
   rates: Record<CurrencyCode, number>;
   updatedAt: string;
   expiresAt: string;
-  provider: "exchangerate.host";
+  provider: CurrencyProvider;
 }
 
 let memoryCache: CachedRateRecord | null = null;
@@ -77,7 +89,7 @@ async function getApiKeyFromEnvLocal(): Promise<string | null> {
   }
 
   try {
-    const envFileContent = await readFile(path.join(process.cwd(), "env.local"), "utf8");
+    const envFileContent = await readFile(path.join(process.cwd(), ".env.local"), "utf8");
     const parsed = parseEnvFileValue("EXCHANGE_RATE_API_KEY", envFileContent);
     if (parsed) {
       envFileKeyCache = parsed;
@@ -85,7 +97,17 @@ async function getApiKeyFromEnvLocal(): Promise<string | null> {
     }
     return null;
   } catch {
-    return null;
+    try {
+      const envFileContent = await readFile(path.join(process.cwd(), "env.local"), "utf8");
+      const parsed = parseEnvFileValue("EXCHANGE_RATE_API_KEY", envFileContent);
+      if (parsed) {
+        envFileKeyCache = parsed;
+        return parsed;
+      }
+      return null;
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -101,7 +123,7 @@ async function getExchangeRateApiKey(): Promise<string> {
   }
 
   throw new Error(
-    "EXCHANGE_RATE_API_KEY is missing. Set it in process env or env.local.",
+    "EXCHANGE_RATE_API_KEY is missing. Set it in process env or .env.local.",
   );
 }
 
@@ -154,46 +176,105 @@ function toSnapshot(cache: CachedRateRecord, stale: boolean, source: "live" | "c
 
 async function fetchLiveRates(): Promise<CachedRateRecord> {
   const accessKey = await getExchangeRateApiKey();
-  const currencies = Array.from(new Set(["PKR", ...SUPPORTED_CURRENCIES])).join(",");
-  const url = new URL(LIVE_ENDPOINT);
-  url.searchParams.set("access_key", accessKey);
-  url.searchParams.set("source", SOURCE_CURRENCY);
-  url.searchParams.set("currencies", currencies);
-  url.searchParams.set("format", "1");
+  try {
+    const apiUrl = `${LIVE_ENDPOINT.replace(/\/$/, "")}/${accessKey}/latest/${SOURCE_CURRENCY}`;
+    const response = await fetch(apiUrl, {
+      next: { revalidate: RATE_REVALIDATE_SECONDS },
+    });
+    if (!response.ok) {
+      throw new Error(`Exchange API request failed with status ${response.status}.`);
+    }
 
-  const response = await fetch(url.toString(), { cache: "no-store" });
-  if (!response.ok) {
-    throw new Error(`Exchange API request failed with status ${response.status}.`);
+    const payload = (await response.json()) as ExchangeRateApiResponse;
+    if (payload.result !== "success") {
+      const info = payload["error-type"] ?? "unknown API error";
+      throw new Error(`Exchange API rejected request: ${info}`);
+    }
+
+    const usdToPkr = payload.conversion_rates?.PKR;
+    const usdToUsd = payload.conversion_rates?.USD ?? 1;
+    const usdToEur = payload.conversion_rates?.EUR;
+
+    if (
+      !isFinitePositive(usdToPkr) ||
+      !isFinitePositive(usdToUsd) ||
+      !isFinitePositive(usdToEur)
+    ) {
+      throw new Error("Exchange API response is missing required conversion rates.");
+    }
+
+    const ratesFromPkr: Record<CurrencyCode, number> = {
+      PKR: 1,
+      USD: usdToUsd / usdToPkr,
+      EUR: usdToEur / usdToPkr,
+    };
+
+    const parsedUpdatedAt = payload.time_last_update_utc
+      ? Date.parse(payload.time_last_update_utc)
+      : NaN;
+    const parsedExpiresAt = payload.time_next_update_utc
+      ? Date.parse(payload.time_next_update_utc)
+      : NaN;
+
+    return {
+      base: "PKR",
+      rates: ratesFromPkr,
+      updatedAt: Number.isFinite(parsedUpdatedAt)
+        ? new Date(parsedUpdatedAt).toISOString()
+        : new Date().toISOString(),
+      expiresAt: Number.isFinite(parsedExpiresAt)
+        ? new Date(parsedExpiresAt).toISOString()
+        : new Date(Date.now() + CACHE_TTL_MS).toISOString(),
+      provider: "exchangerate-api.com",
+    };
+  } catch {
+    const currencies = Array.from(new Set(["PKR", ...SUPPORTED_CURRENCIES])).join(",");
+    const url = new URL(FALLBACK_LIVE_ENDPOINT);
+    url.searchParams.set("access_key", accessKey);
+    url.searchParams.set("source", SOURCE_CURRENCY);
+    url.searchParams.set("currencies", currencies);
+    url.searchParams.set("format", "1");
+
+    const response = await fetch(url.toString(), {
+      next: { revalidate: RATE_REVALIDATE_SECONDS },
+    });
+    if (!response.ok) {
+      throw new Error(`Exchange API request failed with status ${response.status}.`);
+    }
+
+    const payload = (await response.json()) as ExchangeRateHostResponse;
+    if (!payload.success) {
+      const info = payload.error?.info ?? payload.error?.type ?? "unknown API error";
+      throw new Error(`Exchange API rejected request: ${info}`);
+    }
+
+    const usdToPkr = payload.quotes?.USDPKR;
+    const usdToUsd = payload.quotes?.USDUSD ?? 1;
+    const usdToEur = payload.quotes?.USDEUR;
+
+    if (
+      !isFinitePositive(usdToPkr) ||
+      !isFinitePositive(usdToUsd) ||
+      !isFinitePositive(usdToEur)
+    ) {
+      throw new Error("Exchange API response is missing required USD quotes.");
+    }
+
+    const ratesFromPkr: Record<CurrencyCode, number> = {
+      PKR: 1,
+      USD: usdToUsd / usdToPkr,
+      EUR: usdToEur / usdToPkr,
+    };
+
+    const updatedAt = new Date().toISOString();
+    return {
+      base: "PKR",
+      rates: ratesFromPkr,
+      updatedAt,
+      expiresAt: new Date(Date.now() + CACHE_TTL_MS).toISOString(),
+      provider: "exchangerate.host",
+    };
   }
-
-  const payload = (await response.json()) as ExchangeRateHostResponse;
-  if (!payload.success) {
-    const info = payload.error?.info ?? payload.error?.type ?? "unknown API error";
-    throw new Error(`Exchange API rejected request: ${info}`);
-  }
-
-  const usdToPkr = payload.quotes?.USDPKR;
-  const usdToUsd = payload.quotes?.USDUSD ?? 1;
-  const usdToEur = payload.quotes?.USDEUR;
-
-  if (!isFinitePositive(usdToPkr) || !isFinitePositive(usdToUsd) || !isFinitePositive(usdToEur)) {
-    throw new Error("Exchange API response is missing required USD quotes.");
-  }
-
-  const ratesFromPkr: Record<CurrencyCode, number> = {
-    PKR: 1,
-    USD: usdToUsd / usdToPkr,
-    EUR: usdToEur / usdToPkr,
-  };
-
-  const updatedAt = new Date().toISOString();
-  return {
-    base: "PKR",
-    rates: ratesFromPkr,
-    updatedAt,
-    expiresAt: new Date(Date.now() + CACHE_TTL_MS).toISOString(),
-    provider: "exchangerate.host",
-  };
 }
 
 export async function getCurrencyRates(): Promise<CurrencyRatesSnapshot> {

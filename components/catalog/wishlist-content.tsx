@@ -20,7 +20,7 @@ export function WishlistContent() {
         <h2>Saved Products</h2>
         <p>
           Please{" "}
-          <Link className="text-link" href="/sign-in">
+          <Link className="text-link" href="/account">
             sign in
           </Link>{" "}
           to save items or view your wishlist.

@@ -155,6 +155,13 @@ Use the Clerk dashboard or test user fixtures instead.
 7. Add observability (structured logs, traces, error monitoring).
 8. Add integration and e2e tests.
 
+## TODO (Chosen Stack)
+
+- [ ] Database: migrate to Neon Postgres.
+- [ ] ORM: adopt Prisma and move catalog/products out of in-memory data.
+- [ ] Auth: keep Clerk as the authentication provider.
+- [ ] Media storage: use S3-compatible object storage (AWS S3 or Cloudflare R2) for product images.
+
 ## Branding Assets
 
 Place these in `public/`:

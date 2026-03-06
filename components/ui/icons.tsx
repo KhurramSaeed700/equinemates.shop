@@ -9,6 +9,8 @@ import {
   FiHeart,
   FiShoppingCart,
   FiChevronDown,
+  FiMenu,
+  FiX,
   FiFacebook,
   FiInstagram,
   FiYoutube,
@@ -22,6 +24,8 @@ export const UserIcon = FiUser;
 export const HeartIcon = FiHeart;
 export const CartIcon = FiShoppingCart;
 export const ChevronDownIcon = FiChevronDown;
+export const MenuIcon = FiMenu;
+export const CloseIcon = FiX;
 export const FacebookIcon = FiFacebook;
 export const InstagramIcon = FiInstagram;
 export const WhatsAppIcon = FaWhatsapp;

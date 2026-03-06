@@ -40,9 +40,9 @@ export const metadata: Metadata = {
     "wholesale quote platform",
   ],
   icons: {
-    icon: "/logo-small.png",
-    shortcut: "/logo-small.png",
-    apple: "/logo-small.png",
+    icon: "/logo-t.png",
+    shortcut: "/logo-t.png",
+    apple: "/logo-t.png",
   },
   openGraph: {
     title: "Equinemates",

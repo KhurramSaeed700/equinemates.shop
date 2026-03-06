@@ -42,7 +42,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         title={categoryPath ? categoryPath.split(" > ").at(-1) ?? categoryPath : category ? `${category}` : "All Products"}
         description="Every product includes SKU, variants, multi-currency pricing, wishlist, reviews, and related products."
       />
-      <section className="section-spacing">
+      <section className="section-spacing products-grid-mobile-two">
         <ProductGrid products={pagedProducts} />
       </section>
     </>

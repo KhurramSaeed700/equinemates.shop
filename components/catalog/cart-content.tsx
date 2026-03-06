@@ -39,7 +39,7 @@ export function CartContent() {
         </div>
         <p>
           Please{" "}
-          <Link className="text-link" href="/sign-in">
+          <Link className="text-link" href="/account">
             sign in
           </Link>{" "}
           to view or add items to your cart.
