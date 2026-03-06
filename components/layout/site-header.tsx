@@ -107,9 +107,7 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
     >
       <div className="announcement-bar">
         <p>
-          Free Pakistan shipping on qualifying orders. Wholesale support
-          available Monday to Saturday.
-        </p>
+          Free shipping on orders above 200 USD</p>
       </div>
 
       <div className="header-utility container">

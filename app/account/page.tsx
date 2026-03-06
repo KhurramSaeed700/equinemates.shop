@@ -29,7 +29,7 @@ export default function AccountPage() {
   return (
     <section className="panel clerk-account-panel">
       <SignedOut>
-        <SignIn />
+        <SignIn routing="hash" />
       </SignedOut>
       <SignedIn>
         <UserProfile />

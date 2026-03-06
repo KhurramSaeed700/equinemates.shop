@@ -112,7 +112,7 @@ export default async function ProductDetailPage({
         </CollapsibleSection>
       </section>
 
-      <section className="section-spacing">
+      <section className="section-spacing related-products-mobile-scroll">
         <SectionHeading title="Related Products" />
         <ProductGrid products={relatedProducts} />
       </section>
