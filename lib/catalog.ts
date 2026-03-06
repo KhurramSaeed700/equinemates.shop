@@ -98,6 +98,12 @@ const CATALOG_MARKDOWN = String.raw`# Shop Structure
 - Saddle Bags
 - Trail Riding Accessories
 
+### Fly & Pest Control
+- Fly Masks
+- Fly Boots
+- Fly Rugs
+- Fly Hoods
+
 ---
 
 ## 2?? Rider
@@ -218,14 +224,6 @@ const CATALOG_MARKDOWN = String.raw`# Shop Structure
 - Ice Boots
 - Leg Wraps
 - Therapy Equipment
-
-### Fly & Pest Control
-- Fly Masks
-- Fly Boots
-- Fly Rugs
-- Fly Hoods
-
----
 
 ### ?? Veterinary Instruments
 

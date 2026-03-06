@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
@@ -43,8 +44,19 @@ export function SiteSearch() {
                 key={product.id}
                 onClick={() => setFocused(false)}
               >
-                <span>{product.name}</span>
-                <span>{product.sku}</span>
+                <span className="search-suggestion-main">
+                  <Image
+                    alt={product.name}
+                    className="search-suggestion-thumb"
+                    height={40}
+                    src={product.images[0] ?? "/place holder/1.webp"}
+                    width={40}
+                  />
+                  <span className="search-suggestion-text">
+                    <span className="search-suggestion-name">{product.name}</span>
+                    <span className="search-suggestion-sku">{product.sku}</span>
+                  </span>
+                </span>
               </Link>
             ))
           ) : (
