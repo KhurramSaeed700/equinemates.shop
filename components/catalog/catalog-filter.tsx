@@ -62,11 +62,11 @@ export function CatalogFilter() {
         </select>
       </label>
       <label>
-        Min PKR
+        Min Price
         <input defaultValue={current.min} min={0} name="min" type="number" />
       </label>
       <label>
-        Max PKR
+        Max Price
         <input defaultValue={current.max} min={0} name="max" type="number" />
       </label>
       <button className="btn-secondary" type="submit">

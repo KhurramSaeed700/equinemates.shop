@@ -45,7 +45,7 @@ interface InMemoryDatabase {
     orderId: string;
     invoiceId: string;
     createdAt: string;
-    currency: "PKR" | "USD" | "EUR";
+    currency: "USD" | "EUR";
     exchangeRateFromPkr: number;
     exchangeRateUpdatedAt: string;
     subtotalPkr: number;
@@ -100,7 +100,7 @@ function createBaseDatabase(): InMemoryDatabase {
       id: customerId,
       name: "Sara Noor",
       email: "sara.noor@example.com",
-      phone: "+92 300 1112222",
+      phone: "+1 302 555 0199",
       role: "customer",
       wishlist: ["stablecore-groom-kit", "comfortnest-orthopedic-bed"],
       addresses: [
@@ -108,11 +108,11 @@ function createBaseDatabase(): InMemoryDatabase {
           id: randomUUID(),
           label: "Home",
           recipient: "Sara Noor",
-          line1: "House 18, Street 5, DHA Phase 6",
-          city: "Lahore",
-          province: "Punjab",
-          postalCode: "54000",
-          country: "Pakistan",
+          line1: "2100 Pennsylvania Avenue NW",
+          city: "Washington",
+          province: "DC",
+          postalCode: "20037",
+          country: "United States",
         },
       ],
       orders: [

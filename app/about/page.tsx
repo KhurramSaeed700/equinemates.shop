@@ -22,7 +22,7 @@ export default function AboutPage() {
         </p>
         <h3>Vision & Goals</h3>
         <p>
-          Build the leading Pakistan-based ecosystem for horse, rider, and pet
+          Build a leading US- and Europe-focused ecosystem for horse, rider, and pet
           commerce with regional and global expansion capability.
         </p>
       </section>

@@ -5,7 +5,7 @@ import { getCurrencyRates } from "@/lib/server/currency-service";
 import { db } from "@/lib/server/db";
 import { CartItem, CurrencyCode } from "@/lib/types";
 
-const PAYMENT_METHODS = ["cod", "bank_transfer", "card"] as const;
+const PAYMENT_METHODS = ["bank_transfer", "card", "wallet"] as const;
 type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 interface CheckoutInput {
@@ -34,7 +34,7 @@ export async function createCheckout(input: CheckoutInput) {
     0,
   );
 
-  const shippingFeePkr = input.shippingCity.toLowerCase().includes("karachi")
+  const shippingFeePkr = input.shippingCity.toLowerCase().includes("new york")
     ? 450
     : 650;
   const totalPkr = subtotalPkr + shippingFeePkr;
@@ -88,7 +88,10 @@ export async function createCheckout(input: CheckoutInput) {
     rateLocked: true,
     shippingAddress: input.shippingAddress,
     shippingCity: input.shippingCity,
-    paymentStatus: input.paymentMethod === "card" ? "authorized" : "pending",
+    paymentStatus:
+      input.paymentMethod === "card" || input.paymentMethod === "wallet"
+        ? "authorized"
+        : "pending",
     notes:
       "Payment-ready architecture enabled. Connect card and bank gateways for production settlement.",
   };

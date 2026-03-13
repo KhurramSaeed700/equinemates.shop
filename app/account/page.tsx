@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { SignIn, SignedIn, SignedOut, UserProfile } from "@clerk/nextjs";
+import {
+  SignIn,
+  SignedIn,
+  SignedOut,
+  UserProfile,
+} from "@clerk/nextjs";
 
 import { isClerkEnabledFromKey } from "@/lib/clerk";
 

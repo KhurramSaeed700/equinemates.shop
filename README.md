@@ -21,8 +21,8 @@ This project includes a production-oriented frontend structure and backend-ready
 - Global header/footer on all pages
 - Center-positioned brand logo in top navigation
 - Category dropdown + SKU/name search + auto suggestions
-- Multi-currency support (`PKR`, `USD`, `EUR`) with:
-  - PKR default
+- Multi-currency support (`USD`, `EUR`) with:
+  - USD default
   - locale-based auto-detect
   - manual currency switcher
 - Account workflows:

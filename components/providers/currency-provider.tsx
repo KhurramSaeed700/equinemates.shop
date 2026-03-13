@@ -29,7 +29,7 @@ const CurrencyContext = createContext<CurrencyContextValue | undefined>(undefine
 export function CurrencyProvider({ children }: { children: ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyCode>(() => {
     if (typeof window === "undefined") {
-      return "PKR";
+      return "USD";
     }
 
     const storedValue = window.localStorage.getItem(CURRENCY_STORAGE_KEY);
@@ -44,7 +44,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   });
   const [ratesFromPkr, setRatesFromPkr] = useState<
     Partial<Record<CurrencyCode, number>>
-  >({ PKR: 1 });
+  >({ USD: 1, EUR: 0.92 });
   const [ratesUpdatedAt, setRatesUpdatedAt] = useState<string | null>(null);
   const [ratesStale, setRatesStale] = useState(false);
 
@@ -69,7 +69,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
         stale?: boolean;
       };
 
-      if (!payload.rates || typeof payload.rates.PKR !== "number") {
+      if (!payload.rates || typeof payload.rates.USD !== "number") {
         throw new Error("Rate payload is invalid.");
       }
 

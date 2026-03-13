@@ -21,7 +21,7 @@ function currencyLocale(currency: CurrencyCode): string {
   if (currency === "EUR") {
     return "de-DE";
   }
-  return "en-PK";
+  return "en-US";
 }
 
 export function formatMoneyFromPkr(
@@ -32,13 +32,13 @@ export function formatMoneyFromPkr(
   return new Intl.NumberFormat(currencyLocale(currency), {
     style: "currency",
     currency,
-    maximumFractionDigits: currency === "PKR" ? 0 : 2,
+    maximumFractionDigits: 2,
   }).format(convertFromPkr(amountPkr, currency, ratesFromPkr));
 }
 
 export function detectCurrencyFromLocale(locale?: string): CurrencyCode {
   if (!locale) {
-    return "PKR";
+    return "USD";
   }
 
   const upper = locale.toUpperCase();
@@ -51,5 +51,5 @@ export function detectCurrencyFromLocale(locale?: string): CurrencyCode {
     return "EUR";
   }
 
-  return "PKR";
+  return "USD";
 }

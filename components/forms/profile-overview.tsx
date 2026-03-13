@@ -44,7 +44,7 @@ export function ProfileOverview() {
       city: String(formData.get("city") ?? ""),
       province: String(formData.get("province") ?? ""),
       postalCode: String(formData.get("postalCode") ?? ""),
-      country: "Pakistan",
+      country: "United States",
     };
 
     const response = await fetch("/api/account/profile", {

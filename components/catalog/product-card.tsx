@@ -65,7 +65,7 @@ export function ProductCard({ product }: { product: Product }) {
             <p className="product-price">
               {mounted
                 ? formatFromPkr(product.basePricePkr)
-                : `Rs ${product.basePricePkr}`}
+                : `$${product.basePriceUsd.toFixed(2)}`}
             </p>
           </div>
         </Link>

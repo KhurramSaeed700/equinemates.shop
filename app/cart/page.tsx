@@ -4,7 +4,7 @@ import { CartContent } from "@/components/catalog/cart-content";
 
 export const metadata: Metadata = {
   title: "Cart & Checkout",
-  description: "Pakistan shipping support with COD, bank transfer, and card checkout.",
+  description: "International shipping support with secure card, bank transfer, and wallet checkout.",
 };
 
 export default function CartPage() {

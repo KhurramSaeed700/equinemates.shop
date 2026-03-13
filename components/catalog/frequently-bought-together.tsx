@@ -62,7 +62,7 @@ export function FrequentlyBoughtTogether({ product }: { product: Product }) {
               <p className="tiny">
                 {mounted
                   ? formatFromPkr(product.basePricePkr)
-                  : `Rs ${product.basePricePkr}`}
+                  : `$${product.basePriceUsd.toFixed(2)}`}
               </p>
             </div>
           </div>
@@ -82,7 +82,7 @@ export function FrequentlyBoughtTogether({ product }: { product: Product }) {
                   <div className="tiny strong">
                     {mounted
                       ? formatFromPkr(p.basePricePkr)
-                      : `Rs ${p.basePricePkr}`}
+                      : `$${p.basePriceUsd.toFixed(2)}`}
                   </div>
                 </div>
               </label>
@@ -99,7 +99,7 @@ export function FrequentlyBoughtTogether({ product }: { product: Product }) {
         <div>
           <div className="tiny">Combined total</div>
           <div className="product-price">
-            {mounted ? formatFromPkr(combinedTotal) : `Rs ${combinedTotal}`}
+            {mounted ? formatFromPkr(combinedTotal) : `$${(combinedTotal / 280).toFixed(2)}`}
           </div>
         </div>
         <div className="action-row">

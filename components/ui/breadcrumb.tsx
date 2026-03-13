@@ -10,14 +10,16 @@ export function Breadcrumb({
       {items.map((it, idx) => (
         <span key={idx}>
           {it.href ? (
-            <Link href={it.href} className="text-link">
+            <Link href={it.href} className="breadcrumb-link">
               {it.label}
             </Link>
           ) : (
             <span>{it.label}</span>
           )}
           {idx < items.length - 1 ? (
-            <span className="breadcrumb-sep">/</span>
+            <span className="breadcrumb-sep" aria-hidden="true">
+              {" / "}
+            </span>
           ) : null}
         </span>
       ))}

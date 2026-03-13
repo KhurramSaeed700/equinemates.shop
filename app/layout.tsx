@@ -36,7 +36,8 @@ export const metadata: Metadata = {
     "horse products",
     "pet products",
     "rider products",
-    "Pakistan ecommerce",
+    "US ecommerce",
+    "EU ecommerce",
     "wholesale quote platform",
   ],
   icons: {
@@ -50,7 +51,7 @@ export const metadata: Metadata = {
       "Modern ecommerce for pet, horse, and rider products with wholesale and admin architecture.",
     url: "https://equinemates.example",
     siteName: "Equinemates",
-    locale: "en_PK",
+    locale: "en_US",
     type: "website",
   },
 };
@@ -70,7 +71,7 @@ export default function RootLayout({
       : "pk_test_placeholder_do_not_use_in_production";
 
   return (
-    <html lang="en-PK">
+    <html lang="en">
       <body className={`${sora.variable} ${plexSans.variable}`}>
         <ClerkProvider publishableKey={clerkPublishableKey}>
           <AppProviders>

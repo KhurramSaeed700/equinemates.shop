@@ -23,6 +23,9 @@ export function SiteHeaderDesktopNav({
   closeTimerRef,
   touchNavQuery,
 }: SiteHeaderDesktopNavProps) {
+  const isTouchLikeDevice = () =>
+    window.matchMedia("(hover: none), (pointer: coarse)").matches;
+
   return (
     <nav aria-label="Main navigation" className="site-nav">
       <div className="container nav-inner" ref={navRef}>
@@ -33,7 +36,10 @@ export function SiteHeaderDesktopNav({
             }
             key={menu.label}
             onMouseEnter={() => {
-              if (window.matchMedia(touchNavQuery).matches) {
+              if (
+                window.matchMedia(touchNavQuery).matches ||
+                isTouchLikeDevice()
+              ) {
                 return;
               }
               if (closeTimerRef.current) {
@@ -43,7 +49,10 @@ export function SiteHeaderDesktopNav({
               setOpenMenu(menu.label);
             }}
             onMouseLeave={() => {
-              if (window.matchMedia(touchNavQuery).matches) {
+              if (
+                window.matchMedia(touchNavQuery).matches ||
+                isTouchLikeDevice()
+              ) {
                 return;
               }
               if (closeTimerRef.current) {
@@ -64,7 +73,11 @@ export function SiteHeaderDesktopNav({
                     : "nav-link mega-trigger mega-trigger-link"
                 }
                 href={menu.href}
-                onFocus={() => setOpenMenu(menu.label)}
+                onFocus={() => {
+                  if (!isTouchLikeDevice()) {
+                    setOpenMenu(menu.label);
+                  }
+                }}
                 onClick={(event) => {
                   if (
                     window.matchMedia(touchNavQuery).matches &&
@@ -88,7 +101,6 @@ export function SiteHeaderDesktopNav({
                     ? "nav-link nav-link-active mega-trigger mega-trigger-toggle"
                     : "nav-link mega-trigger mega-trigger-toggle"
                 }
-                onFocus={() => setOpenMenu(menu.label)}
                 onClick={() =>
                   setOpenMenu((current) =>
                     current === menu.label ? null : menu.label,
@@ -102,7 +114,10 @@ export function SiteHeaderDesktopNav({
             <div
               className="mega-panel"
               onMouseEnter={() => {
-                if (window.matchMedia(touchNavQuery).matches) {
+                if (
+                  window.matchMedia(touchNavQuery).matches ||
+                  isTouchLikeDevice()
+                ) {
                   return;
                 }
                 if (closeTimerRef.current) {
@@ -112,7 +127,10 @@ export function SiteHeaderDesktopNav({
                 setOpenMenu(menu.label);
               }}
               onMouseLeave={() => {
-                if (window.matchMedia(touchNavQuery).matches) {
+                if (
+                  window.matchMedia(touchNavQuery).matches ||
+                  isTouchLikeDevice()
+                ) {
                   return;
                 }
                 if (closeTimerRef.current) {

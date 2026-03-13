@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../lib/generated/prisma"
@@ -11,4 +5,227 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+enum UserRole {
+  CUSTOMER
+  WHOLESALE
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELED
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  REVIEWING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id         String       @id @default(cuid())
+  clerkId    String       @unique
+  email      String       @unique
+  name       String
+  phone      String?
+  role       UserRole     @default(CUSTOMER)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  addresses  Address[]
+  cartItems  CartItem[]
+  orders     Order[]
+  wishlist   WishlistItem[]
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  level       Int
+  path        String
+  parentId    String?
+  parent      Category? @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryTree")
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([parentId])
+  @@index([level])
+}
+
+model Product {
+  id                String         @id @default(cuid())
+  slug              String         @unique
+  sku               String         @unique
+  name              String
+  shortDescription  String
+  longDescription   String
+  basePriceUsd      Decimal        @db.Decimal(10, 2)
+  basePricePkr      Int
+  compareAtPricePkr Int?
+  rating            Decimal        @default(0) @db.Decimal(3, 2)
+  reviewCount       Int            @default(0)
+  images            String[]
+  variants          Json?
+  tags              String[]
+  isBestSeller      Boolean        @default(false)
+  isNewArrival      Boolean        @default(false)
+  stock             Int            @default(0)
+  careInstructions  String?
+  shippingInfo      String?
+  isActive          Boolean        @default(true)
+  categoryId        String
+  category          Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  orderItems        OrderItem[]
+  wishlistItems     WishlistItem[]
+  cartItems         CartItem[]
+  relatedTo         ProductRelation[] @relation("RelatedFrom")
+  relatedFrom       ProductRelation[] @relation("RelatedTo")
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([categoryId])
+  @@index([name])
+  @@index([isActive, isBestSeller, isNewArrival])
+}
+
+model ProductRelation {
+  id              String   @id @default(cuid())
+  sourceProductId String
+  targetProductId String
+  sourceProduct   Product  @relation("RelatedFrom", fields: [sourceProductId], references: [id], onDelete: Cascade)
+  targetProduct   Product  @relation("RelatedTo", fields: [targetProductId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceProductId, targetProductId])
+  @@index([targetProductId])
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  label       String
+  recipient   String
+  line1       String
+  line2       String?
+  city        String
+  province    String
+  postalCode  String
+  country     String
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderShipTo Order[]  @relation("ShippingAddress")
+  orderBillTo Order[]  @relation("BillingAddress")
+
+  @@index([userId])
+}
+
+model CartItem {
+  id          String   @id @default(cuid())
+  userId      String
+  productId   String
+  quantity    Int
+  unitPricePkr Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([productId])
+}
+
+model WishlistItem {
+  id         String   @id @default(cuid())
+  userId     String
+  productId  String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([productId])
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  orderNumber       String      @unique
+  userId            String
+  status            OrderStatus @default(PENDING)
+  currency          String      @default("PKR")
+  subtotalPkr       Int
+  shippingPkr       Int         @default(0)
+  discountPkr       Int         @default(0)
+  totalPkr          Int
+  shippingAddressId String?
+  billingAddressId  String?
+  notes             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  user              User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  shippingAddress   Address?    @relation("ShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  billingAddress    Address?    @relation("BillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
+  items             OrderItem[]
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+model OrderItem {
+  id           String   @id @default(cuid())
+  orderId      String
+  productId    String
+  productName  String
+  sku          String
+  unitPricePkr Int
+  quantity     Int
+  lineTotalPkr Int
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model CatalogRequest {
+  id                 String           @id @default(cuid())
+  name               String
+  email              String
+  company            String?
+  phone              String?
+  wantsPrintedCatalog Boolean         @default(false)
+  wholesale          Boolean          @default(false)
+  notes              String?
+  status             SubmissionStatus @default(SUBMITTED)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@index([email, createdAt])
+  @@index([status])
+}
+
+model WholesaleRequest {
+  id                    String           @id @default(cuid())
+  companyName           String
+  contactName           String
+  email                 String
+  phone                 String
+  taxId                 String?
+  expectedMonthlyVolume String?
+  notes                 String?
+  attachments           String[]
+  status                SubmissionStatus @default(SUBMITTED)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  @@index([email, createdAt])
+  @@index([status])
 }

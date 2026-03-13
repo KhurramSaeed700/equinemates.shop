@@ -39,13 +39,13 @@ export default async function AdminPage() {
 
       <section className="panel">
         <h2>Currency Rates</h2>
-        <p className="tiny">Base Currency: {rates.base}</p>
+        <p className="tiny">Rate Feed: {rates.provider}</p>
         <p className="tiny">Updated: {rates.updatedAt}</p>
         <div className="review-list">
           {Object.entries(rates.rates).map(([code, rate]) => (
             <article className="review-item" key={code}>
               <strong>{code}</strong>
-              <p className="tiny">1 PKR = {rate} {code}</p>
+              <p className="tiny">Indexed rate: {rate}</p>
             </article>
           ))}
         </div>

@@ -7,7 +7,12 @@ import { ProductGrid } from "@/components/catalog/product-grid";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { getProductBySlug, getRelatedProducts, PRODUCTS } from "@/lib/catalog";
+import {
+  buildCategoryPathHref,
+  getProductBySlug,
+  getRelatedProducts,
+  PRODUCTS,
+} from "@/lib/catalog";
 
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -46,13 +51,26 @@ export default async function ProductDetailPage({
   }
 
   const relatedProducts = getRelatedProducts(product.slug);
+  const categoryBreadcrumbs = product.categoryPath.map((node, index) => {
+    if (index === 0) {
+      return {
+        href: `/products?category=${encodeURIComponent(node)}`,
+        label: node,
+      };
+    }
+
+    return {
+      href: buildCategoryPathHref(product.categoryPath.slice(0, index + 1)),
+      label: node,
+    };
+  });
 
   return (
     <>
       <Breadcrumb
         items={[
           { href: "/products", label: "Products" },
-          { label: product.name },
+          ...categoryBreadcrumbs,
         ]}
       />
 

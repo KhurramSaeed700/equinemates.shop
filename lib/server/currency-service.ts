@@ -204,7 +204,6 @@ async function fetchLiveRates(): Promise<CachedRateRecord> {
     }
 
     const ratesFromPkr: Record<CurrencyCode, number> = {
-      PKR: 1,
       USD: usdToUsd / usdToPkr,
       EUR: usdToEur / usdToPkr,
     };
@@ -261,7 +260,6 @@ async function fetchLiveRates(): Promise<CachedRateRecord> {
     }
 
     const ratesFromPkr: Record<CurrencyCode, number> = {
-      PKR: 1,
       USD: usdToUsd / usdToPkr,
       EUR: usdToEur / usdToPkr,
     };

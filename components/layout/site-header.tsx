@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignedIn, UserButton } from "@clerk/nextjs";
 
 import { CurrencySwitcher } from "@/components/layout/currency-switcher";
 import { SiteHeaderDesktopNav } from "@/components/layout/site-header-desktop-nav";
@@ -129,18 +129,6 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
         </div>
 
         <div className="header-utility-right">
-          {clerkEnabled ? (
-            <SignedOut>
-              <SignInButton>
-                <button
-                  className="utility-link utility-auth-link"
-                  type="button"
-                >
-                  Sign In
-                </button>
-              </SignInButton>
-            </SignedOut>
-          ) : null}
           <Link aria-label="My account" className="icon-link" href="/account">
             <UserIcon height={17} width={17} />
           </Link>

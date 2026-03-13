@@ -34,7 +34,7 @@ export function RecentlyViewedSection() {
               <p className="product-price small">
                 {mounted
                   ? formatFromPkr(product.basePricePkr)
-                  : `Rs ${product.basePricePkr}`}
+                  : `$${product.basePriceUsd.toFixed(2)}`}
               </p>
             </Link>
             <button

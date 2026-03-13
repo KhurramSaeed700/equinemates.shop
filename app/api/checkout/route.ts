@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       items?: CartItem[];
       shippingCity?: string;
       shippingAddress?: string;
-      paymentMethod?: "cod" | "bank_transfer" | "card";
+      paymentMethod?: "bank_transfer" | "card" | "wallet";
       currency?: CurrencyCode;
     };
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
     const selectedCurrency = SUPPORTED_CURRENCIES.includes(body.currency as CurrencyCode)
       ? (body.currency as CurrencyCode)
-      : "PKR";
+      : "USD";
 
     const order = await createCheckout({
       items: normalizedItems,

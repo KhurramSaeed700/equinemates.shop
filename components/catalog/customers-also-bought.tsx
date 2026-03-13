@@ -34,7 +34,7 @@ export function CustomersAlsoBought({ product }: { product: Product }) {
               <p className="product-price small">
                 {mounted
                   ? formatFromPkr(p.basePricePkr)
-                  : `Rs ${p.basePricePkr}`}
+                  : `$${p.basePriceUsd.toFixed(2)}`}
               </p>
             </Link>
             <button

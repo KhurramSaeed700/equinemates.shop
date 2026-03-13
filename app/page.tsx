@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 const valueProps = [
   {
     title: "Free Delivery Available",
-    text: "Nationwide shipping support across Pakistan for qualifying orders.",
+    text: "Cross-region shipping support across North America and Europe for qualifying orders.",
   },
   {
     title: "Top Product Access",

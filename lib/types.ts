@@ -1,4 +1,4 @@
-export const SUPPORTED_CURRENCIES = ["PKR", "USD", "EUR"] as const;
+export const SUPPORTED_CURRENCIES = ["USD", "EUR"] as const;
 
 export type CurrencyCode = (typeof SUPPORTED_CURRENCIES)[number];
 

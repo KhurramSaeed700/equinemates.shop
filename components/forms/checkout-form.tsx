@@ -63,8 +63,8 @@ export function CheckoutForm() {
     <form className="panel form-grid compact" onSubmit={onSubmit}>
       <h3>Checkout</h3>
       <label>
-        Shipping City (Pakistan)
-        <input defaultValue="Lahore" name="shippingCity" required type="text" />
+        Shipping City
+        <input defaultValue="New York" name="shippingCity" required type="text" />
       </label>
       <label className="full-width">
         Shipping Address
@@ -72,10 +72,10 @@ export function CheckoutForm() {
       </label>
       <label>
         Payment Method
-        <select defaultValue="cod" name="paymentMethod">
-          <option value="cod">Cash on Delivery (COD)</option>
-          <option value="bank_transfer">Bank Transfer</option>
+        <select defaultValue="card" name="paymentMethod">
           <option value="card">Credit/Debit Card</option>
+          <option value="bank_transfer">Bank Transfer</option>
+          <option value="wallet">Digital Wallet</option>
         </select>
       </label>
       <button className="btn-primary" disabled={isSubmitting} type="submit">

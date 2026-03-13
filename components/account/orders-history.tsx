@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 
+import { useCurrency } from "@/components/providers/currency-provider";
 import { OrderSummary } from "@/lib/types";
 
 export function OrdersHistory() {
   const { isSignedIn } = useUser();
+  const { formatFromPkr } = useCurrency();
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [status, setStatus] = useState(
     isSignedIn ? "Loading orders..." : "Sign in first to view order history.",
@@ -54,8 +56,7 @@ export function OrdersHistory() {
               Date: {order.date} | Status: {order.status}
             </p>
             <p className="tiny">
-              Items: {order.itemCount} | Total: PKR{" "}
-              {order.totalPkr.toLocaleString("en-PK")}
+              Items: {order.itemCount} | Total: {formatFromPkr(order.totalPkr)}
             </p>
           </article>
         ))}

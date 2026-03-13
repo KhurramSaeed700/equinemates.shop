@@ -21,21 +21,6 @@ export function CartContent() {
       <section className="panel">
         <div className="action-row">
           <h2>Cart Items</h2>
-          <div>
-            <button
-              className="btn-ghost"
-              onClick={() => {
-                if (!items.length) return;
-                if (window.confirm("Empty cart? This will remove all items.")) {
-                  clearCart();
-                }
-              }}
-              type="button"
-              aria-disabled={!items.length}
-            >
-              Empty cart
-            </button>
-          </div>
         </div>
         <p>
           Please{" "}
@@ -142,7 +127,7 @@ export function CartContent() {
             Subtotal: {formatFromPkr(subtotalPkr)}
           </p>
           <p className="tiny">
-            Shipping supports Pakistan nationwide with city-based rate
+            Shipping supports the United States and Europe with city-based rate
             adjustments.
           </p>
         </section>

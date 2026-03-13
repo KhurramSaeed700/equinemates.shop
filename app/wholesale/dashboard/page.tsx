@@ -24,7 +24,7 @@ export default function WholesaleDashboardPage() {
                 Requested: {quote.requestedAt} | Status: {quote.status}
               </p>
               <p className="tiny">
-                Estimated: PKR {quote.estimatedTotalPkr.toLocaleString("en-PK")}
+                Estimated: USD {(quote.estimatedTotalPkr / 280).toLocaleString("en-US")}
               </p>
             </article>
           ))}
