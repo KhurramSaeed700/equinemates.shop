@@ -1213,6 +1213,30 @@ a {
   cursor: not-allowed;
 }
 
+.inline-confirmation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0 0.9rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid color-mix(in oklab, var(--line), var(--accent) 18%);
+  border-radius: 0.9rem;
+  background: color-mix(in oklab, var(--surface), var(--accent) 6%);
+}
+
+.inline-confirmation p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.inline-confirmation-actions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
 .review-list {
   display: grid;
   gap: 0.6rem;

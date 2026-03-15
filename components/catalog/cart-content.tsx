@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 import { CheckoutForm } from "@/components/forms/checkout-form";
 import { PeopleAlsoBought } from "./people-also-bought";
@@ -15,6 +16,7 @@ export function CartContent() {
     useCart();
   const { formatFromPkr } = useCurrency();
   const { isSignedIn } = useUser();
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   if (!isSignedIn) {
     return (
@@ -43,9 +45,7 @@ export function CartContent() {
               className="empty-wishlist-btn"
               onClick={() => {
                 if (!items.length) return;
-                if (window.confirm("Empty cart? This will remove all items.")) {
-                  clearCart();
-                }
+                setShowClearConfirm((current) => !current);
               }}
               type="button"
               aria-disabled={!items.length}
@@ -53,6 +53,30 @@ export function CartContent() {
               Empty cart
             </button>
           </div>
+          {showClearConfirm && items.length ? (
+            <div className="inline-confirmation">
+              <p>Are you sure you want to empty your cart?</p>
+              <div className="inline-confirmation-actions">
+                <button
+                  className="btn-primary compact"
+                  onClick={() => {
+                    clearCart();
+                    setShowClearConfirm(false);
+                  }}
+                  type="button"
+                >
+                  Yes
+                </button>
+                <button
+                  className="btn-secondary compact"
+                  onClick={() => setShowClearConfirm(false)}
+                  type="button"
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          ) : null}
           {!items.length ? (
             <p>
               Your cart is empty. Add products from{" "}
