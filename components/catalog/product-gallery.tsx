@@ -10,12 +10,16 @@ export function ProductGallery({
   images: string[];
   name: string;
 }) {
+  const MIN_ZOOM = 1;
+  const MAX_ZOOM = 2.6;
+  const ZOOM_STEP = 0.25;
   const safeImages = useMemo(
     () => (images.length > 0 ? images : ["/place holder/1.webp"]),
     [images],
   );
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(MIN_ZOOM);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const prevImage = () => {
@@ -84,6 +88,23 @@ export function ProductGallery({
     };
   }, [lightboxOpen]);
 
+  useEffect(() => {
+    setZoomLevel(MIN_ZOOM);
+  }, [activeIndex]);
+
+  const zoomIn = () => {
+    setZoomLevel((current) => Math.min(MAX_ZOOM, current + ZOOM_STEP));
+  };
+
+  const zoomOut = () => {
+    setZoomLevel((current) => Math.max(MIN_ZOOM, current - ZOOM_STEP));
+  };
+
+  const closeLightbox = () => {
+    setZoomLevel(MIN_ZOOM);
+    setLightboxOpen(false);
+  };
+
   return (
     <div className="product-gallery-component">
       <div
@@ -102,7 +123,10 @@ export function ProductGallery({
         <button
           aria-label="Open image in full screen"
           className="product-gallery-main-btn"
-          onClick={() => setLightboxOpen(true)}
+          onClick={() => {
+            setZoomLevel(MIN_ZOOM);
+            setLightboxOpen(true);
+          }}
           type="button"
         >
           <Image
@@ -147,22 +171,45 @@ export function ProductGallery({
       {lightboxOpen ? (
         <div
           className="product-gallery-lightbox"
-          onClick={() => setLightboxOpen(false)}
+          onClick={closeLightbox}
         >
-          <button
-            aria-label="Close full screen image"
-            className="product-gallery-lightbox-close"
-            onClick={() => setLightboxOpen(false)}
-            type="button"
-          >
-            x
-          </button>
           <div
             className="product-gallery-lightbox-content"
             onClick={(event) => event.stopPropagation()}
             onTouchEnd={handleTouchEnd}
             onTouchStart={handleTouchStart}
           >
+            <div className="product-gallery-lightbox-toolbar">
+              <button
+                aria-label="Back to product page gallery"
+                className="product-gallery-lightbox-back"
+                onClick={closeLightbox}
+                type="button"
+              >
+                Back
+              </button>
+              <div className="product-gallery-lightbox-actions">
+                <button
+                  aria-label="Zoom out image"
+                  className="product-gallery-lightbox-control"
+                  onClick={zoomOut}
+                  type="button"
+                >
+                  -
+                </button>
+                <span className="product-gallery-lightbox-zoom-label">
+                  {Math.round(zoomLevel * 100)}%
+                </span>
+                <button
+                  aria-label="Zoom in image"
+                  className="product-gallery-lightbox-control"
+                  onClick={zoomIn}
+                  type="button"
+                >
+                  +
+                </button>
+              </div>
+            </div>
             <button
               aria-label="Previous image"
               className="gallery-arrow gallery-arrow-left"
@@ -171,13 +218,16 @@ export function ProductGallery({
             >
               {"<"}
             </button>
-            <Image
-              alt={name}
-              src={safeImages[activeIndex]}
-              width={1600}
-              height={1200}
-              className="product-gallery-lightbox-image"
-            />
+            <div className="product-gallery-lightbox-stage">
+              <Image
+                alt={name}
+                src={safeImages[activeIndex]}
+                width={1600}
+                height={1200}
+                className="product-gallery-lightbox-image"
+                style={{ transform: `scale(${zoomLevel})` }}
+              />
+            </div>
             <button
               aria-label="Next image"
               className="gallery-arrow gallery-arrow-right"

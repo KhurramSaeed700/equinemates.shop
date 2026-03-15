@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { NewsletterPopup } from "@/components/marketing/newsletter-popup";
 import { SitePagination } from "@/components/layout/site-pagination";
 import { AppProviders } from "@/components/providers/app-providers";
 import { isClerkEnabledFromKey } from "@/lib/clerk";
@@ -84,6 +85,7 @@ export default function RootLayout({
                 </Suspense>
               </main>
               <SiteFooter />
+              <NewsletterPopup />
             </div>
           </AppProviders>
         </ClerkProvider>
