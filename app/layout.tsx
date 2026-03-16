@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { IBM_Plex_Sans, Sora } from "next/font/google";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
@@ -57,7 +58,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -70,6 +71,7 @@ export default function RootLayout({
     configuredPublishableKey && configuredPublishableKey.trim().length > 0
       ? configuredPublishableKey
       : "pk_test_placeholder_do_not_use_in_production";
+  const initialSignedIn = clerkEnabled ? Boolean((await auth()).userId) : false;
 
   return (
     <html lang="en">
@@ -77,7 +79,7 @@ export default function RootLayout({
         <ClerkProvider publishableKey={clerkPublishableKey}>
           <AppProviders>
             <div className="site-shell">
-              <SiteHeader clerkEnabled={clerkEnabled} />
+              <SiteHeader clerkEnabled={clerkEnabled} initialSignedIn={initialSignedIn} />
               <main className="site-main">
                 {children}
                 <Suspense fallback={null}>

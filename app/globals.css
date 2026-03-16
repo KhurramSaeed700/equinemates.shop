@@ -1700,6 +1700,39 @@ body {
   align-items: center;
 }
 
+.header-auth-slot {
+  display: inline-flex;
+  align-items: center;
+}
+
+.header-auth-slot .clerk-user-wrap {
+  display: inline-flex;
+}
+
+.header-signin-btn {
+  min-height: 36px;
+  border-radius: 0;
+  padding: 0.42rem 0.95rem;
+  border-color: var(--line);
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: var(--font-sora), "Trebuchet MS", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.header-signin-btn:hover {
+  background: #fff;
+  border-color: color-mix(in oklab, var(--line), var(--accent) 35%);
+  color: var(--ink);
+}
+
 .clerk-account-panel {
   display: flex;
   justify-content: center;
@@ -2294,7 +2327,6 @@ body {
   }
 
   .header-utility-right .utility-link,
-  .header-utility-right .utility-auth-link,
   .header-utility-right .currency-switcher {
     display: none;
   }
@@ -2374,12 +2406,18 @@ body {
     gap: 0.3rem;
   }
 
+  .header-signin-btn {
+    min-height: 32px;
+    padding: 0.34rem 0.58rem;
+    font-size: 0.69rem;
+    letter-spacing: 0.03em;
+  }
+
   .site-nav {
     display: none;
   }
 
   .header-utility-right .utility-link,
-  .header-utility-right .utility-auth-link,
   .header-utility-right .currency-switcher {
     display: none;
   }
@@ -3288,7 +3326,7 @@ body {
   }
 
   .header-utility .brand-mark-image {
-    width: clamp(96px, 28vw, 124px);
+    width: clamp(118px, 34vw, 152px);
     max-width: 100%;
     object-position: left center;
     margin-left: 0;
@@ -3297,16 +3335,54 @@ body {
 
   .header-utility .header-utility-left {
     justify-self: start;
+    margin-top: 0.08rem;
   }
 
   .header-utility .header-utility-right {
     min-width: 0;
     flex-wrap: nowrap;
     justify-content: flex-end;
+    gap: 0.22rem;
   }
 
   .header-utility .header-utility-right .clerk-user-wrap {
     display: none;
+  }
+
+  .header-utility .header-utility-right .header-auth-slot {
+    display: inline-flex;
+  }
+
+  .header-utility .header-utility-right .header-auth-slot .clerk-user-wrap {
+    display: inline-flex;
+  }
+
+  .header-utility .header-utility-right .icon-link,
+  .header-utility .header-utility-right .mobile-nav-toggle {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    border: 1px solid var(--line);
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .header-utility .header-signin-btn {
+    min-height: 40px;
+    padding: 0.38rem 0.72rem;
+    border-color: var(--line);
+    background: #fff;
+    color: var(--ink);
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+  }
+
+  .header-utility .header-utility-left .search-wrap,
+  .header-utility .header-utility-left .search-form {
+    margin-top: 0;
   }
 }
 
@@ -3357,7 +3433,6 @@ body {
 }
 
 .site-header.site-header-condensed .header-utility-right .utility-link,
-.site-header.site-header-condensed .header-utility-right .utility-auth-link,
 .site-header.site-header-condensed .header-utility-right .currency-switcher {
   display: none;
 }

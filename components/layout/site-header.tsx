@@ -17,10 +17,15 @@ import {
   CloseIcon,
   HeartIcon,
   MenuIcon,
-  UserIcon,
 } from "@/components/ui/icons";
 
-export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
+export function SiteHeader({
+  clerkEnabled,
+  initialSignedIn,
+}: {
+  clerkEnabled: boolean;
+  initialSignedIn: boolean;
+}) {
   const TOUCH_NAV_QUERY = "(max-width: 680px)";
   const { itemCount } = useCart();
   const { productSlugs } = useWishlist();
@@ -129,9 +134,19 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
         </div>
 
         <div className="header-utility-right">
-          <Link aria-label="My account" className="icon-link" href="/account">
-            <UserIcon height={17} width={17} />
-          </Link>
+          {clerkEnabled && initialSignedIn ? (
+            <div className="header-auth-slot">
+              <SignedIn>
+                <div className="clerk-user-wrap">
+                  <UserButton />
+                </div>
+              </SignedIn>
+            </div>
+          ) : (
+            <Link className="utility-auth-link header-signin-btn" href="/account">
+              Sign in
+            </Link>
+          )}
           <Link aria-label="Wishlist" className="icon-link" href="/wishlist">
             <HeartIcon height={17} width={17} />
             <span className="counter-dot">{productSlugs.length}</span>
@@ -151,13 +166,6 @@ export function SiteHeader({ clerkEnabled }: { clerkEnabled: boolean }) {
             {mobileNavOpen ? <CloseIcon height={18} width={18} /> : <MenuIcon height={18} width={18} />}
           </button>
           <CurrencySwitcher />
-          {clerkEnabled ? (
-            <SignedIn>
-              <div className="clerk-user-wrap">
-                <UserButton />
-              </div>
-            </SignedIn>
-          ) : null}
         </div>
       </div>
 
