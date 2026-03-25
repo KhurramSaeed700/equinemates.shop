@@ -188,28 +188,24 @@ export function ProductPreviewModal({
               <p>{product.shortDescription}</p>
             </div>
 
-            <div className="preview-modal-actions">
-              <button
-                className="btn-primary preview-modal-action-button"
-                disabled={!isSignedIn}
-                onClick={() => addToCart(product, 1)}
-                type="button"
-              >
-                {isSignedIn ? "Add to cart" : "Sign in to add"}
-              </button>
-              <button
-                className="btn-secondary preview-modal-action-button"
-                disabled={!isSignedIn}
-                onClick={() => toggle(product.slug)}
-                type="button"
-              >
-                {isSignedIn
-                  ? isWishlisted
-                    ? "Remove from wishlist"
-                    : "Add to wishlist"
-                  : "Sign in to save"}
-              </button>
-            </div>
+            {isSignedIn ? (
+              <div className="preview-modal-actions">
+                <button
+                  className="btn-primary preview-modal-action-button"
+                  onClick={() => addToCart(product, 1)}
+                  type="button"
+                >
+                  Add to cart
+                </button>
+                <button
+                  className="btn-secondary preview-modal-action-button"
+                  onClick={() => toggle(product.slug)}
+                  type="button"
+                >
+                  {isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

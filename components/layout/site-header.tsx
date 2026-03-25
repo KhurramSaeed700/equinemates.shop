@@ -134,19 +134,7 @@ export function SiteHeader({
         </div>
 
         <div className="header-utility-right">
-          {clerkEnabled && initialSignedIn ? (
-            <div className="header-auth-slot">
-              <SignedIn>
-                <div className="clerk-user-wrap">
-                  <UserButton />
-                </div>
-              </SignedIn>
-            </div>
-          ) : (
-            <Link className="utility-auth-link header-signin-btn" href="/account">
-              Sign in
-            </Link>
-          )}
+          <CurrencySwitcher />
           <Link aria-label="Wishlist" className="icon-link" href="/wishlist">
             <HeartIcon height={17} width={17} />
             <span className="counter-dot">{productSlugs.length}</span>
@@ -165,7 +153,19 @@ export function SiteHeader({
           >
             {mobileNavOpen ? <CloseIcon height={18} width={18} /> : <MenuIcon height={18} width={18} />}
           </button>
-          <CurrencySwitcher />
+          {clerkEnabled && initialSignedIn ? (
+            <div className="header-auth-slot">
+              <SignedIn>
+                <div className="clerk-user-wrap">
+                  <UserButton />
+                </div>
+              </SignedIn>
+            </div>
+          ) : (
+            <Link className="utility-auth-link header-signin-btn" href="/account">
+              Sign in
+            </Link>
+          )}
         </div>
       </div>
 

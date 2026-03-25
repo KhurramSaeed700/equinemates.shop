@@ -17,13 +17,13 @@ import { useUser } from "@clerk/nextjs";
 
 export function ProductCard({ product }: { product: Product }) {
   const { formatFromPkr } = useCurrency();
-  const { addToCart } = useCart();
+  const { addToCart, items } = useCart();
   const { has: hasInWishlist, toggle } = useWishlist();
   const isFavorited = hasInWishlist(product.slug);
   const { isSignedIn } = useUser();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [justAdded, setJustAdded] = useState(false);
   const mounted = useMounted();
+  const isInCart = items.some((item) => item.productSlug === product.slug);
 
   return (
     <>
@@ -37,23 +37,22 @@ export function ProductCard({ product }: { product: Product }) {
               src={product.images[0]}
               width={640}
             />
-            {/* favorite heart overlay */}
-            <button
-              type="button"
-              className="absolute top-2 right-2 p-1 bg-white/80 rounded-full hover:bg-white"
-              onClick={(e) => {
-                // prevent the surrounding link from firing
-                e.preventDefault();
-                e.stopPropagation();
-                toggle(product.slug);
-              }}
-              disabled={!isSignedIn}
-              title={isSignedIn ? undefined : "Sign in to save"}
-            >
-              <HeartIcon
-                className={`w-5 h-5 text-red-500 ${isFavorited ? "fill-current" : ""}`}
-              />
-            </button>
+            {isSignedIn ? (
+              <button
+                type="button"
+                className="absolute top-2 right-2 p-1 bg-white/80 rounded-full hover:bg-white"
+                onClick={(e) => {
+                  // prevent the surrounding link from firing
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggle(product.slug);
+                }}
+              >
+                <HeartIcon
+                  className={`w-5 h-5 text-red-500 ${isFavorited ? "fill-current" : ""}`}
+                />
+              </button>
+            ) : null}
           </div>
           <div className="product-body">
             <p className="product-meta">
@@ -69,36 +68,28 @@ export function ProductCard({ product }: { product: Product }) {
             </p>
           </div>
         </Link>
-        <div className="product-actions">
-          <button
-            className="btn-primary"
-            onClick={() => {
-              if (!isSignedIn) return;
-              addToCart(product, 1);
-              setJustAdded(true);
-              window.setTimeout(() => setJustAdded(false), 1500);
-            }}
-            type="button"
-            disabled={!isSignedIn}
-            aria-pressed={justAdded}
-          >
-            <span className="inline-flex items-center gap-2">
-              {justAdded ? (
-                <FiCheck className="w-4 h-4 text-white" />
-              ) : (
-                <CartIcon className="w-4 h-4" />
-              )}
-              <span>
-                {isSignedIn
-                  ? justAdded
-                    ? "Added"
-                    : "Add to Cart"
-                  : "Sign in to add"}
+        <div className={isSignedIn ? "product-actions" : "product-actions product-actions-single"}>
+          {isSignedIn ? (
+            <button
+              className="btn-primary product-card-action-btn"
+              onClick={() => {
+                addToCart(product, 1);
+              }}
+              type="button"
+              aria-pressed={isInCart}
+            >
+              <span className="inline-flex items-center gap-1">
+                {isInCart ? (
+                  <FiCheck className="h-3.5 w-3.5 text-white" />
+                ) : (
+                  <CartIcon className="h-3.5 w-3.5" />
+                )}
+                <span>{isInCart ? "Added" : "Add to Cart"}</span>
               </span>
-            </span>
-          </button>
+            </button>
+          ) : null}
           <button
-            className="btn-secondary"
+            className="btn-secondary product-card-action-btn"
             onClick={() => setIsPreviewOpen(true)}
             type="button"
           >

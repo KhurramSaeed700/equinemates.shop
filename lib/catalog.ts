@@ -651,6 +651,70 @@ function normalizeSlug(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+function cloneProduct(product: Product): Product {
+  return structuredClone(product);
+}
+
+function buildRelatedSlugsForProduct(product: Product): string[] {
+  return PRODUCTS.filter(
+    (candidate) =>
+      candidate.slug !== product.slug && candidate.category === product.category,
+  )
+    .slice(0, 4)
+    .map((candidate) => candidate.slug);
+}
+
+function replaceRelatedSlugReferences(previousSlug: string, nextSlug: string) {
+  for (const product of PRODUCTS) {
+    if (!product.relatedSlugs.includes(previousSlug)) {
+      continue;
+    }
+
+    product.relatedSlugs = product.relatedSlugs.map((relatedSlug) =>
+      relatedSlug === previousSlug ? nextSlug : relatedSlug,
+    );
+  }
+}
+
+export interface AdminProductSummary {
+  id: string;
+  slug: string;
+  name: string;
+  sku: string;
+  category: ProductCategory;
+}
+
+export interface AdminProductInput {
+  originalSlug?: string;
+  slug: string;
+  name: string;
+  sku: string;
+  category: ProductCategory;
+  categoryPath: string[];
+  shortDescription: string;
+  longDescription: string;
+  basePriceUsd: number;
+  basePricePkr: number;
+  compareAtPricePkr?: number;
+  images: string[];
+  tags: string[];
+  stock: number;
+  isBestSeller: boolean;
+  isNewArrival: boolean;
+  careInstructions?: string;
+  shippingInfo?: string;
+}
+
+export function getAdminProductSummaries(): AdminProductSummary[] {
+  return PRODUCTS.map((product) => ({
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    sku: product.sku,
+    category: product.category,
+  })).sort((left, right) => left.name.localeCompare(right.name));
+}
+
 export function getProductBySlug(slug: string): Product | undefined {
   const directMatch = PRODUCTS.find((product) => product.slug === slug);
   if (directMatch) {
@@ -726,4 +790,103 @@ export function searchSuggestions(query: string): Product[] {
     return [];
   }
   return filterProducts({ query }).slice(0, 6);
+}
+
+export function saveAdminProduct(input: AdminProductInput): {
+  product: Product;
+  created: boolean;
+} {
+  const normalizedSlug = normalizeSlug(input.slug || input.name);
+  const normalizedOriginalSlug = input.originalSlug
+    ? normalizeSlug(input.originalSlug)
+    : null;
+  const categoryPath = input.categoryPath.filter(Boolean);
+  const category = (categoryPath[0] ?? input.category).trim() as ProductCategory;
+  const images = input.images.filter(Boolean);
+  const tags = input.tags.filter(Boolean);
+  const existingIndex = normalizedOriginalSlug
+    ? PRODUCTS.findIndex(
+        (product) => normalizeSlug(product.slug) === normalizedOriginalSlug,
+      )
+    : PRODUCTS.findIndex((product) => normalizeSlug(product.slug) === normalizedSlug);
+  const existingProduct = existingIndex >= 0 ? PRODUCTS[existingIndex] : null;
+
+  if (!normalizedSlug) {
+    throw new Error("Product slug is required.");
+  }
+
+  if (!input.name.trim() || !input.sku.trim()) {
+    throw new Error("Product name and SKU are required.");
+  }
+
+  if (!category) {
+    throw new Error("Product category is required.");
+  }
+
+  if (Number.isNaN(input.basePriceUsd) || Number.isNaN(input.basePricePkr)) {
+    throw new Error("Product prices must be valid numbers.");
+  }
+
+  if (Number.isNaN(input.stock)) {
+    throw new Error("Product stock must be a valid number.");
+  }
+
+  const slugConflict = PRODUCTS.some(
+    (product, index) =>
+      normalizeSlug(product.slug) === normalizedSlug && index !== existingIndex,
+  );
+  if (slugConflict) {
+    throw new Error("Another product already uses that slug.");
+  }
+
+  const skuConflict = PRODUCTS.some(
+    (product, index) =>
+      product.sku.trim().toLowerCase() === input.sku.trim().toLowerCase() &&
+      index !== existingIndex,
+  );
+  if (skuConflict) {
+    throw new Error("Another product already uses that SKU.");
+  }
+
+  const nextProduct: Product = {
+    id: existingProduct?.id ?? normalizedSlug,
+    slug: normalizedSlug,
+    name: input.name.trim(),
+    sku: input.sku.trim().toUpperCase(),
+    category,
+    categoryPath: categoryPath.length ? categoryPath : [category],
+    shortDescription: input.shortDescription.trim(),
+    longDescription: input.longDescription.trim(),
+    basePriceUsd: input.basePriceUsd,
+    basePricePkr: input.basePricePkr,
+    compareAtPricePkr: input.compareAtPricePkr,
+    images,
+    variants: existingProduct?.variants ?? [],
+    rating: existingProduct?.rating ?? 0,
+    reviewCount: existingProduct?.reviewCount ?? 0,
+    reviews: existingProduct?.reviews ?? [],
+    tags,
+    isBestSeller: input.isBestSeller,
+    isNewArrival: input.isNewArrival,
+    relatedSlugs: existingProduct?.relatedSlugs ?? [],
+    stock: input.stock,
+    careInstructions: input.careInstructions?.trim() || undefined,
+    shippingInfo: input.shippingInfo?.trim() || undefined,
+  };
+
+  nextProduct.relatedSlugs = buildRelatedSlugsForProduct(nextProduct);
+
+  if (existingProduct) {
+    PRODUCTS[existingIndex] = nextProduct;
+    if (existingProduct.slug !== nextProduct.slug) {
+      replaceRelatedSlugReferences(existingProduct.slug, nextProduct.slug);
+    }
+  } else {
+    PRODUCTS.push(nextProduct);
+  }
+
+  return {
+    product: cloneProduct(nextProduct),
+    created: !existingProduct,
+  };
 }

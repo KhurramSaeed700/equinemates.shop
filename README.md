@@ -120,6 +120,45 @@ pnpm dev
 
 Open `http://localhost:3000`.
 
+## Cloudflare R2 Image Uploads
+
+This project now includes an admin product editor at `/admin` that sends product
+images to Cloudflare R2 through `POST /api/admin/uploads` and saves product
+changes through `POST /api/admin/products`.
+
+1. Create an R2 bucket in Cloudflare.
+2. Create an R2 API token with object read/write access for that bucket.
+3. Make the bucket publicly readable through either:
+   - a custom domain, or
+   - Cloudflare's `r2.dev` public URL.
+4. Add these environment variables:
+
+```bash
+ADMIN_EMAILS="admin@example.com"
+R2_ACCOUNT_ID="your_cloudflare_account_id"
+R2_ACCESS_KEY_ID="your_r2_access_key_id"
+R2_SECRET_ACCESS_KEY="your_r2_secret_access_key"
+R2_BUCKET_NAME="equinemates-products"
+R2_PUBLIC_BASE_URL="https://pub-your-public-bucket-id.r2.dev"
+R2_UPLOAD_PREFIX="products"
+R2_MAX_UPLOAD_MB="4"
+```
+
+5. Sign in with a Clerk user whose email is included in `ADMIN_EMAILS`.
+6. Open `/admin`, select an existing product or create a new draft, upload an
+   image, and save the product.
+
+Notes:
+
+- The upload route accepts `AVIF`, `GIF`, `JPG`, `PNG`, and `WebP`.
+- `next/image` remote access is derived from `R2_PUBLIC_BASE_URL`, so restart the
+  dev server after changing that env var.
+- This implementation relays uploads through the Next.js server. Keep file sizes
+  modest on Vercel. If you need larger assets, switch to presigned direct browser
+  uploads.
+- Product edits currently update the in-memory catalog only. They reset on
+  restart or redeploy until the product catalog is moved into the database.
+
 ## Live Deployment
 
 - Production domain: `https://equinemates-shop.vercel.app`
@@ -143,6 +182,9 @@ Use the Clerk dashboard or test user fixtures instead.
 - `POST /api/checkout`
 - `GET /api/search`
 - `GET /api/currency/rates`
+- `GET /api/admin/products`
+- `POST /api/admin/products`
+- `POST /api/admin/uploads`
 
 ## Production Readiness Steps
 

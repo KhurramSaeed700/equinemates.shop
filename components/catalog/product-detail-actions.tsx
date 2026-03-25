@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 
 import { useCart } from "@/components/providers/cart-provider";
@@ -81,34 +82,38 @@ export function ProductDetailActions({
           </div>
         </label>
 
-        <div className="action-row">
-          <button
-            className="btn-primary strong-cta"
-            onClick={() => addToCart(product, quantity)}
-            type="button"
-            disabled={!isSignedIn}
-          >
-            {isSignedIn ? "Add to Cart" : "Sign in to add"}
-          </button>
-          <button
-            className="btn-secondary"
-            onClick={() => toggle(product.slug)}
-            type="button"
-            disabled={!isSignedIn}
-          >
-            {isSignedIn
-              ? has(product.slug)
-                ? "Remove from Wishlist"
-                : "Save to Wishlist"
-              : "Sign in to save"}
-          </button>
-        </div>
+        {isSignedIn ? (
+          <div className="action-row">
+            <button
+              className="btn-primary strong-cta"
+              onClick={() => addToCart(product, quantity)}
+              type="button"
+            >
+              Add to Cart
+            </button>
+            <button
+              className="btn-secondary"
+              onClick={() => toggle(product.slug)}
+              type="button"
+            >
+              {has(product.slug) ? "Remove from Wishlist" : "Save to Wishlist"}
+            </button>
+          </div>
+        ) : null}
+        {!isSignedIn ? (
+          <p className="auth-gate-hint tiny">
+            <Link className="text-link" href="/account">
+              Sign in
+            </Link>{" "}
+            to add this product to cart or wishlist.
+          </p>
+        ) : null}
 
         <FrequentlyBoughtTogether product={product} />
 
       </section>
 
-      {sticky ? (
+      {sticky && isSignedIn ? (
         <div className="sticky-addbar">
           <div className="action-row">
             <span className="product-price highlight">{formatFromPkr(product.basePricePkr)}</span>
@@ -116,9 +121,8 @@ export function ProductDetailActions({
               className="btn-primary strong-cta"
               onClick={() => addToCart(product, quantity)}
               type="button"
-              disabled={!isSignedIn}
             >
-              {isSignedIn ? "Add" : "Sign in"}
+              Add
             </button>
           </div>
         </div>

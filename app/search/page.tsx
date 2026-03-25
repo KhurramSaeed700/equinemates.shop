@@ -49,7 +49,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       />
       <CatalogFilter />
       <section className="section-spacing">
-        <ProductGrid products={pagedProducts} emptyLabel="No products matched this search." />
+        <ProductGrid
+          products={pagedProducts}
+          emptyLabel="No products matched this search."
+          showAuthHint
+        />
       </section>
     </>
   );
