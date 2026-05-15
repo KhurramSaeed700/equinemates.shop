@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Stable rack">
+  <rect width="640" height="420" fill="#efe8d9"/>
+  <rect x="124" y="120" width="392" height="48" rx="10" fill="#5b3d2a"/>
+  <path d="M176 168v122M264 168v122M352 168v122M440 168v122" stroke="#2f5b4a" stroke-width="20" stroke-linecap="round"/>
+  <path d="M144 290h352" stroke="#d8b36c" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="176" cy="142" r="10" fill="#d8b36c"/>
+  <circle cx="464" cy="142" r="10" fill="#d8b36c"/>
+  <text x="320" y="360" fill="#5b3d2a" font-family="Segoe UI, sans-serif" font-size="34" text-anchor="middle">Stable Rack</text>
+</svg>

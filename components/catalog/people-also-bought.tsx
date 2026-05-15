@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { PRODUCTS } from "@/lib/catalog";
-import { CartItem, Product } from "@/lib/types";
+import { useCatalogProducts } from "@/components/hooks/useCatalogProducts";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { useMounted } from "@/components/hooks/useMounted";
+import { CartItem } from "@/lib/types";
 
 interface PeopleAlsoBoughtProps {
   items: CartItem[];
@@ -13,33 +13,16 @@ interface PeopleAlsoBoughtProps {
 
 export function PeopleAlsoBought({ items }: PeopleAlsoBoughtProps) {
   const { addToCart } = useCart();
-  const { formatFromPkr } = useCurrency();
+  const { formatFromUsd } = useCurrency();
   const mounted = useMounted();
-
-  // compute related slugs
-  const related: Product[] = [];
-  const already = new Set(items.map((i) => i.productSlug));
-
-  items.forEach((item) => {
-    const prod = PRODUCTS.find((p) => p.slug === item.productSlug);
-    if (prod && prod.relatedSlugs) {
-      prod.relatedSlugs.forEach((slug) => {
-        if (!already.has(slug) && !related.find((p) => p.slug === slug)) {
-          const p2 = PRODUCTS.find((q) => q.slug === slug);
-          if (p2) related.push(p2);
-        }
-      });
-    }
+  const itemSlugs = items.map((item) => item.productSlug);
+  const { products: related } = useCatalogProducts({
+    slugs: itemSlugs,
+    excludeSlugs: itemSlugs,
+    limit: 6,
+    mode: "related",
+    enabled: itemSlugs.length > 0,
   });
-
-  // if none found, pick random excluding cart items
-  if (!related.length) {
-    const pool = PRODUCTS.filter((p) => !already.has(p.slug));
-    while (related.length < 6 && pool.length) {
-      const idx = Math.floor(Math.random() * pool.length);
-      related.push(pool.splice(idx, 1)[0]);
-    }
-  }
 
   if (!related.length) return null;
 
@@ -59,7 +42,7 @@ export function PeopleAlsoBought({ items }: PeopleAlsoBoughtProps) {
               <h3>{product.name}</h3>
               <p className="product-price small">
                 {mounted
-                  ? formatFromPkr(product.basePricePkr)
+                  ? formatFromUsd(product.basePriceUsd)
                   : `$${product.basePriceUsd.toFixed(2)}`}
               </p>
             </Link>

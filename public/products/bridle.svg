@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="English bridle">
+  <rect width="640" height="420" fill="#f2eadc"/>
+  <path d="M244 112c74-52 168-20 168 78 0 86-46 140-92 140s-92-54-92-140c0-30 6-56 16-78Z" fill="none" stroke="#5c3a24" stroke-width="20" stroke-linecap="round"/>
+  <path d="M232 172h176M272 112c-30 52-34 126-18 202M368 112c30 52 34 126 18 202" stroke="#2f5b4a" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="254" cy="172" r="11" fill="#d9b76e"/>
+  <circle cx="386" cy="172" r="11" fill="#d9b76e"/>
+  <text x="320" y="370" fill="#5c3a24" font-family="Segoe UI, sans-serif" font-size="34" text-anchor="middle">English Bridle</text>
+</svg>

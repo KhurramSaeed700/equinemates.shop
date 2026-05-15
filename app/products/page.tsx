@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { ProductGrid } from "@/components/catalog/product-grid";
+import { SitePagination } from "@/components/layout/site-pagination";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { buildCategoryPathHref, filterProducts } from "@/lib/catalog";
+import { buildCategoryPathHref } from "@/lib/catalog";
 import { clampPage, parsePageParam, parsePerPageParam } from "@/lib/pagination";
+import { filterProducts } from "@/lib/server/catalog-products";
 import { ProductCategory } from "@/lib/types";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Products",
@@ -27,7 +32,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const category = params.category as ProductCategory | undefined;
   const categoryPath = params.path;
   const categoryNodes = categoryPath ? categoryPath.split(" > ") : [];
-  const products = filterProducts({
+  const products = await filterProducts({
     category,
     categoryPath,
   });
@@ -63,6 +68,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       <section className="section-spacing products-grid-mobile-two">
         <ProductGrid products={pagedProducts} showAuthHint />
       </section>
+      <Suspense fallback={null}>
+        <SitePagination totalItems={products.length} />
+      </Suspense>
     </>
   );
 }

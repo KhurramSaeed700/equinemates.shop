@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Dog coat">
+  <rect width="640" height="420" fill="#eaf0ec"/>
+  <path d="M144 238c34-74 108-112 228-98 80 10 118 46 140 100l-28 58H176l-32-60Z" fill="#8a5630"/>
+  <path d="M456 198l58-24 34 38-30 36-50-12" fill="#6f4528"/>
+  <path d="M202 298v42M420 298v42" stroke="#4b3020" stroke-width="20" stroke-linecap="round"/>
+  <path d="M184 224h296" stroke="#f0cf83" stroke-width="12" stroke-linecap="round"/>
+  <text x="320" y="378" fill="#5b3b28" font-family="Segoe UI, sans-serif" font-size="34" text-anchor="middle">Dog Coat</text>
+</svg>

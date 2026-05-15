@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Hay feeder">
+  <rect width="640" height="420" fill="#e8efe8"/>
+  <path d="M202 104h236l42 216H160l42-216Z" fill="#fff6df" stroke="#526a58" stroke-width="8"/>
+  <path d="M198 164h244M184 224h272M172 284h296M238 112l-36 206M320 112v206M402 112l36 206" stroke="#d3a94f" stroke-width="10" stroke-linecap="round"/>
+  <path d="M238 104l-30-50M402 104l30-50" stroke="#526a58" stroke-width="14" stroke-linecap="round"/>
+  <text x="320" y="372" fill="#31433d" font-family="Segoe UI, sans-serif" font-size="34" text-anchor="middle">Hay Feeder</text>
+</svg>

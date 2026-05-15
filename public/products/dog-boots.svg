@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Dog boots">
+  <rect width="640" height="420" fill="#f0e8dc"/>
+  <g fill="#2f5b4a" stroke="#243d36" stroke-width="6">
+    <path d="M160 154h78l18 126-22 34h-84l-22-34 32-126Z"/>
+    <path d="M280 154h78l18 126-22 34h-84l-22-34 32-126Z"/>
+    <path d="M400 154h78l18 126-22 34h-84l-22-34 32-126Z"/>
+  </g>
+  <path d="M148 216h100M268 216h100M388 216h100" stroke="#f2cf80" stroke-width="10" stroke-linecap="round"/>
+  <text x="320" y="370" fill="#31433d" font-family="Segoe UI, sans-serif" font-size="34" text-anchor="middle">Dog Boots</text>
+</svg>

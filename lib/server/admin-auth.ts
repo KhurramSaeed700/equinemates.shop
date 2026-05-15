@@ -16,15 +16,6 @@ function getConfiguredAdminEmails(): string[] {
     .filter(Boolean);
 }
 
-function getMetadataRole(metadata: unknown): string | null {
-  if (!metadata || typeof metadata !== "object") {
-    return null;
-  }
-
-  const role = Reflect.get(metadata, "role");
-  return typeof role === "string" ? role.toLowerCase() : null;
-}
-
 export async function getAdminAccess(): Promise<AdminAccessResult> {
   const clerkEnabled = isClerkEnabledFromKey(
     process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
@@ -56,18 +47,6 @@ export async function getAdminAccess(): Promise<AdminAccessResult> {
     user?.emailAddresses.map((entry) => entry.emailAddress.toLowerCase()) ?? [];
   const primaryEmail =
     user?.primaryEmailAddress?.emailAddress.toLowerCase() ?? emails[0] ?? null;
-  const metadataRole =
-    getMetadataRole(user?.publicMetadata) ??
-    getMetadataRole(user?.unsafeMetadata);
-
-  if (metadataRole === "admin") {
-    return {
-      isAuthorized: true,
-      isAuthenticated: true,
-      reason: "",
-      primaryEmail,
-    };
-  }
 
   const adminEmails = getConfiguredAdminEmails();
 

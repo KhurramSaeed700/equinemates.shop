@@ -1,9 +1,8 @@
 import { randomUUID } from "node:crypto";
 
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getR2Config, type R2Config } from "@/lib/server/r2-config";
 
-const DEFAULT_UPLOAD_PREFIX = "products";
-const DEFAULT_MAX_UPLOAD_MB = 4;
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/avif",
   "image/gif",
@@ -11,26 +10,6 @@ const ALLOWED_IMAGE_TYPES = new Set([
   "image/png",
   "image/webp",
 ]);
-
-const REQUIRED_R2_ENV_VARS = [
-  "R2_ACCOUNT_ID",
-  "R2_ACCESS_KEY_ID",
-  "R2_SECRET_ACCESS_KEY",
-  "R2_BUCKET_NAME",
-  "R2_PUBLIC_BASE_URL",
-] as const;
-
-type RequiredR2EnvVar = (typeof REQUIRED_R2_ENV_VARS)[number];
-
-type R2Config = {
-  accountId: string;
-  accessKeyId: string;
-  secretAccessKey: string;
-  bucketName: string;
-  publicBaseUrl: string;
-  uploadPrefix: string;
-  maxUploadBytes: number;
-};
 
 type R2UploadInput = {
   file: File;
@@ -46,43 +25,6 @@ type R2UploadResult = {
 
 let cachedClient: S3Client | null = null;
 let cachedEndpoint = "";
-
-function getMissingR2EnvVars(): RequiredR2EnvVar[] {
-  return REQUIRED_R2_ENV_VARS.filter((name) => !process.env[name]?.trim());
-}
-
-function getNormalizedBaseUrl(value: string): string {
-  const url = new URL(value);
-  return url.toString().endsWith("/") ? url.toString() : `${url.toString()}/`;
-}
-
-function getMaxUploadBytes(): number {
-  const configuredMaxMb = Number(process.env.R2_MAX_UPLOAD_MB ?? DEFAULT_MAX_UPLOAD_MB);
-  const safeMaxMb =
-    Number.isFinite(configuredMaxMb) && configuredMaxMb > 0
-      ? configuredMaxMb
-      : DEFAULT_MAX_UPLOAD_MB;
-
-  return Math.floor(safeMaxMb * 1024 * 1024);
-}
-
-function getR2Config(): R2Config {
-  const missing = getMissingR2EnvVars();
-
-  if (missing.length) {
-    throw new Error(`Missing R2 environment variables: ${missing.join(", ")}`);
-  }
-
-  return {
-    accountId: process.env.R2_ACCOUNT_ID!.trim(),
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!.trim(),
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!.trim(),
-    bucketName: process.env.R2_BUCKET_NAME!.trim(),
-    publicBaseUrl: getNormalizedBaseUrl(process.env.R2_PUBLIC_BASE_URL!.trim()),
-    uploadPrefix: process.env.R2_UPLOAD_PREFIX?.trim() || DEFAULT_UPLOAD_PREFIX,
-    maxUploadBytes: getMaxUploadBytes(),
-  };
-}
 
 function getFileExtension(contentType: string): string {
   switch (contentType) {
@@ -172,18 +114,6 @@ function assertUploadableImage(file: File, maxUploadBytes: number) {
   }
 }
 
-export function getR2ConfigurationStatus() {
-  const missing = getMissingR2EnvVars();
-
-  return {
-    isConfigured: missing.length === 0,
-    missing,
-    uploadPrefix: process.env.R2_UPLOAD_PREFIX?.trim() || DEFAULT_UPLOAD_PREFIX,
-    maxUploadMb: Math.floor(getMaxUploadBytes() / 1024 / 1024),
-    publicBaseUrl: process.env.R2_PUBLIC_BASE_URL?.trim() ?? "",
-  };
-}
-
 export async function uploadImageToR2({
   file,
   folder,
@@ -195,15 +125,50 @@ export async function uploadImageToR2({
   const key = buildObjectKey(config.uploadPrefix, folder, file);
   const body = Buffer.from(await file.arrayBuffer());
 
-  await getS3Client(config).send(
-    new PutObjectCommand({
-      Bucket: config.bucketName,
-      Key: key,
-      Body: body,
-      ContentType: file.type,
-      CacheControl: "public, max-age=31536000, immutable",
-    }),
-  );
+  try {
+    await getS3Client(config).send(
+      new PutObjectCommand({
+        Bucket: config.bucketName,
+        Key: key,
+        Body: body,
+        ContentType: file.type,
+        CacheControl: "public, max-age=31536000, immutable",
+      }),
+    );
+  } catch (error) {
+    const statusCode =
+      typeof error === "object" &&
+      error !== null &&
+      "$metadata" in error &&
+      typeof error.$metadata === "object" &&
+      error.$metadata !== null &&
+      "httpStatusCode" in error.$metadata &&
+      typeof error.$metadata.httpStatusCode === "number"
+        ? error.$metadata.httpStatusCode
+        : undefined;
+    const errorName =
+      error instanceof Error && error.name ? error.name : "R2UploadError";
+    const errorMessage =
+      error instanceof Error && error.message ? error.message : "Unknown R2 error";
+
+    if (
+      statusCode === 403 ||
+      errorName === "AccessDenied" ||
+      /access ?denied/i.test(errorMessage)
+    ) {
+      throw new Error(
+        "Cloudflare R2 denied the upload. Restart the dev server after editing .env.local, then verify that R2_ACCOUNT_ID and R2_BUCKET_NAME match the bucket and that the R2 access key has write access.",
+      );
+    }
+
+    if (statusCode === 404 || /no such bucket/i.test(errorMessage)) {
+      throw new Error(
+        "Cloudflare R2 could not find the configured bucket. Check R2_BUCKET_NAME and R2_ACCOUNT_ID, then restart the dev server.",
+      );
+    }
+
+    throw new Error(`Cloudflare R2 upload failed: ${errorMessage}`);
+  }
 
   return {
     key,

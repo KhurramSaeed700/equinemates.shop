@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { CatalogFilter } from "@/components/catalog/catalog-filter";
 import { ProductGrid } from "@/components/catalog/product-grid";
+import { SitePagination } from "@/components/layout/site-pagination";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { filterProducts } from "@/lib/catalog";
 import { clampPage, parsePageParam, parsePerPageParam } from "@/lib/pagination";
+import {
+  filterProducts,
+  getCategoryOptions,
+} from "@/lib/server/catalog-products";
 import { ProductCategory } from "@/lib/types";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Search",
@@ -27,13 +34,16 @@ interface SearchPageProps {
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
-  const products = filterProducts({
-    query: params.q,
-    category: params.category as ProductCategory | undefined,
-    minPricePkr: params.min ? Number(params.min) : undefined,
-    maxPricePkr: params.max ? Number(params.max) : undefined,
-    tag: params.tag,
-  });
+  const [categoryOptions, products] = await Promise.all([
+    getCategoryOptions(),
+    filterProducts({
+      query: params.q,
+      category: params.category as ProductCategory | undefined,
+      minPricePkr: params.min ? Number(params.min) : undefined,
+      maxPricePkr: params.max ? Number(params.max) : undefined,
+      tag: params.tag,
+    }),
+  ]);
   const perPage = parsePerPageParam(params.perPage);
   const totalPages = Math.max(1, Math.ceil(products.length / perPage));
   const currentPage = clampPage(parsePageParam(params.page), totalPages);
@@ -47,7 +57,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         title={params.q ? `Results for "${params.q}"` : "Search the catalog"}
         description="Name and SKU search with category and price filtering."
       />
-      <CatalogFilter />
+      <CatalogFilter categoryOptions={categoryOptions} />
       <section className="section-spacing">
         <ProductGrid
           products={pagedProducts}
@@ -55,6 +65,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           showAuthHint
         />
       </section>
+      <Suspense fallback={null}>
+        <SitePagination totalItems={products.length} />
+      </Suspense>
     </>
   );
 }

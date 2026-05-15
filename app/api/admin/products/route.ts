@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 
 import {
+  checkProductSkuAvailability,
   getAdminProductSummaries,
   getProductBySlug,
   saveAdminProduct,
-} from "@/lib/catalog";
+} from "@/lib/server/catalog-products";
 import { getAdminAccess } from "@/lib/server/admin-auth";
 import { ProductCategory } from "@/lib/types";
 
@@ -39,14 +40,24 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const slug = searchParams.get("slug");
+  const sku = searchParams.get("sku");
+
+  if (sku) {
+    const result = await checkProductSkuAvailability({
+      sku,
+      originalSlug: searchParams.get("originalSlug") ?? undefined,
+    });
+
+    return NextResponse.json(result);
+  }
 
   if (!slug) {
     return NextResponse.json({
-      products: getAdminProductSummaries(),
+      products: await getAdminProductSummaries(),
     });
   }
 
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return NextResponse.json(
@@ -87,13 +98,12 @@ export async function POST(request: Request) {
       isBestSeller?: boolean;
       isNewArrival?: boolean;
       careInstructions?: string;
-      shippingInfo?: string;
     };
 
     const categoryPath = normalizeStringList(body.categoryPath);
     const category =
       String(body.category ?? categoryPath[0] ?? "").trim() as ProductCategory;
-    const { product, created } = saveAdminProduct({
+    const { product, created } = await saveAdminProduct({
       originalSlug: body.originalSlug,
       slug: String(body.slug ?? ""),
       name: String(body.name ?? ""),
@@ -116,7 +126,6 @@ export async function POST(request: Request) {
       isBestSeller: Boolean(body.isBestSeller),
       isNewArrival: Boolean(body.isNewArrival),
       careInstructions: body.careInstructions,
-      shippingInfo: body.shippingInfo,
     });
 
     return NextResponse.json({

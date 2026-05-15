@@ -16,7 +16,7 @@ export function ProductDetailActions({
   product: Product;
 }) {
   const { addToCart } = useCart();
-  const { formatFromPkr } = useCurrency();
+  const { formatFromUsd } = useCurrency();
   const { has, toggle } = useWishlist();
   const { isSignedIn } = useUser();
   const [quantity, setQuantity] = useState(1);
@@ -46,7 +46,7 @@ export function ProductDetailActions({
     <>
       <section ref={actionsRef} className="panel product-detail-actions">
         <p className="tiny">SKU: {product.sku}</p>
-        <p className="product-price highlight">{formatFromPkr(product.basePricePkr)}</p>
+        <p className="product-price highlight">{formatFromUsd(product.basePriceUsd)}</p>
         <p className="tiny">
           Rating {product.rating.toFixed(1)}/5 ({product.reviewCount} reviews)
         </p>
@@ -116,7 +116,7 @@ export function ProductDetailActions({
       {sticky && isSignedIn ? (
         <div className="sticky-addbar">
           <div className="action-row">
-            <span className="product-price highlight">{formatFromPkr(product.basePricePkr)}</span>
+            <span className="product-price highlight">{formatFromUsd(product.basePriceUsd)}</span>
             <button
               className="btn-primary strong-cta"
               onClick={() => addToCart(product, quantity)}

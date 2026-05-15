@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Veterinary bandage scissors">
+  <rect width="640" height="420" fill="#f0ede5"/>
+  <path d="M248 242l206-128" stroke="#8f9690" stroke-width="20" stroke-linecap="round"/>
+  <path d="M252 182l202 96" stroke="#c4c7c0" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="206" cy="162" r="44" fill="none" stroke="#2f5b4a" stroke-width="16"/>
+  <circle cx="204" cy="268" r="44" fill="none" stroke="#2f5b4a" stroke-width="16"/>
+  <path d="M438 112l62-28M438 278l64 30" stroke="#6b4a32" stroke-width="16" stroke-linecap="round"/>
+  <text x="320" y="370" fill="#31433d" font-family="Segoe UI, sans-serif" font-size="32" text-anchor="middle">Bandage Scissors</text>
+</svg>

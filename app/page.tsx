@@ -5,7 +5,13 @@ import Link from "next/link";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { HomeHeroCarousel } from "@/components/home/home-hero-carousel";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { FEATURED_CATEGORY_SUMMARY, getBestSellers, getNewArrivals } from "@/lib/catalog";
+import {
+  getBestSellers,
+  getFeaturedCategorySummary,
+  getNewArrivals,
+} from "@/lib/server/catalog-products";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -28,9 +34,12 @@ const valueProps = [
   },
 ];
 
-export default function Home() {
-  const bestSellers = getBestSellers(4);
-  const newArrivals = getNewArrivals(4);
+export default async function Home() {
+  const [bestSellers, featuredCategorySummary, newArrivals] = await Promise.all([
+    getBestSellers(4),
+    getFeaturedCategorySummary(),
+    getNewArrivals(4),
+  ]);
 
   return (
     <>
@@ -66,7 +75,7 @@ export default function Home() {
       </section>
 
       <section className="category-ribbon section-spacing">
-        {FEATURED_CATEGORY_SUMMARY.map((category) => (
+        {featuredCategorySummary.map((category) => (
           <Link href={category.href} key={category.id}>
             {category.name}
           </Link>

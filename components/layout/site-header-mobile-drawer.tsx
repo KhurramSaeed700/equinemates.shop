@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Dispatch, RefObject, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, RefObject, SetStateAction, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
 import { ChevronDownIcon, CloseIcon } from "@/components/ui/icons";
-import { NavMenu } from "@/lib/catalog";
+import type { NavMenu } from "@/lib/catalog";
 
 interface SiteHeaderMobileDrawerProps {
   shopMenus: NavMenu[];
@@ -24,13 +24,13 @@ export function SiteHeaderMobileDrawer({
   setMobileNavOpen,
   mobileNavRef,
 }: SiteHeaderMobileDrawerProps) {
-  const [mounted, setMounted] = useState(false);
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
+  if (!isMounted) {
     return null;
   }
 

@@ -10,7 +10,12 @@ const CACHE_FILE = path.join(CACHE_DIR, "exchange-rates.json");
 const LIVE_ENDPOINT = "https://v6.exchangerate-api.com/v6";
 const FALLBACK_LIVE_ENDPOINT = "https://api.exchangerate.host/live";
 const SOURCE_CURRENCY = "USD";
-type CurrencyProvider = "exchangerate-api.com" | "exchangerate.host";
+const STATIC_USD_TO_PKR = 280;
+const STATIC_EUR_TO_PKR = 305;
+type CurrencyProvider =
+  | "exchangerate-api.com"
+  | "exchangerate.host"
+  | "local-fallback";
 
 interface ExchangeRateHostResponse {
   success?: boolean;
@@ -174,6 +179,21 @@ function toSnapshot(cache: CachedRateRecord, stale: boolean, source: "live" | "c
   } satisfies CurrencyRatesSnapshot;
 }
 
+function getStaticFallbackRates(): CachedRateRecord {
+  const updatedAt = new Date().toISOString();
+
+  return {
+    base: "PKR",
+    rates: {
+      USD: 1 / STATIC_USD_TO_PKR,
+      EUR: 1 / STATIC_EUR_TO_PKR,
+    },
+    updatedAt,
+    expiresAt: new Date(Date.now() + CACHE_TTL_MS).toISOString(),
+    provider: "local-fallback",
+  };
+}
+
 async function fetchLiveRates(): Promise<CachedRateRecord> {
   const accessKey = await getExchangeRateApiKey();
   try {
@@ -305,6 +325,8 @@ export async function getCurrencyRates(): Promise<CurrencyRatesSnapshot> {
       return toSnapshot(fileCache, true, "cache");
     }
 
-    throw new Error("Unable to load exchange rates from API or cache.");
+    const fallbackRates = getStaticFallbackRates();
+    memoryCache = fallbackRates;
+    return toSnapshot(fallbackRates, true, "cache");
   }
 }

@@ -1,4 +1,4 @@
-import { Product, ProductCategory, Promotion, SearchFilters } from "@/lib/types";
+import { Product, ProductCategory } from "@/lib/types";
 
 const CATALOG_MARKDOWN = String.raw`# Shop Structure
 
@@ -24,6 +24,7 @@ const CATALOG_MARKDOWN = String.raw`# Shop Structure
 - Leg Wraps & Bandages
 
 ### Bits & Tack
+- CNC Bits
 
 #### English Bits
 - Ring Bits
@@ -47,7 +48,6 @@ const CATALOG_MARKDOWN = String.raw`# Shop Structure
 #### Specialty Bits
 - Interchangeable Cheeks & Mouthpieces
 - Mouthpieces (Loose / Ported / Twisted)
-- CNC Bits
 - Cheeks
 
 ### Hackamores
@@ -281,8 +281,305 @@ interface LeafCategory {
   name: string;
 }
 
-const PRODUCT_IMAGES = ["/place holder/1.webp", "/place holder/2.webp"] as const;
+type ProductImagePair = readonly [string, string];
+
 const PRODUCTS_PER_LEAF = 3;
+const MANUAL_ONLY_CATEGORY_PATHS = new Set(["Horse > Bits & Tack > CNC Bits"]);
+
+const PRODUCT_IMAGE_SETS = {
+  horseWear: [
+    ["/products/turnout-blanket.svg", "/products/saddle-cover.svg"],
+    ["/products/fly-mask.svg", "/products/turnout-blanket.svg"],
+  ],
+  horseLeg: [
+    ["/products/bell-boots.svg", "/products/therapy-boot.svg"],
+    ["/products/hoof-rasp.svg", "/products/bell-boots.svg"],
+  ],
+  tack: [
+    ["/products/bridle.svg", "/products/saddle-pad.svg"],
+    ["/products/saddle-pad.svg", "/products/saddle-cover.svg"],
+  ],
+  rider: [
+    ["/products/field-boots.svg", "/products/rider-gloves.svg"],
+    ["/products/breeches.svg", "/products/helmet.svg"],
+  ],
+  pet: [
+    ["/products/dog-coat.svg", "/products/pawshield.svg"],
+    ["/products/dog-boots.svg", "/products/cat-collar.svg"],
+  ],
+  stable: [
+    ["/products/stable-rack.svg", "/products/stable-clean.svg"],
+    ["/products/hay-feeder.svg", "/products/smartfeed.svg"],
+  ],
+  care: [
+    ["/products/therapy-boot.svg", "/products/groom-kit.svg"],
+    ["/products/vet-scissors.svg", "/products/hoof-rasp.svg"],
+  ],
+  trail: [
+    ["/products/trail-pack.svg", "/products/trailbuddy.svg"],
+    ["/products/arena-pack.svg", "/products/trail-pack.svg"],
+  ],
+  default: [
+    ["/products/groom-kit.svg", "/products/arena-pack.svg"],
+    ["/products/stable-clean.svg", "/products/smartfeed.svg"],
+  ],
+} as const satisfies Record<string, readonly ProductImagePair[]>;
+
+interface CuratedProductSeed {
+  slug: string;
+  name: string;
+  sku: string;
+  categoryPath: string[];
+  shortDescription: string;
+  longDescription: string;
+  basePriceUsd: number;
+  images: ProductImagePair;
+  tags: string[];
+  stock: number;
+  isBestSeller?: boolean;
+  isNewArrival?: boolean;
+  careInstructions?: string;
+  shippingInfo?: string;
+}
+
+const CURATED_PRODUCTS: CuratedProductSeed[] = [
+  {
+    slug: "alpine-guard-turnout-blanket",
+    name: "Alpine Guard Turnout Blanket",
+    sku: "EQM-X001",
+    categoryPath: ["Horse", "Horse Wear & Protection", "Turnout Blankets"],
+    shortDescription:
+      "Water-resistant turnout blanket with a warm quilted lining, secure surcingles, and reinforced shoulder movement for daily pasture use.",
+    longDescription:
+      "The Alpine Guard Turnout Blanket is built for changing weather and long barn days. A durable outer shell, soft lining, adjustable front closure, and tail flap help keep horses covered without restricting natural movement.",
+    basePriceUsd: 169,
+    images: ["/products/turnout-blanket.svg", "/products/saddle-cover.svg"],
+    tags: ["turnout-blankets", "horse", "winter"],
+    stock: 48,
+    isBestSeller: true,
+    careInstructions: "Brush off dried mud before washing. Machine wash cold and hang dry.",
+  },
+  {
+    slug: "ventra-mesh-fly-mask",
+    name: "Ventra Mesh Fly Mask",
+    sku: "EQM-X002",
+    categoryPath: ["Horse", "Fly & Pest Control", "Fly Masks"],
+    shortDescription:
+      "Breathable fly mask with soft fleece edging, ear coverage, and structured mesh that sits away from the eyes.",
+    longDescription:
+      "The Ventra Mesh Fly Mask keeps insects away while maintaining visibility and airflow. Its comfort-bound edges and adjustable closure make it a dependable turnout essential through fly season.",
+    basePriceUsd: 36,
+    images: ["/products/fly-mask.svg", "/products/turnout-blanket.svg"],
+    tags: ["fly-masks", "horse", "summer"],
+    stock: 72,
+    isNewArrival: true,
+  },
+  {
+    slug: "meridian-english-bridle",
+    name: "Meridian English Bridle",
+    sku: "EQM-X003",
+    categoryPath: ["Horse", "Bridles", "English Bridles"],
+    shortDescription:
+      "Supple English bridle with padded crown, raised browband, stainless fittings, and clean stitching for schooling or show.",
+    longDescription:
+      "The Meridian English Bridle balances polished presentation with daily reliability. It includes thoughtful pressure relief at the crown, easy-adjust buckles, and a refined profile suited to training rings and event days.",
+    basePriceUsd: 128,
+    images: ["/products/bridle.svg", "/products/saddle-pad.svg"],
+    tags: ["english-bridles", "horse", "tack"],
+    stock: 36,
+    isBestSeller: true,
+  },
+  {
+    slug: "flexcurve-saddle-pad",
+    name: "FlexCurve Saddle Pad",
+    sku: "EQM-X004",
+    categoryPath: ["Horse", "Saddles & Pads", "Saddle Pads"],
+    shortDescription:
+      "Contoured saddle pad with moisture-wicking lining, quilted support, and reinforced billet straps.",
+    longDescription:
+      "The FlexCurve Saddle Pad is shaped for close contact and balanced cushioning. Its breathable lining helps manage heat while the reinforced wear points stand up to regular schooling.",
+    basePriceUsd: 74,
+    images: ["/products/saddle-pad.svg", "/products/saddle-cover.svg"],
+    tags: ["saddle-pads", "horse", "schooling"],
+    stock: 58,
+    isNewArrival: true,
+  },
+  {
+    slug: "forge-shield-bell-boots",
+    name: "Forge Shield Bell Boots",
+    sku: "EQM-X005",
+    categoryPath: ["Horse", "Horse Boots & Leg Protection", "Bell Boots"],
+    shortDescription:
+      "Flexible bell boots with reinforced strike zones and quick-grip closures for turnout, schooling, and travel.",
+    longDescription:
+      "Forge Shield Bell Boots protect the hoof area from overreach and everyday knocks. The flexible shell, soft upper edge, and secure closure make them easy to fit and simple to clean.",
+    basePriceUsd: 42,
+    images: ["/products/bell-boots.svg", "/products/therapy-boot.svg"],
+    tags: ["bell-boots", "horse", "protection"],
+    stock: 84,
+  },
+  {
+    slug: "sterling-field-boots",
+    name: "Sterling Field Boots",
+    sku: "EQM-X006",
+    categoryPath: ["Rider", "Riding Boots", "Field Boots"],
+    shortDescription:
+      "Tall field boots with a shaped calf, elastic back panel, spur rests, and a grippy riding sole.",
+    longDescription:
+      "Sterling Field Boots are designed for riders who need a polished silhouette without giving up comfort. The supportive shaft, flexible ankle, and secure zip closure make them suitable for lessons, clinics, and show prep.",
+    basePriceUsd: 219,
+    images: ["/products/field-boots.svg", "/products/rider-gloves.svg"],
+    tags: ["field-boots", "rider", "show"],
+    stock: 32,
+    isBestSeller: true,
+  },
+  {
+    slug: "showline-full-seat-breeches",
+    name: "ShowLine Full Seat Breeches",
+    sku: "EQM-X007",
+    categoryPath: ["Rider", "Riding Apparel", "Breeches (Knee Patch / Full Seat)"],
+    shortDescription:
+      "Full-seat breeches with stretch fabric, smooth waistband, phone pocket, and silicone grip for secure saddle contact.",
+    longDescription:
+      "ShowLine Full Seat Breeches deliver a clean show-ready look with practical day-to-day comfort. Four-way stretch, a supportive waistband, and a breathable feel keep riders comfortable through long sessions.",
+    basePriceUsd: 98,
+    images: ["/products/breeches.svg", "/products/helmet.svg"],
+    tags: ["breeches", "rider", "apparel"],
+    stock: 64,
+    isNewArrival: true,
+  },
+  {
+    slug: "crestguard-safety-vest",
+    name: "CrestGuard Safety Vest",
+    sku: "EQM-X008",
+    categoryPath: ["Rider", "Safety Gear", "Safety Vests"],
+    shortDescription:
+      "Lightweight rider safety vest with segmented padding, adjustable side panels, and a close, flexible fit.",
+    longDescription:
+      "The CrestGuard Safety Vest gives riders coverage without a bulky feel. Its segmented profile supports mobility while the adjustable panels help fine-tune the fit over base layers or show shirts.",
+    basePriceUsd: 149,
+    images: ["/products/safety-vest.svg", "/products/helmet.svg"],
+    tags: ["safety-vests", "rider", "safety"],
+    stock: 41,
+  },
+  {
+    slug: "rangefinder-trail-pack",
+    name: "RangeFinder Trail Pack",
+    sku: "EQM-X009",
+    categoryPath: ["Horse", "Trail & Outdoor Gear", "Saddle Bags"],
+    shortDescription:
+      "Balanced saddle bag set with insulated bottle pockets, weather-resistant fabric, and quick-release straps.",
+    longDescription:
+      "The RangeFinder Trail Pack keeps essentials organized without swinging or crowding the saddle. Reinforced panels, compact pockets, and trail-friendly closures make it a practical outdoor companion.",
+    basePriceUsd: 86,
+    images: ["/products/trail-pack.svg", "/products/trailbuddy.svg"],
+    tags: ["saddle-bags", "horse", "trail"],
+    stock: 45,
+    isNewArrival: true,
+  },
+  {
+    slug: "orchard-hay-feeder",
+    name: "Orchard Hay Feeder",
+    sku: "EQM-X010",
+    categoryPath: ["Stable", "Feeding Equipment", "Hay Bags & Feeders"],
+    shortDescription:
+      "Slow-feed hay feeder with sturdy hanging straps, reinforced seams, and wide fill access for daily stable routines.",
+    longDescription:
+      "The Orchard Hay Feeder helps reduce waste and extend feeding time. Durable mesh, clean hardware, and a stable hanging profile make it useful in stalls, trailers, and show setups.",
+    basePriceUsd: 52,
+    images: ["/products/hay-feeder.svg", "/products/smartfeed.svg"],
+    tags: ["hay-bags-and-feeders", "stable", "feeding"],
+    stock: 69,
+    isBestSeller: true,
+  },
+  {
+    slug: "farrier-pro-hoof-rasp",
+    name: "Farrier Pro Hoof Rasp",
+    sku: "EQM-X011",
+    categoryPath: ["Stable", "Farrier Tools", "Hoof Rasps"],
+    shortDescription:
+      "Dual-sided hoof rasp with an ergonomic handle, sharp filing face, and fine finishing side.",
+    longDescription:
+      "The Farrier Pro Hoof Rasp is designed for accurate shaping and smooth finishing. Its balanced handle and durable working surfaces support confident hoof-care maintenance.",
+    basePriceUsd: 44,
+    images: ["/products/hoof-rasp.svg", "/products/stable-clean.svg"],
+    tags: ["hoof-rasps", "stable", "farrier"],
+    stock: 51,
+  },
+  {
+    slug: "dockside-dog-coat",
+    name: "Dockside Dog Coat",
+    sku: "EQM-X012",
+    categoryPath: ["Pet", "Dog Products", "Dog Coats & Jackets"],
+    shortDescription:
+      "Weather-ready dog coat with a warm lining, leash opening, adjustable belly strap, and reflective trim.",
+    longDescription:
+      "The Dockside Dog Coat keeps active dogs comfortable through chilly walks and damp mornings. It is easy to secure, easy to clean, and shaped to allow natural movement.",
+    basePriceUsd: 48,
+    images: ["/products/dog-coat.svg", "/products/pawshield.svg"],
+    tags: ["dog-coats-and-jackets", "pet", "dog"],
+    stock: 90,
+    isBestSeller: true,
+  },
+  {
+    slug: "rover-trail-dog-boots",
+    name: "Rover Trail Dog Boots",
+    sku: "EQM-X013",
+    categoryPath: ["Pet", "Dog Products", "Dog Boots"],
+    shortDescription:
+      "Protective dog boots with flexible soles, reflective straps, and a secure wrap fit for rough surfaces.",
+    longDescription:
+      "Rover Trail Dog Boots help protect paws from heat, gravel, mud, and cold ground. A flexible sole and adjustable strap make them suitable for walks, travel, and barn visits.",
+    basePriceUsd: 39,
+    images: ["/products/dog-boots.svg", "/products/pawshield.svg"],
+    tags: ["dog-boots", "pet", "dog"],
+    stock: 74,
+    isNewArrival: true,
+  },
+  {
+    slug: "lumen-cat-collar",
+    name: "Lumen Cat Collar",
+    sku: "EQM-X014",
+    categoryPath: ["Pet", "Cat Products", "Cat Collars"],
+    shortDescription:
+      "Adjustable cat collar with a breakaway buckle, soft webbing, and a polished bell charm.",
+    longDescription:
+      "The Lumen Cat Collar is lightweight enough for daily wear and secure enough for peace of mind. The breakaway buckle, smooth adjustment, and clean finish make it a simple pet essential.",
+    basePriceUsd: 18,
+    images: ["/products/cat-collar.svg", "/products/pet-bed.svg"],
+    tags: ["cat-collars", "pet", "cat"],
+    stock: 110,
+  },
+  {
+    slug: "recovery-ice-boot-wraps",
+    name: "Recovery Ice Boot Wraps",
+    sku: "EQM-X015",
+    categoryPath: ["Health & Care", "Therapy & First Aid", "Ice Boots"],
+    shortDescription:
+      "Reusable cold therapy boot wraps with flexible gel inserts, secure straps, and full lower-leg coverage.",
+    longDescription:
+      "Recovery Ice Boot Wraps support post-workout cooling and routine first-aid care. The flexible inserts contour around the leg while broad straps keep the wrap steady during use.",
+    basePriceUsd: 92,
+    images: ["/products/therapy-boot.svg", "/products/groom-kit.svg"],
+    tags: ["ice-boots", "health-and-care", "therapy"],
+    stock: 42,
+    isBestSeller: true,
+  },
+  {
+    slug: "vetgrade-bandage-scissors",
+    name: "VetGrade Bandage Scissors",
+    sku: "EQM-X016",
+    categoryPath: ["Health & Care", "Veterinary Instruments", "MISC Veterinary", "Bandage Scissors"],
+    shortDescription:
+      "Stainless bandage scissors with a blunt safety tip, angled blades, and a comfortable grip.",
+    longDescription:
+      "VetGrade Bandage Scissors are a practical addition to barn and veterinary kits. The angled profile and blunt tip support careful bandage removal while the stainless finish is easy to sanitize.",
+    basePriceUsd: 29,
+    images: ["/products/vet-scissors.svg", "/products/hoof-rasp.svg"],
+    tags: ["bandage-scissors", "health-and-care", "veterinary"],
+    stock: 63,
+  },
+];
 
 export const USD_TO_PKR_RATE = 280;
 export const BULK_PRICE_MULTIPLIER = 1;
@@ -397,6 +694,60 @@ function priceRangeForCategory(path: string[]): [number, number] {
   return [29, 120];
 }
 
+function imageSetForCategory(path: string[]): readonly ProductImagePair[] {
+  const main = path[0] ?? "";
+  const full = path.join(" ").toLowerCase();
+
+  if (full.includes("trail") || full.includes("saddle bag")) {
+    return PRODUCT_IMAGE_SETS.trail;
+  }
+  if (main === "Rider") {
+    return PRODUCT_IMAGE_SETS.rider;
+  }
+  if (main === "Pet") {
+    return PRODUCT_IMAGE_SETS.pet;
+  }
+  if (main === "Health & Care") {
+    return PRODUCT_IMAGE_SETS.care;
+  }
+  if (
+    full.includes("blanket") ||
+    full.includes("rug") ||
+    full.includes("sheet") ||
+    full.includes("fly")
+  ) {
+    return PRODUCT_IMAGE_SETS.horseWear;
+  }
+  if (
+    full.includes("boot") ||
+    full.includes("wrap") ||
+    full.includes("bandage") ||
+    full.includes("hoof")
+  ) {
+    return PRODUCT_IMAGE_SETS.horseLeg;
+  }
+  if (
+    full.includes("bit") ||
+    full.includes("hackamore") ||
+    full.includes("bridle") ||
+    full.includes("saddle") ||
+    full.includes("halter") ||
+    full.includes("rein")
+  ) {
+    return PRODUCT_IMAGE_SETS.tack;
+  }
+  if (main === "Stable") {
+    return PRODUCT_IMAGE_SETS.stable;
+  }
+
+  return PRODUCT_IMAGE_SETS.default;
+}
+
+function imagesForCategory(path: string[], variantIndex: number): string[] {
+  const imageSet = imageSetForCategory(path);
+  return [...imageSet[variantIndex % imageSet.length]];
+}
+
 function buildTitle(leaf: string, variantIndex: number): string {
   const prefixes = ["Heritage", "Performance", "Premier"];
   const suffixes = ["Edition", "Series", "Collection"];
@@ -423,11 +774,43 @@ function buildDescriptions(path: string[], leaf: string, variantIndex: number): 
   };
 }
 
+function createCuratedProducts(): Product[] {
+  return CURATED_PRODUCTS.map((product) => ({
+    id: product.slug,
+    slug: product.slug,
+    name: product.name,
+    sku: product.sku,
+    category: product.categoryPath[0] as ProductCategory,
+    categoryPath: product.categoryPath,
+    shortDescription: product.shortDescription,
+    longDescription: product.longDescription,
+    basePriceUsd: product.basePriceUsd,
+    basePricePkr: toUsdToPkr(product.basePriceUsd),
+    compareAtPricePkr: toUsdToPkr(product.basePriceUsd * 1.12),
+    images: [...product.images],
+    variants: [],
+    rating: 0,
+    reviewCount: 0,
+    reviews: [],
+    tags: product.tags,
+    isBestSeller: Boolean(product.isBestSeller),
+    isNewArrival: Boolean(product.isNewArrival),
+    relatedSlugs: [],
+    stock: product.stock,
+    careInstructions: product.careInstructions,
+    shippingInfo: product.shippingInfo,
+  }));
+}
+
 function createProductsFromLeaves(leaves: LeafCategory[]): Product[] {
   const products: Product[] = [];
   let sequence = 1;
 
   for (const leaf of leaves) {
+    if (MANUAL_ONLY_CATEGORY_PATHS.has(leaf.path.join(" > "))) {
+      continue;
+    }
+
     const [minUsd, maxUsd] = priceRangeForCategory(leaf.path);
 
     for (let i = 0; i < PRODUCTS_PER_LEAF; i += 1) {
@@ -448,7 +831,7 @@ function createProductsFromLeaves(leaves: LeafCategory[]): Product[] {
         basePriceUsd: usd,
         basePricePkr: toUsdToPkr(usd),
         compareAtPricePkr: toUsdToPkr(usd * 1.1),
-        images: [...PRODUCT_IMAGES],
+        images: imagesForCategory(leaf.path, i),
         variants: [],
         rating: 0,
         reviewCount: 0,
@@ -462,6 +845,8 @@ function createProductsFromLeaves(leaves: LeafCategory[]): Product[] {
       sequence += 1;
     }
   }
+
+  products.push(...createCuratedProducts());
 
   const byLeaf = new Map<string, Product[]>();
   for (const product of products) {
@@ -485,21 +870,41 @@ function createProductsFromLeaves(leaves: LeafCategory[]): Product[] {
 
 function validateCatalog(categories: CatalogNode[], products: Product[]) {
   const leaves = getLeafCategories(categories);
-  const expectedCount = leaves.length * PRODUCTS_PER_LEAF;
+  const seededLeaves = leaves.filter(
+    (leaf) => !MANUAL_ONLY_CATEGORY_PATHS.has(leaf.path.join(" > ")),
+  );
+  const leafKeys = new Set(leaves.map((leaf) => leaf.path.join(" > ")));
+  const expectedCount = seededLeaves.length * PRODUCTS_PER_LEAF + CURATED_PRODUCTS.length;
 
   if (products.length !== expectedCount) {
     throw new Error(`Catalog validation failed: expected ${expectedCount} products, got ${products.length}.`);
   }
 
   const seenIds = new Set<string>();
+  const seenSlugs = new Set<string>();
+  const seenSkus = new Set<string>();
   for (const product of products) {
     if (seenIds.has(product.id)) {
       throw new Error(`Catalog validation failed: duplicate product id ${product.id}.`);
     }
     seenIds.add(product.id);
 
-    if (product.images.length !== 2 || product.images[0] !== PRODUCT_IMAGES[0] || product.images[1] !== PRODUCT_IMAGES[1]) {
-      throw new Error(`Catalog validation failed: ${product.id} must use exactly two shared placeholder images.`);
+    if (seenSlugs.has(product.slug)) {
+      throw new Error(`Catalog validation failed: duplicate product slug ${product.slug}.`);
+    }
+    seenSlugs.add(product.slug);
+
+    if (seenSkus.has(product.sku)) {
+      throw new Error(`Catalog validation failed: duplicate product SKU ${product.sku}.`);
+    }
+    seenSkus.add(product.sku);
+
+    if (!leafKeys.has(product.categoryPath.join(" > "))) {
+      throw new Error(`Catalog validation failed: ${product.id} uses an unknown category path.`);
+    }
+
+    if (product.images.length !== 2 || product.images.some((image) => !image.startsWith("/products/"))) {
+      throw new Error(`Catalog validation failed: ${product.id} must use exactly two product image assets.`);
     }
   }
 
@@ -509,68 +914,19 @@ function validateCatalog(categories: CatalogNode[], products: Product[]) {
     countByLeaf.set(key, (countByLeaf.get(key) ?? 0) + 1);
   }
 
-  for (const leaf of leaves) {
+  for (const leaf of seededLeaves) {
     const key = leaf.path.join(" > ");
-    if ((countByLeaf.get(key) ?? 0) !== PRODUCTS_PER_LEAF) {
-      throw new Error(`Catalog validation failed: ${key} does not have exactly ${PRODUCTS_PER_LEAF} products.`);
+    if ((countByLeaf.get(key) ?? 0) < PRODUCTS_PER_LEAF) {
+      throw new Error(`Catalog validation failed: ${key} does not have at least ${PRODUCTS_PER_LEAF} products.`);
     }
   }
 }
 
 export const CATEGORIES = parseCatalogFromMarkdown(CATALOG_MARKDOWN);
 const LEAF_CATEGORIES = getLeafCategories(CATEGORIES);
-
-export const CATEGORY_OPTIONS: ProductCategory[] = CATEGORIES.map(
-  (category) => category.name as ProductCategory,
-);
-
+// Seed-source catalog data used to populate Neon.
 export const PRODUCTS: Product[] = createProductsFromLeaves(LEAF_CATEGORIES);
 validateCatalog(CATEGORIES, PRODUCTS);
-
-export const CATALOG_SEED = {
-  categories: CATEGORIES,
-  products: PRODUCTS,
-};
-
-export const PROMOTIONS: Promotion[] = [
-  {
-    id: "promo-horse",
-    title: "Horse Premium Collection",
-    copy: "Technical horse gear, tack, and protection essentials curated for stable and competition routines.",
-    ctaLabel: "Shop Horse",
-    ctaHref: "/products?category=Horse",
-  },
-  {
-    id: "promo-rider",
-    title: "Rider Performance Edit",
-    copy: "Elevate training and show-day preparation with rider apparel, boots, and safety gear.",
-    ctaLabel: "Shop Rider",
-    ctaHref: "/products?category=Rider",
-  },
-];
-
-export const FEATURED_CATEGORY_SUMMARY = CATEGORIES.slice(0, 5).map((category) => ({
-  id: `cat-${slugify(category.name)}`,
-  name: category.name,
-  description: `${category.name} essentials curated across premium product lines.`,
-  href: `/products?category=${encodeURIComponent(category.name)}`,
-}));
-
-function isLeaf(node: CatalogNode): boolean {
-  return node.children.length === 0;
-}
-
-function collectLeafPaths(node: CatalogNode, path: string[]): string[][] {
-  if (isLeaf(node)) {
-    return [path];
-  }
-
-  const paths: string[][] = [];
-  for (const child of node.children) {
-    paths.push(...collectLeafPaths(child, [...path, child.name]));
-  }
-  return paths;
-}
 
 export interface NavMenuColumn {
   heading: string;
@@ -584,96 +940,9 @@ export interface NavMenu {
   columns: NavMenuColumn[];
 }
 
-export function getNavbarMenus(): NavMenu[] {
-  return CATEGORIES.map((top) => {
-    const columns: NavMenuColumn[] = [];
-
-    for (const child of top.children) {
-      if (top.name === "Horse" && child.name === "Bits & Tack") {
-        columns.push({
-          heading: "Bits",
-          href: buildCategoryPathHref([top.name, child.name]),
-          items: child.children.map((group) => ({
-            label: group.name,
-            href: buildCategoryPathHref([top.name, child.name, group.name]),
-          })),
-        });
-        continue;
-      }
-
-      if (child.children.length > 0 && child.children.every(isLeaf)) {
-        columns.push({
-          heading: child.name,
-          href: buildCategoryPathHref([top.name, child.name]),
-          items: child.children.map((leaf) => ({
-            label: leaf.name,
-            href: buildCategoryPathHref([top.name, child.name, leaf.name]),
-          })),
-        });
-        continue;
-      }
-
-      if (child.children.length > 0) {
-        for (const grandChild of child.children) {
-          const leafPaths = collectLeafPaths(grandChild, [top.name, child.name, grandChild.name]);
-          columns.push({
-            heading: grandChild.name,
-            href: buildCategoryPathHref([top.name, child.name, grandChild.name]),
-            items: leafPaths.map((path) => ({
-              label: path[path.length - 1],
-              href: buildCategoryPathHref(path),
-            })),
-          });
-        }
-      }
-    }
-
-    return {
-      label: top.name,
-      href: `/products?category=${encodeURIComponent(top.name)}`,
-      columns,
-    };
-  });
-}
-
 export function buildCategoryPathHref(path: string[]): string {
   const top = path[0] ?? "";
   return `/products?category=${encodeURIComponent(top)}&path=${encodeURIComponent(path.join(" > "))}`;
-}
-
-function normalizeSlug(value: string): string {
-  return decodeURIComponent(value)
-    .trim()
-    .toLowerCase()
-    .replace(/\/+/g, "-")
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function cloneProduct(product: Product): Product {
-  return structuredClone(product);
-}
-
-function buildRelatedSlugsForProduct(product: Product): string[] {
-  return PRODUCTS.filter(
-    (candidate) =>
-      candidate.slug !== product.slug && candidate.category === product.category,
-  )
-    .slice(0, 4)
-    .map((candidate) => candidate.slug);
-}
-
-function replaceRelatedSlugReferences(previousSlug: string, nextSlug: string) {
-  for (const product of PRODUCTS) {
-    if (!product.relatedSlugs.includes(previousSlug)) {
-      continue;
-    }
-
-    product.relatedSlugs = product.relatedSlugs.map((relatedSlug) =>
-      relatedSlug === previousSlug ? nextSlug : relatedSlug,
-    );
-  }
 }
 
 export interface AdminProductSummary {
@@ -703,190 +972,4 @@ export interface AdminProductInput {
   isNewArrival: boolean;
   careInstructions?: string;
   shippingInfo?: string;
-}
-
-export function getAdminProductSummaries(): AdminProductSummary[] {
-  return PRODUCTS.map((product) => ({
-    id: product.id,
-    slug: product.slug,
-    name: product.name,
-    sku: product.sku,
-    category: product.category,
-  })).sort((left, right) => left.name.localeCompare(right.name));
-}
-
-export function getProductBySlug(slug: string): Product | undefined {
-  const directMatch = PRODUCTS.find((product) => product.slug === slug);
-  if (directMatch) {
-    return directMatch;
-  }
-
-  const normalized = normalizeSlug(slug);
-  return PRODUCTS.find((product) => normalizeSlug(product.slug) === normalized);
-}
-
-export function getRelatedProducts(slug: string): Product[] {
-  const product = getProductBySlug(slug);
-  if (!product) return [];
-  return product.relatedSlugs
-    .map((relatedSlug) => getProductBySlug(relatedSlug))
-    .filter((relatedProduct): relatedProduct is Product => Boolean(relatedProduct));
-}
-
-export function getBestSellers(limit = 4): Product[] {
-  return PRODUCTS.filter((product) => product.isBestSeller).slice(0, limit);
-}
-
-export function getNewArrivals(limit = 4): Product[] {
-  return PRODUCTS.filter((product) => product.isNewArrival).slice(0, limit);
-}
-
-export function filterProducts(filters: SearchFilters): Product[] {
-  return PRODUCTS.filter((product) => {
-    if (filters.category && product.category !== filters.category) {
-      return false;
-    }
-
-    if (filters.categoryPath) {
-      const productPath = product.categoryPath.join(" > ");
-      const isExactMatch = productPath === filters.categoryPath;
-      const isNestedMatch = productPath.startsWith(`${filters.categoryPath} > `);
-      if (!isExactMatch && !isNestedMatch) {
-        return false;
-      }
-    }
-
-    if (filters.minPricePkr && product.basePricePkr < filters.minPricePkr) {
-      return false;
-    }
-
-    if (filters.maxPricePkr && product.basePricePkr > filters.maxPricePkr) {
-      return false;
-    }
-
-    if (filters.tag && !product.tags.includes(filters.tag)) {
-      return false;
-    }
-
-    if (!filters.query) {
-      return true;
-    }
-
-    const normalizedQuery = filters.query.trim().toLowerCase();
-    if (!normalizedQuery) {
-      return true;
-    }
-
-    return (
-      product.name.toLowerCase().includes(normalizedQuery) ||
-      product.sku.toLowerCase().includes(normalizedQuery) ||
-      product.categoryPath.some((node) => node.toLowerCase().includes(normalizedQuery))
-    );
-  });
-}
-
-export function searchSuggestions(query: string): Product[] {
-  if (!query.trim()) {
-    return [];
-  }
-  return filterProducts({ query }).slice(0, 6);
-}
-
-export function saveAdminProduct(input: AdminProductInput): {
-  product: Product;
-  created: boolean;
-} {
-  const normalizedSlug = normalizeSlug(input.slug || input.name);
-  const normalizedOriginalSlug = input.originalSlug
-    ? normalizeSlug(input.originalSlug)
-    : null;
-  const categoryPath = input.categoryPath.filter(Boolean);
-  const category = (categoryPath[0] ?? input.category).trim() as ProductCategory;
-  const images = input.images.filter(Boolean);
-  const tags = input.tags.filter(Boolean);
-  const existingIndex = normalizedOriginalSlug
-    ? PRODUCTS.findIndex(
-        (product) => normalizeSlug(product.slug) === normalizedOriginalSlug,
-      )
-    : PRODUCTS.findIndex((product) => normalizeSlug(product.slug) === normalizedSlug);
-  const existingProduct = existingIndex >= 0 ? PRODUCTS[existingIndex] : null;
-
-  if (!normalizedSlug) {
-    throw new Error("Product slug is required.");
-  }
-
-  if (!input.name.trim() || !input.sku.trim()) {
-    throw new Error("Product name and SKU are required.");
-  }
-
-  if (!category) {
-    throw new Error("Product category is required.");
-  }
-
-  if (Number.isNaN(input.basePriceUsd) || Number.isNaN(input.basePricePkr)) {
-    throw new Error("Product prices must be valid numbers.");
-  }
-
-  if (Number.isNaN(input.stock)) {
-    throw new Error("Product stock must be a valid number.");
-  }
-
-  const slugConflict = PRODUCTS.some(
-    (product, index) =>
-      normalizeSlug(product.slug) === normalizedSlug && index !== existingIndex,
-  );
-  if (slugConflict) {
-    throw new Error("Another product already uses that slug.");
-  }
-
-  const skuConflict = PRODUCTS.some(
-    (product, index) =>
-      product.sku.trim().toLowerCase() === input.sku.trim().toLowerCase() &&
-      index !== existingIndex,
-  );
-  if (skuConflict) {
-    throw new Error("Another product already uses that SKU.");
-  }
-
-  const nextProduct: Product = {
-    id: existingProduct?.id ?? normalizedSlug,
-    slug: normalizedSlug,
-    name: input.name.trim(),
-    sku: input.sku.trim().toUpperCase(),
-    category,
-    categoryPath: categoryPath.length ? categoryPath : [category],
-    shortDescription: input.shortDescription.trim(),
-    longDescription: input.longDescription.trim(),
-    basePriceUsd: input.basePriceUsd,
-    basePricePkr: input.basePricePkr,
-    compareAtPricePkr: input.compareAtPricePkr,
-    images,
-    variants: existingProduct?.variants ?? [],
-    rating: existingProduct?.rating ?? 0,
-    reviewCount: existingProduct?.reviewCount ?? 0,
-    reviews: existingProduct?.reviews ?? [],
-    tags,
-    isBestSeller: input.isBestSeller,
-    isNewArrival: input.isNewArrival,
-    relatedSlugs: existingProduct?.relatedSlugs ?? [],
-    stock: input.stock,
-    careInstructions: input.careInstructions?.trim() || undefined,
-    shippingInfo: input.shippingInfo?.trim() || undefined,
-  };
-
-  nextProduct.relatedSlugs = buildRelatedSlugsForProduct(nextProduct);
-
-  if (existingProduct) {
-    PRODUCTS[existingIndex] = nextProduct;
-    if (existingProduct.slug !== nextProduct.slug) {
-      replaceRelatedSlugReferences(existingProduct.slug, nextProduct.slug);
-    }
-  } else {
-    PRODUCTS.push(nextProduct);
-  }
-
-  return {
-    product: cloneProduct(nextProduct),
-    created: !existingProduct,
-  };
 }

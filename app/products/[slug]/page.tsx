@@ -7,26 +7,23 @@ import { ProductGrid } from "@/components/catalog/product-grid";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { SectionHeading } from "@/components/ui/section-heading";
+import { buildCategoryPathHref } from "@/lib/catalog";
 import {
-  buildCategoryPathHref,
   getProductBySlug,
   getRelatedProducts,
-  PRODUCTS,
-} from "@/lib/catalog";
+} from "@/lib/server/catalog-products";
 
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
-  return PRODUCTS.map((product) => ({ slug: product.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: ProductDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return {
@@ -44,13 +41,13 @@ export default async function ProductDetailPage({
   params,
 }: ProductDetailPageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
-  const relatedProducts = getRelatedProducts(product.slug);
+  const relatedProducts = await getRelatedProducts(product.slug);
   const categoryBreadcrumbs = product.categoryPath.map((node, index) => {
     if (index === 0) {
       return {

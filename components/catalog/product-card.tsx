@@ -16,7 +16,7 @@ import { Product } from "@/lib/types";
 import { useUser } from "@clerk/nextjs";
 
 export function ProductCard({ product }: { product: Product }) {
-  const { formatFromPkr } = useCurrency();
+  const { formatFromUsd } = useCurrency();
   const { addToCart, items } = useCart();
   const { has: hasInWishlist, toggle } = useWishlist();
   const isFavorited = hasInWishlist(product.slug);
@@ -63,7 +63,7 @@ export function ProductCard({ product }: { product: Product }) {
             <p className="product-description">{product.shortDescription}</p>
             <p className="product-price">
               {mounted
-                ? formatFromPkr(product.basePricePkr)
+                ? formatFromUsd(product.basePriceUsd)
                 : `$${product.basePriceUsd.toFixed(2)}`}
             </p>
           </div>
@@ -102,6 +102,7 @@ export function ProductCard({ product }: { product: Product }) {
         isOpen={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}
         product={product}
+        key={`${product.slug}-${isPreviewOpen ? "open" : "closed"}`}
       />
     </>
   );

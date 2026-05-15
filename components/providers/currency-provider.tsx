@@ -10,7 +10,11 @@ import {
   useState,
 } from "react";
 
-import { detectCurrencyFromLocale, formatMoneyFromPkr } from "@/lib/currency";
+import {
+  detectCurrencyFromLocale,
+  formatMoneyFromPkr,
+  formatMoneyFromUsd,
+} from "@/lib/currency";
 import { CurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/types";
 
 const CURRENCY_STORAGE_KEY = "eqm_currency";
@@ -20,6 +24,7 @@ interface CurrencyContextValue {
   supportedCurrencies: readonly CurrencyCode[];
   setCurrency: (currency: CurrencyCode) => void;
   formatFromPkr: (amountPkr: number) => string;
+  formatFromUsd: (amountUsd: number) => string;
   ratesUpdatedAt: string | null;
   ratesStale: boolean;
 }
@@ -44,7 +49,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   });
   const [ratesFromPkr, setRatesFromPkr] = useState<
     Partial<Record<CurrencyCode, number>>
-  >({ USD: 1, EUR: 0.92 });
+  >({ USD: 1 / 280, EUR: 1 / 305 });
   const [ratesUpdatedAt, setRatesUpdatedAt] = useState<string | null>(null);
   const [ratesStale, setRatesStale] = useState(false);
 
@@ -105,6 +110,8 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       setCurrency,
       formatFromPkr: (amountPkr: number) =>
         formatMoneyFromPkr(amountPkr, currency, ratesFromPkr),
+      formatFromUsd: (amountUsd: number) =>
+        formatMoneyFromUsd(amountUsd, currency, ratesFromPkr),
       ratesUpdatedAt,
       ratesStale,
     }),

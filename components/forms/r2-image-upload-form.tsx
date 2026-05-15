@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { FormEvent, useState } from "react";
 
+import { useToast } from "@/lib/use-toast";
+
 type UploadResponse = {
   message?: string;
   key?: string;
@@ -24,18 +26,22 @@ export function R2ImageUploadForm({
   onUploaded,
   showUploadedPreview = true,
 }: R2ImageUploadFormProps) {
+  const toast = useToast();
   const [status, setStatus] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [upload, setUpload] = useState<UploadResponse | null>(null);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const image = formData.get("image");
 
     if (!(image instanceof File) || image.size === 0) {
-      setStatus("Choose an image before uploading.");
+      const errorMessage = "Choose an image before uploading.";
+      setStatus(errorMessage);
       setUpload(null);
+      toast.error("Image upload failed", errorMessage);
       return;
     }
 
@@ -56,11 +62,18 @@ export function R2ImageUploadForm({
 
       setUpload(payload);
       onUploaded?.(payload);
-      setStatus(payload.message ?? "Image uploaded.");
-      event.currentTarget.reset();
+      const successMessage = payload.message ?? "Image uploaded.";
+      setStatus(successMessage);
+      toast.success(successMessage, "Image added to the current product draft.");
+      form.reset();
     } catch (error) {
       setUpload(null);
-      setStatus(error instanceof Error ? error.message : "Upload failed.");
+      const errorMessage =
+        error instanceof Error && !error.message.includes("reading 'reset'")
+          ? error.message
+          : "Upload failed. Please try again.";
+      setStatus(errorMessage);
+      toast.error("Image upload failed", errorMessage);
     } finally {
       setIsSubmitting(false);
     }

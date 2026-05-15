@@ -1044,19 +1044,121 @@ a {
   resize: vertical;
 }
 
+.ui-input,
+.ui-select,
+.ui-textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  padding: 0.52rem 0.62rem;
+  background: color-mix(in oklab, var(--surface), white 16%);
+  color: var(--ink);
+  font: inherit;
+}
+
+.ui-textarea {
+  resize: vertical;
+}
+
+.ui-input:focus,
+.ui-select:focus,
+.ui-textarea:focus {
+  outline: 2px solid color-mix(in oklab, var(--accent), white 28%);
+  outline-offset: 2px;
+}
+
+.ui-input.is-invalid {
+  border-color: #b42318;
+  background: color-mix(in oklab, #fff, #b42318 5%);
+}
+
+.sku-field-status {
+  display: block;
+  margin-top: 0.32rem;
+  font-weight: 700;
+}
+
+.sku-field-status-available {
+  color: var(--moss);
+}
+
+.sku-field-status-duplicate,
+.sku-field-status-error {
+  color: #b42318;
+}
+
+.sku-field-status-checking {
+  color: var(--ink-soft);
+}
+
+.ui-button-ghost,
+.ui-button-icon {
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ui-button-ghost {
+  min-height: 2.35rem;
+  padding: 0.48rem 0.7rem;
+  gap: 0.4rem;
+  font-weight: 700;
+}
+
+.ui-button-icon,
+.ui-button-size-icon {
+  width: 2.35rem;
+  min-width: 2.35rem;
+  height: 2.35rem;
+  padding: 0;
+}
+
+.ui-button-ghost:hover,
+.ui-button-icon:hover {
+  border-color: color-mix(in oklab, var(--line), var(--accent) 32%);
+  background: color-mix(in oklab, var(--surface), white 24%);
+}
+
 .full-width {
   grid-column: 1 / -1;
 }
 
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.92rem;
+.checkbox-grid {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.checkbox-label input {
-  width: auto;
+.form-grid .checkbox-label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 3rem;
+  padding: 0.72rem 0.82rem;
+  border: 1px solid color-mix(in oklab, var(--line), white 14%);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.form-grid .checkbox-label input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+
+.form-grid .checkbox-label span {
+  line-height: 1.25;
 }
 
 .form-status {
@@ -1096,8 +1198,172 @@ a {
 
 .admin-product-editor {
   display: grid;
-  gap: 1rem;
+  gap: 1.1rem;
   margin-top: 0.9rem;
+}
+
+.admin-page-shell {
+  width: calc(100vw - 1.5rem);
+  max-width: 1680px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-page-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(360px, 0.9fr);
+  gap: 1rem;
+  padding: 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: 1.15rem;
+  background:
+    radial-gradient(circle at top right, rgba(47, 91, 74, 0.14), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(141, 91, 43, 0.12), transparent 30%),
+    color-mix(in oklab, var(--surface), white 10%);
+  box-shadow: 0 20px 44px rgba(22, 26, 20, 0.07);
+}
+
+.admin-page-header-copy h1 {
+  margin: 0.2rem 0 0.45rem;
+  font-family: var(--font-sora), "Trebuchet MS", sans-serif;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  line-height: 1.05;
+}
+
+.admin-page-header-copy p:last-child {
+  max-width: 54rem;
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.admin-page-header-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.admin-page-stat {
+  display: grid;
+  gap: 0.3rem;
+  min-height: 6.4rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid color-mix(in oklab, var(--line), white 22%);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.admin-page-stat span {
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.admin-page-stat strong {
+  font-size: 1.02rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.admin-page-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.admin-side-rail {
+  display: grid;
+  gap: 1rem;
+  position: sticky;
+  top: 5.75rem;
+}
+
+.admin-rail-panel {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.admin-module-list,
+.admin-note-list,
+.admin-rate-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.admin-module-card,
+.admin-rate-card {
+  display: grid;
+  gap: 0.18rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid color-mix(in oklab, var(--line), white 18%);
+  border-radius: 0.9rem;
+  background: color-mix(in oklab, var(--surface), white 12%);
+}
+
+.admin-rate-card {
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.admin-rate-card span {
+  justify-self: end;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.admin-workspace-panel {
+  display: grid;
+  gap: 1rem;
+  min-height: calc(100vh - 12rem);
+  padding: 1.1rem;
+}
+
+.admin-workspace-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.admin-inline-state {
+  min-width: 280px;
+}
+
+.admin-editor-hero,
+.admin-editor-panel {
+  border: 1px solid var(--line);
+  border-radius: 1.05rem;
+  background:
+    radial-gradient(circle at top right, rgba(141, 91, 43, 0.09), transparent 26%),
+    color-mix(in oklab, var(--surface), white 12%);
+  box-shadow: 0 16px 36px rgba(20, 24, 18, 0.06);
+}
+
+.admin-editor-hero {
+  display: grid;
+  gap: 0.95rem;
+  padding: 1rem;
+}
+
+.admin-editor-panel {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  align-self: start;
+  padding: 1rem;
+}
+
+.admin-editor-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.95fr);
+  gap: 1rem;
+  align-items: start;
 }
 
 .admin-form-toolbar,
@@ -1114,26 +1380,408 @@ a {
   flex: 1 1 260px;
 }
 
+.admin-toolbar-field {
+  display: grid;
+  gap: 0.35rem;
+  min-width: min(100%, 260px);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.admin-toolbar-field > span:first-child {
+  letter-spacing: 0;
+}
+
+.admin-toolbar-search-control {
+  min-height: 3.15rem;
+  border: 1px solid color-mix(in oklab, var(--line), black 4%);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.admin-toolbar-search {
+  flex: 1.25 1 520px;
+}
+
+.admin-toolbar-action {
+  min-height: 2.75rem;
+  padding: 0.52rem 0.9rem;
+  border-radius: 0.78rem;
+  font-size: 0.88rem;
+  justify-content: center;
+  align-self: end;
+  white-space: nowrap;
+}
+
+.admin-toolbar-search-control {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0 0.85rem;
+}
+
+.admin-toolbar-search-control svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--ink-soft);
+}
+
+.admin-toolbar-search-control input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.admin-toolbar-search-control input::placeholder {
+  color: color-mix(in oklab, var(--ink-soft), white 24%);
+  font-weight: 500;
+}
+
+.admin-product-search-results {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.72rem;
+  border: 1px solid color-mix(in oklab, var(--line), white 18%);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.admin-product-search-result {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 0.78rem;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 0.7rem 0.82rem;
+  display: grid;
+  gap: 0.12rem;
+  text-align: left;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.admin-product-search-result:hover {
+  border-color: color-mix(in oklab, var(--line), var(--accent) 24%);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.admin-product-search-result-main {
+  min-width: 0;
+  display: grid;
+  gap: 0.14rem;
+}
+
+.admin-product-search-result-name,
+.admin-product-search-result-meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-product-search-result-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.admin-product-search-result-meta {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.admin-product-search-empty {
+  padding: 0.2rem 0.1rem;
+}
+
+.admin-draft-overview {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.admin-draft-card {
+  display: grid;
+  gap: 0.3rem;
+  min-height: 5.8rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid color-mix(in oklab, var(--line), white 22%);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.admin-draft-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.admin-draft-card strong {
+  font-size: 0.96rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.admin-panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.admin-panel-header h3 {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-sora), "Trebuchet MS", sans-serif;
+}
+
+.admin-panel-header p {
+  margin: 0;
+  max-width: 28rem;
+}
+
+.admin-search-field {
+  display: grid;
+  gap: 0.32rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.admin-category-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.admin-category-crumb {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.4rem;
+  padding: 0.5rem 0.82rem;
+  border: 1px solid color-mix(in oklab, var(--line), var(--moss) 12%);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--surface), var(--moss) 6%);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-taxonomy-search-results {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.admin-taxonomy-match {
+  display: grid;
+  gap: 0.18rem;
+  justify-items: start;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid color-mix(in oklab, var(--line), var(--accent) 22%);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.76);
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-taxonomy-match:hover,
+.admin-taxonomy-option:hover,
+.admin-category-crumb:hover {
+  border-color: color-mix(in oklab, var(--line), var(--accent) 44%);
+}
+
+.admin-taxonomy-match-leaf {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.admin-taxonomy-match-path,
+.admin-taxonomy-option-path {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.admin-taxonomy-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+
+.admin-taxonomy-stepper {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.admin-taxonomy-step-card,
+.admin-taxonomy-summary {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid color-mix(in oklab, var(--line), white 18%);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.admin-taxonomy-summary-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.admin-taxonomy-summary strong {
+  font-size: 1rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.admin-taxonomy-edit-btn {
+  justify-self: start;
+}
+
+.admin-taxonomy-column {
+  display: grid;
+  gap: 0.65rem;
+  align-content: start;
+  min-height: 100%;
+  padding: 0.8rem;
+  border: 1px solid color-mix(in oklab, var(--line), white 20%);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.admin-taxonomy-column-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-taxonomy-options {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.admin-taxonomy-option {
+  display: grid;
+  gap: 0.18rem;
+  justify-items: start;
+  padding: 0.75rem 0.82rem;
+  border: 1px solid color-mix(in oklab, var(--line), white 18%);
+  border-radius: 0.85rem;
+  background: color-mix(in oklab, var(--surface), white 20%);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.admin-taxonomy-option span {
+  font-weight: 700;
+}
+
+.admin-taxonomy-option small {
+  font-size: 0.77rem;
+  color: var(--ink-soft);
+}
+
+.admin-taxonomy-option-active {
+  border-color: color-mix(in oklab, var(--accent), white 16%);
+  background:
+    radial-gradient(circle at top right, rgba(141, 91, 43, 0.14), transparent 38%),
+    linear-gradient(180deg, rgba(255, 252, 247, 1), rgba(249, 241, 228, 0.94));
+  box-shadow: inset 0 0 0 1px rgba(141, 91, 43, 0.12);
+}
+
+.price-info-card {
+  display: grid;
+  align-content: start;
+  gap: 0.2rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: color-mix(in oklab, var(--surface), white 10%);
+}
+
+.price-info-card p {
+  margin: 0;
+}
+
+.admin-image-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.admin-upload-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid color-mix(in oklab, var(--line), white 18%);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.admin-upload-meta {
+  display: grid;
+  gap: 0.2rem;
+}
+
 .admin-image-manager {
   display: grid;
   gap: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--line);
 }
 
 .admin-image-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 170px));
   gap: 0.8rem;
 }
 
 .admin-image-card {
   display: grid;
-  gap: 0.55rem;
-  padding: 0.75rem;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 0.65rem;
   border: 1px solid var(--line);
   border-radius: 0.9rem;
   background: color-mix(in oklab, var(--surface), white 10%);
+}
+
+.admin-image-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-image-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.9rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--surface), var(--moss) 8%);
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.admin-image-badge-primary {
+  background: color-mix(in oklab, var(--surface), var(--accent) 16%);
+  color: var(--accent-strong);
 }
 
 .admin-image-preview {
@@ -1141,13 +1789,61 @@ a {
   height: auto;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  border-radius: 0.7rem;
+  border-radius: 0.65rem;
   border: 1px solid var(--line);
   background: color-mix(in oklab, var(--surface), white 18%);
 }
 
 .admin-image-url {
+  min-height: 2.4rem;
   word-break: break-word;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.admin-image-actions {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.admin-image-order-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.admin-image-arrow {
+  min-height: 2.15rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  background: color-mix(in oklab, var(--surface), var(--moss) 3%);
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.admin-image-arrow:hover:not(:disabled) {
+  border-color: color-mix(in oklab, var(--line), var(--accent) 40%);
+}
+
+.admin-image-arrow:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.admin-image-arrow svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.admin-image-meta-btn {
+  width: 100%;
+  justify-content: center;
+  min-height: 2.15rem;
+  padding: 0.48rem 0.7rem;
+  font-size: 0.78rem;
 }
 
 
@@ -1390,6 +2086,7 @@ a {
   margin-top: 0.4rem;
 }
 
+.btn-primary.compact,
 .btn-secondary.compact {
   padding: 0.32rem 0.6rem;
   font-size: 0.9rem;
@@ -1617,6 +2314,21 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .admin-editor-layout,
+  .admin-image-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-page-header,
+  .admin-page-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-page-header-meta,
+  .admin-draft-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .admin-form-toolbar,
   .admin-form-footer,
   .admin-image-input {
@@ -1625,6 +2337,10 @@ a {
 
   .panel {
     padding: 0.85rem;
+  }
+
+  .admin-side-rail {
+    position: static;
   }
 }
 
@@ -1947,7 +2663,8 @@ body {
   transform: translateX(-50%);
   width: min(96vw, 1200px);
   max-height: calc(100vh - 120px);
-  overflow: visible;
+  overflow-x: clip;
+  overflow-y: auto;
   display: none;
   border: 1px solid var(--line);
   border-radius: 0;
@@ -1956,9 +2673,10 @@ body {
   padding: 0.75rem;
   z-index: 40;
   pointer-events: auto;
-  grid-template-columns: repeat(6, minmax(165px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-auto-flow: row dense;
   gap: 0.65rem;
-  align-items: stretch;
+  align-items: start;
 }
 
 .mega-panel a {
@@ -1989,7 +2707,7 @@ body {
 
 .mega-column {
   min-width: 0;
-  height: 100%;
+  min-height: 8.4rem;
   display: grid;
   grid-template-rows: auto 1fr;
   align-content: start;
@@ -2027,6 +2745,8 @@ body {
   column-count: 2;
   column-gap: 0.9rem;
   min-width: 0;
+  overflow: visible;
+  padding-right: 0;
 }
 
 .mega-links a {
@@ -2044,6 +2764,39 @@ body {
     background: #efefef;
     color: #111;
   }
+}
+
+.mega-panel[data-menu="rider"] {
+  grid-template-columns: repeat(4, minmax(175px, 1fr));
+}
+
+.mega-panel[data-menu="rider"] .mega-column {
+  min-height: 7.8rem;
+}
+
+.mega-panel[data-menu="rider"] .mega-column[data-column="riding-chaps"] {
+  order: 1;
+}
+
+.mega-panel[data-menu="rider"] .mega-column[data-column="riding-boots"] {
+  order: 2;
+}
+
+.mega-panel[data-menu="rider"] .mega-column[data-column="safety-gear"] {
+  order: 3;
+}
+
+.mega-panel[data-menu="rider"] .mega-column[data-column="boot-and-gear-accessories"] {
+  order: 4;
+}
+
+.mega-panel[data-menu="rider"] .mega-column[data-column="riding-apparel"] {
+  order: 5;
+  grid-column: span 2;
+}
+
+.mega-panel[data-menu="rider"] .mega-column[data-column="spurs-and-accessories"] {
+  order: 6;
 }
 
 .mega-item-open .mega-panel {
@@ -2405,7 +3158,7 @@ body {
 @media (max-width: 1040px) {
   .mega-panel {
     width: min(98vw, 980px);
-    grid-template-columns: repeat(4, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
     gap: 0.6rem;
   }
 
@@ -2414,7 +3167,16 @@ body {
   }
 
   .mega-column {
+    min-height: 8.8rem;
     padding: 0.54rem 0.58rem;
+  }
+
+  .mega-panel[data-menu="rider"] {
+    grid-template-columns: repeat(3, minmax(165px, 1fr));
+  }
+
+  .mega-panel[data-menu="rider"] .mega-column[data-column="riding-apparel"] {
+    grid-column: span 1;
   }
 
   .home-hero {
@@ -2511,12 +3273,16 @@ body {
 
   .mega-panel {
     width: min(97vw, 820px);
-    grid-template-columns: repeat(3, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 0.56rem;
   }
 
   .mega-links {
     column-count: 1;
+  }
+
+  .mega-panel[data-menu="rider"] {
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
   }
 
   .products-grid-mobile-two .product-grid {
@@ -2817,10 +3583,15 @@ body {
 
   .mega-panel {
     width: min(96vw, 360px);
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     max-height: calc(100vh - 140px);
-    overflow: auto;
+    overflow-x: clip;
+    overflow-y: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem;
+  }
+
+  .mega-column {
+    min-height: 0;
   }
 
   .mega-links {
@@ -3043,16 +3814,9 @@ body {
 
 .preview-modal-price-card {
   padding: 1rem;
-  border: 1px solid #ffd2d2;
+  border: 1px solid var(--line);
   border-radius: 0.9rem;
-  background: linear-gradient(180deg, #fff5f5 0%, #fff 100%);
-}
-
-.preview-modal-deal {
-  margin: 0 0 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #d93b3b;
+  background: color-mix(in oklab, var(--surface), white 12%);
 }
 
 .preview-modal-price-row {
@@ -3068,18 +3832,6 @@ body {
   font-size: 2.2rem;
   font-weight: 700;
   color: #111;
-}
-
-.preview-modal-compare {
-  margin: 0 0 0.2rem;
-  color: #8f8f8f;
-  text-decoration: line-through;
-}
-
-.preview-modal-savings {
-  margin: 0.55rem 0 0;
-  color: #d93b3b;
-  font-weight: 600;
 }
 
 .preview-modal-meta {
@@ -3451,6 +4203,46 @@ body {
   }
 }
 
+[data-sonner-toast] {
+  will-change: opacity, transform, filter;
+}
+
+[data-sonner-toast][data-mounted='true'][data-removed='false'] {
+  animation: toastFadeIn 220ms ease-out;
+}
+
+[data-sonner-toast][data-removed='true'][data-swipe-out='false'] {
+  animation: toastFadeOut 180ms ease-in forwards;
+}
+
+@keyframes toastFadeIn {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: var(--y) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: var(--y) scale(1);
+  }
+}
+
+@keyframes toastFadeOut {
+  from {
+    opacity: 1;
+    filter: blur(0);
+    transform: var(--y) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    filter: blur(6px);
+    transform: var(--y) scale(0.96);
+  }
+}
+
 @media (max-width: 680px) {
   html,
   body {
@@ -3540,6 +4332,33 @@ body {
   .header-utility .header-utility-left .search-wrap,
   .header-utility .header-utility-left .search-form {
     margin-top: 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .admin-page-shell {
+    width: calc(100vw - 1rem);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .admin-page-header-meta,
+  .admin-draft-overview,
+  .admin-taxonomy-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-editor-hero,
+  .admin-editor-panel {
+    padding: 0.85rem;
+  }
+
+  .admin-panel-header {
+    flex-direction: column;
+  }
+
+  .admin-workspace-header {
+    flex-direction: column;
   }
 }
 

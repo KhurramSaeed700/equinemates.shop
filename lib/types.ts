@@ -45,14 +45,6 @@ export interface Product {
   shippingInfo?: string;
 }
 
-export interface Promotion {
-  id: string;
-  title: string;
-  copy: string;
-  ctaLabel: string;
-  ctaHref: string;
-}
-
 export interface Address {
   id: string;
   label: string;

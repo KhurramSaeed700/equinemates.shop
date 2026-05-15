@@ -20,7 +20,7 @@ export function ProductPreviewModal({
   isOpen,
   onClose,
 }: ProductPreviewModalProps) {
-  const { formatFromPkr } = useCurrency();
+  const { formatFromUsd } = useCurrency();
   const { addToCart } = useCart();
   const { has: hasInWishlist, toggle } = useWishlist();
   const { isSignedIn } = useUser();
@@ -29,9 +29,6 @@ export function ProductPreviewModal({
     [product.images],
   );
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const savingsPkr = product.compareAtPricePkr
-    ? Math.max(0, product.compareAtPricePkr - product.basePricePkr)
-    : 0;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -66,14 +63,6 @@ export function ProductPreviewModal({
       document.removeEventListener("keydown", handleEscape);
     };
   }, [isOpen, onClose]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    setActiveImageIndex(0);
-  }, [isOpen, product.slug]);
 
   if (!isOpen) return null;
 
@@ -142,20 +131,9 @@ export function ProductPreviewModal({
             </div>
 
             <div className="preview-modal-price-card">
-              <p className="preview-modal-deal">Featured deal</p>
               <div className="preview-modal-price-row">
-                <p className="preview-modal-price">{formatFromPkr(product.basePricePkr)}</p>
-                {product.compareAtPricePkr ? (
-                  <p className="preview-modal-compare">
-                    {formatFromPkr(product.compareAtPricePkr)}
-                  </p>
-                ) : null}
+                <p className="preview-modal-price">{formatFromUsd(product.basePriceUsd)}</p>
               </div>
-              {savingsPkr > 0 ? (
-                <p className="preview-modal-savings">
-                  Save {formatFromPkr(savingsPkr)} on this item
-                </p>
-              ) : null}
             </div>
 
             <div className="preview-modal-meta">

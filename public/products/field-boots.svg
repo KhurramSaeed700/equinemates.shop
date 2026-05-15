@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Field boots">
+  <rect width="640" height="420" fill="#eee7dc"/>
+  <path d="M210 86h82l-10 210 70 34-18 32H202c-18-78 4-180 8-276Z" fill="#513820"/>
+  <path d="M350 86h82l-10 210 70 34-18 32H342c-18-78 4-180 8-276Z" fill="#2f433b"/>
+  <path d="M236 108v178M376 108v178" stroke="#d6b271" stroke-width="8" stroke-linecap="round"/>
+  <path d="M198 362h140M338 362h140" stroke="#2f2924" stroke-width="14" stroke-linecap="round"/>
+  <text x="320" y="398" fill="#513820" font-family="Segoe UI, sans-serif" font-size="30" text-anchor="middle">Field Boots</text>
+</svg>

@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
+    "dev:turbo": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed:catalog": "pnpm exec tsx ./scripts/seed-catalog-to-neon.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1009.0",

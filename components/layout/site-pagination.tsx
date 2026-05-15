@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -12,7 +11,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { filterProducts } from "@/lib/catalog";
 import {
   clampPage,
   ITEMS_PER_PAGE,
@@ -20,7 +18,6 @@ import {
   parsePerPageParam,
   PER_PAGE_OPTIONS,
 } from "@/lib/pagination";
-import { ProductCategory } from "@/lib/types";
 
 function getVisiblePages(current: number, total: number) {
   const base = new Set<number>([1, total, current - 1, current, current + 1]);
@@ -29,39 +26,13 @@ function getVisiblePages(current: number, total: number) {
     .sort((a, b) => a - b);
 }
 
-export function SitePagination() {
+export function SitePagination({ totalItems }: { totalItems: number }) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isListingPage = pathname === "/products" || pathname === "/search";
   const perPage = parsePerPageParam(searchParams.get("perPage") ?? undefined);
   const shouldRender = isListingPage;
-
-  const totalItems = useMemo(() => {
-    if (pathname === "/products") {
-      const category = searchParams.get("category") as ProductCategory | null;
-      const categoryPath = searchParams.get("path");
-      return filterProducts({
-        category: category ?? undefined,
-        categoryPath: categoryPath ?? undefined,
-      }).length;
-    }
-
-    if (pathname === "/search") {
-      const min = searchParams.get("min");
-      const max = searchParams.get("max");
-      const category = searchParams.get("category") as ProductCategory | null;
-      return filterProducts({
-        query: searchParams.get("q") ?? undefined,
-        category: category ?? undefined,
-        minPricePkr: min ? Number(min) : undefined,
-        maxPricePkr: max ? Number(max) : undefined,
-        tag: searchParams.get("tag") ?? undefined,
-      }).length;
-    }
-
-    return 0;
-  }, [pathname, searchParams]);
 
   const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
   const currentPage = clampPage(parsePageParam(searchParams.get("page") ?? undefined), totalPages);

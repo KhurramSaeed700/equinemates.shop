@@ -11,7 +11,7 @@ import { SiteHeaderMobileDrawer } from "@/components/layout/site-header-mobile-d
 import { SiteSearch } from "@/components/layout/site-search";
 import { useCart } from "@/components/providers/cart-provider";
 import { useWishlist } from "@/components/providers/wishlist-provider";
-import { getNavbarMenus } from "@/lib/catalog";
+import type { NavMenu } from "@/lib/catalog";
 import {
   CartIcon,
   CloseIcon,
@@ -22,14 +22,15 @@ import {
 export function SiteHeader({
   clerkEnabled,
   initialSignedIn,
+  shopMenus,
 }: {
   clerkEnabled: boolean;
   initialSignedIn: boolean;
+  shopMenus: NavMenu[];
 }) {
   const TOUCH_NAV_QUERY = "(max-width: 680px)";
   const { itemCount } = useCart();
   const { productSlugs } = useWishlist();
-  const shopMenus = getNavbarMenus();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);

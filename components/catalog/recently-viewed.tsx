@@ -1,18 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { PRODUCTS } from "@/lib/catalog";
+import { useCatalogProducts } from "@/components/hooks/useCatalogProducts";
 import { useRecentlyViewed } from "../hooks/useRecentlyViewed";
-import { useEffect } from "react";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { useMounted } from "@/components/hooks/useMounted";
 
 export function RecentlyViewedSection() {
   const { slugs } = useRecentlyViewed();
-  const products = PRODUCTS.filter((p) => slugs.includes(p.slug));
+  const { products } = useCatalogProducts({
+    slugs,
+    enabled: slugs.length > 0,
+  });
   const { addToCart } = useCart();
-  const { formatFromPkr } = useCurrency();
+  const { formatFromUsd } = useCurrency();
   const mounted = useMounted();
 
   if (!products.length) return null;
@@ -33,7 +35,7 @@ export function RecentlyViewedSection() {
               <h3>{product.name}</h3>
               <p className="product-price small">
                 {mounted
-                  ? formatFromPkr(product.basePricePkr)
+                  ? formatFromUsd(product.basePriceUsd)
                   : `$${product.basePriceUsd.toFixed(2)}`}
               </p>
             </Link>

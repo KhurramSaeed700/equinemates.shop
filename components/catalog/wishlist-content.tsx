@@ -4,15 +4,16 @@ import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 
 import { ProductCard } from "@/components/catalog/product-card";
+import { useCatalogProducts } from "@/components/hooks/useCatalogProducts";
 import { useWishlist } from "@/components/providers/wishlist-provider";
-import { PRODUCTS } from "@/lib/catalog";
 
 export function WishlistContent() {
   const { isSignedIn } = useUser();
   const { productSlugs, clearWishlist } = useWishlist();
-  const products = PRODUCTS.filter((product) =>
-    productSlugs.includes(product.slug),
-  );
+  const { products, isLoading } = useCatalogProducts({
+    slugs: productSlugs,
+    enabled: isSignedIn && productSlugs.length > 0,
+  });
 
   if (!isSignedIn) {
     return (
@@ -33,13 +34,19 @@ export function WishlistContent() {
     return (
       <section className="panel">
         <h2>Saved Products</h2>
-        <p>
-          Your wishlist is empty. Save products and they remain synced locally
-          across sessions.
-        </p>
-        <Link className="btn-primary" href="/products">
-          Browse Catalog
-        </Link>
+        {isLoading ? (
+          <p>Loading your saved products...</p>
+        ) : (
+          <>
+            <p>
+              Your wishlist is empty. Save products and they remain synced locally
+              across sessions.
+            </p>
+            <Link className="btn-primary" href="/products">
+              Browse Catalog
+            </Link>
+          </>
+        )}
       </section>
     );
   }

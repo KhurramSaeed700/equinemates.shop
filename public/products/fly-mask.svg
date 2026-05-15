@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Fly mask">
+  <rect width="640" height="420" fill="#e9f0e3"/>
+  <path d="M202 120h236l44 84-44 116H202l-44-116 44-84Z" fill="#f7f2e8" stroke="#5b725a" stroke-width="8"/>
+  <path d="M220 132l-56-62M420 132l56-62" stroke="#5b725a" stroke-width="24" stroke-linecap="round"/>
+  <path d="M240 202h160M226 242h188M250 282h140" stroke="#91a38f" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="256" cy="194" r="14" fill="#31433d"/>
+  <circle cx="384" cy="194" r="14" fill="#31433d"/>
+  <text x="320" y="370" fill="#31433d" font-family="Segoe UI, sans-serif" font-size="34" text-anchor="middle">Fly Mask</text>
+</svg>

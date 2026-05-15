@@ -3,9 +3,13 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useMemo } from "react";
 
-import { CATEGORY_OPTIONS } from "@/lib/catalog";
+import { ProductCategory } from "@/lib/types";
 
-export function CatalogFilter() {
+export function CatalogFilter({
+  categoryOptions,
+}: {
+  categoryOptions: ProductCategory[];
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -54,7 +58,7 @@ export function CatalogFilter() {
         Category
         <select defaultValue={current.category} name="category">
           <option value="">All Categories</option>
-          {CATEGORY_OPTIONS.map((category) => (
+          {categoryOptions.map((category) => (
             <option key={category} value={category}>
               {category}
             </option>

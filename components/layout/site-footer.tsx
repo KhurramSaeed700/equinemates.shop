@@ -7,6 +7,7 @@ import {
   WhatsAppIcon,
   YouTubeIcon,
 } from "@/components/ui/icons";
+import { getAdminAccess } from "@/lib/server/admin-auth";
 
 const socialLinks = [
   { href: "https://facebook.com", label: "Facebook", Icon: FacebookIcon },
@@ -23,7 +24,9 @@ const policyLinks = [
   { label: "Terms & Conditions", href: "#" },
 ];
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const adminAccess = await getAdminAccess();
+
   return (
     <footer className="site-footer">
       <div className="container footer-grid">
@@ -74,9 +77,11 @@ export function SiteFooter() {
             <li>
               <Link href="/products">Shop Collections</Link>
             </li>
-            <li>
-              <Link href="/admin">Admin Panel</Link>
-            </li>
+            {adminAccess.isAuthorized ? (
+              <li>
+                <Link href="/admin">Admin Panel</Link>
+              </li>
+            ) : null}
             <li>
               <Link href="/wholesale/dashboard">Wholesale Dashboard</Link>
             </li>

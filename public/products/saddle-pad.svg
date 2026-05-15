@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Saddle pad">
+  <rect width="640" height="420" fill="#e7efe8"/>
+  <path d="M142 150c84-54 266-62 358 6 30 22 42 66 16 104-28 40-114 58-206 54-94-4-174-26-194-70-14-32 0-72 26-94Z" fill="#fff6e8" stroke="#426f61" stroke-width="8"/>
+  <path d="M180 188c76-34 210-38 286 4M172 232c86 30 222 38 316 8" stroke="#d0a75a" stroke-width="10" stroke-linecap="round"/>
+  <path d="M258 144l-42 158M386 144l42 154" stroke="#426f61" stroke-width="6" opacity=".55"/>
+  <text x="320" y="366" fill="#31433d" font-family="Segoe UI, sans-serif" font-size="34" text-anchor="middle">Saddle Pad</text>
+</svg>

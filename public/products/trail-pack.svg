@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Trail saddle pack">
+  <rect width="640" height="420" fill="#ece7dc"/>
+  <path d="M164 160h134l34 146H142l22-146Z" fill="#6f4a2d" stroke="#44301f" stroke-width="8"/>
+  <path d="M342 160h134l22 146H308l34-146Z" fill="#2f5b4a" stroke="#243d36" stroke-width="8"/>
+  <path d="M248 164c34-44 110-44 144 0" fill="none" stroke="#d6ad64" stroke-width="16" stroke-linecap="round"/>
+  <path d="M178 214h102M360 214h102" stroke="#f0cf83" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="220" cy="262" r="18" fill="#d6ad64"/>
+  <circle cx="418" cy="262" r="18" fill="#d6ad64"/>
+  <text x="320" y="370" fill="#5b3b28" font-family="Segoe UI, sans-serif" font-size="34" text-anchor="middle">Trail Pack</text>
+</svg>

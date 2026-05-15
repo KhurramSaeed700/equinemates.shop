@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Dispatch, RefObject, SetStateAction } from "react";
 
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { NavMenu } from "@/lib/catalog";
+import type { NavMenu } from "@/lib/catalog";
 
 interface SiteHeaderDesktopNavProps {
   shopMenus: NavMenu[];
@@ -13,6 +13,14 @@ interface SiteHeaderDesktopNavProps {
   navRef: RefObject<HTMLDivElement | null>;
   closeTimerRef: RefObject<number | null>;
   touchNavQuery: string;
+}
+
+function toDataToken(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 export function SiteHeaderDesktopNav({
@@ -113,6 +121,7 @@ export function SiteHeaderDesktopNav({
             </div>
             <div
               className="mega-panel"
+              data-menu={toDataToken(menu.label)}
               onMouseEnter={() => {
                 if (
                   window.matchMedia(touchNavQuery).matches ||
@@ -150,7 +159,11 @@ export function SiteHeaderDesktopNav({
                 Shop All {menu.label}
               </Link>
               {menu.columns.map((column) => (
-                <div key={column.heading} className="mega-column">
+                <div
+                  key={column.heading}
+                  className="mega-column"
+                  data-column={toDataToken(column.heading)}
+                >
                   {column.href ? (
                     <Link
                       className="mega-heading mega-heading-link"

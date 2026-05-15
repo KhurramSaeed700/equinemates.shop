@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Hoof rasp">
+  <rect width="640" height="420" fill="#e8ece8"/>
+  <rect x="176" y="112" width="288" height="86" rx="14" transform="rotate(-16 320 155)" fill="#c8c6bb" stroke="#38433e" stroke-width="6"/>
+  <path d="M166 196l342-100" stroke="#8e9188" stroke-width="8" stroke-linecap="round" stroke-dasharray="14 14"/>
+  <rect x="392" y="212" width="132" height="46" rx="20" transform="rotate(-16 458 235)" fill="#6b4a32"/>
+  <circle cx="442" cy="240" r="10" fill="#f3d58c"/>
+  <text x="320" y="348" fill="#33443e" font-family="Segoe UI, sans-serif" font-size="34" text-anchor="middle">Hoof Rasp</text>
+</svg>

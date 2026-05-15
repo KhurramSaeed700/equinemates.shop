@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Bell boots">
+  <rect width="640" height="420" fill="#f0e7d8"/>
+  <path d="M184 128h112l36 184H148l36-184Z" fill="#6b4a32"/>
+  <path d="M344 128h112l36 184H308l36-184Z" fill="#2f5b4a"/>
+  <path d="M166 128h148M326 128h148" stroke="#f8d993" stroke-width="18" stroke-linecap="round"/>
+  <path d="M142 312h194M302 312h194" stroke="#3d3028" stroke-width="14" stroke-linecap="round"/>
+  <text x="320" y="370" fill="#5b3d2b" font-family="Segoe UI, sans-serif" font-size="34" text-anchor="middle">Bell Boots</text>
+</svg>

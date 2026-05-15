@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Turnout blanket">
+  <rect width="640" height="420" fill="#efe9dc"/>
+  <path d="M110 184c58-72 146-96 264-84 72 7 127 32 166 74v116H126l-16-106Z" fill="#49685c"/>
+  <path d="M150 204h360" stroke="#f4d38f" stroke-width="12" stroke-linecap="round"/>
+  <path d="M184 278v52M462 278v52" stroke="#2f433b" stroke-width="22" stroke-linecap="round"/>
+  <path d="M504 174l40 18-12 42-42-12" fill="#39534b"/>
+  <circle cx="204" cy="222" r="10" fill="#f4d38f"/>
+  <text x="320" y="364" fill="#31433d" font-family="Segoe UI, sans-serif" font-size="32" text-anchor="middle">Turnout Blanket</text>
+</svg>

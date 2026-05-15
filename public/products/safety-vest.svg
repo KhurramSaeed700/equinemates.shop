@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Safety vest">
+  <rect width="640" height="420" fill="#f1eadf"/>
+  <path d="M232 90h176l58 94-46 170H220l-46-170 58-94Z" fill="#324e48"/>
+  <path d="M278 98l42 76 42-76" fill="#f1eadf"/>
+  <path d="M210 188h220M198 248h244M234 126v218M320 174v170M406 126v218" stroke="#d6ad64" stroke-width="10" stroke-linecap="round"/>
+  <text x="320" y="390" fill="#324e48" font-family="Segoe UI, sans-serif" font-size="32" text-anchor="middle">Safety Vest</text>
+</svg>

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { getAdminAccess } from "@/lib/server/admin-auth";
-import { getR2ConfigurationStatus, uploadImageToR2 } from "@/lib/server/r2";
+import { getR2Config, getR2ConfigurationStatus } from "@/lib/server/r2-config";
+import { uploadImageToR2 } from "@/lib/server/r2";
 
 export const runtime = "nodejs";
 
@@ -55,6 +56,17 @@ export async function POST(request: Request) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Cloudflare R2 upload failed.";
+    const config = r2Configuration.isConfigured ? getR2Config() : null;
+
+    console.error("[api/admin/uploads] R2 upload failed", {
+      errorName: error instanceof Error ? error.name : "UnknownError",
+      message,
+      bucketName: config?.bucketName ?? null,
+      publicBaseUrl: config?.publicBaseUrl ?? null,
+      uploadPrefix: config?.uploadPrefix ?? null,
+      folder,
+    });
+
     const status =
       message.includes("Unsupported image type") ||
       message.includes("upload limit") ||

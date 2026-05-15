@@ -1,22 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { CheckoutForm } from "@/components/forms/checkout-form";
+import { useCatalogProducts } from "@/components/hooks/useCatalogProducts";
 import { PeopleAlsoBought } from "./people-also-bought";
 import { RecentlyViewedSection } from "./recently-viewed";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { useUser } from "@clerk/nextjs";
-import { PRODUCTS } from "@/lib/catalog";
 
 export function CartContent() {
   const { items, removeFromCart, setQuantity, subtotalPkr, clearCart } =
     useCart();
-  const { formatFromPkr } = useCurrency();
+  const { formatFromPkr, formatFromUsd } = useCurrency();
   const { isSignedIn } = useUser();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const cartSlugs = items.map((item) => item.productSlug);
+  const { products } = useCatalogProducts({
+    slugs: cartSlugs,
+    enabled: cartSlugs.length > 0,
+  });
+  const productsBySlug = useMemo(
+    () => new Map(products.map((product) => [product.slug, product])),
+    [products],
+  );
+  const subtotalUsd = items.reduce((sum, item) => {
+    const product = productsBySlug.get(item.productSlug);
+    return sum + (product?.basePriceUsd ?? item.unitPricePkr / 280) * item.quantity;
+  }, 0);
 
   if (!isSignedIn) {
     return (
@@ -88,9 +101,7 @@ export function CartContent() {
           ) : (
             <div className="review-list">
               {items.map((item) => {
-                const product = PRODUCTS.find(
-                  (p) => p.slug === item.productSlug,
-                );
+                const product = productsBySlug.get(item.productSlug);
                 const imageSrc =
                   product?.images?.[0] || "/products/placeholder.svg";
                 return (
@@ -109,7 +120,7 @@ export function CartContent() {
                         <span className="tiny">{item.sku}</span>
                       </div>
                       <p className="item-price-large">
-                        {formatFromPkr(item.unitPricePkr)}
+                        {product ? formatFromUsd(product.basePriceUsd) : formatFromPkr(item.unitPricePkr)}
                       </p>
                       <div className="action-row qty-controls">
                         <button
@@ -139,7 +150,9 @@ export function CartContent() {
                       </div>
                       <p className="tiny">
                         Subtotal:{" "}
-                        {formatFromPkr(item.unitPricePkr * item.quantity)}
+                        {product
+                          ? formatFromUsd(product.basePriceUsd * item.quantity)
+                          : formatFromPkr(item.unitPricePkr * item.quantity)}
                       </p>
                     </div>
                   </article>
@@ -148,7 +161,7 @@ export function CartContent() {
             </div>
           )}
           <p className="product-price">
-            Subtotal: {formatFromPkr(subtotalPkr)}
+            Subtotal: {items.length ? formatFromUsd(subtotalUsd) : formatFromPkr(subtotalPkr)}
           </p>
           <p className="tiny">
             Shipping supports the United States and Europe with city-based rate

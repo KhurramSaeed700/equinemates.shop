@@ -1,49 +1,52 @@
 "use client";
 
-import { useState, useMemo, Fragment } from "react";
-import { PRODUCTS } from "@/lib/catalog";
-import { Product } from "@/lib/types";
+import { Fragment, useMemo, useState } from "react";
+import { useCatalogProducts } from "@/components/hooks/useCatalogProducts";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { useMounted } from "@/components/hooks/useMounted";
+import { Product } from "@/lib/types";
 
 export function FrequentlyBoughtTogether({ product }: { product: Product }) {
   const { addToCart } = useCart();
-  const { formatFromPkr } = useCurrency();
+  const { formatFromUsd } = useCurrency();
   const mounted = useMounted();
-  // pick related or fallback
-  const related = product.relatedSlugs
-    ?.map((s) => PRODUCTS.find((p) => p.slug === s))
-    .filter(Boolean) as Product[];
-
-  const defaults = related.length
-    ? related.slice(0, 2)
-    : PRODUCTS.filter((p) => p.slug !== product.slug).slice(0, 2);
-
-  const [selected, setSelected] = useState<string[]>(
-    defaults.map((p) => p.slug),
+  const { products: defaults } = useCatalogProducts({
+    slugs: product.relatedSlugs,
+    excludeSlugs: [product.slug],
+    limit: 2,
+    enabled: true,
+  });
+  const defaultSlugs = useMemo(
+    () => defaults.map((candidate) => candidate.slug),
+    [defaults],
   );
+  const [manualSelected, setManualSelected] = useState<string[] | null>(null);
+  const selected = useMemo(() => {
+    if (manualSelected === null) {
+      return defaultSlugs;
+    }
+
+    return manualSelected.filter((slug) => defaultSlugs.includes(slug));
+  }, [defaultSlugs, manualSelected]);
 
   const toggle = (slug: string) => {
-    setSelected((s) =>
-      s.includes(slug) ? s.filter((x) => x !== slug) : [...s, slug],
-    );
+    setManualSelected((current) => {
+      const baseSelection =
+        current === null
+          ? defaultSlugs
+          : current.filter((candidate) => defaultSlugs.includes(candidate));
+
+      return baseSelection.includes(slug)
+        ? baseSelection.filter((candidate) => candidate !== slug)
+        : [...baseSelection, slug];
+    });
   };
 
-  const items = useMemo(
-    () => [
-      product,
-      ...defaults
-        .filter((d) => d)
-        .filter((p) => (!selected.includes(p.slug) ? false : true)),
-    ],
-    [product, defaults, selected],
-  );
-
-  const combinedTotal = useMemo(() => {
-    let total = product.basePricePkr;
+  const combinedTotalUsd = useMemo(() => {
+    let total = product.basePriceUsd;
     defaults.forEach((p) => {
-      if (selected.includes(p.slug)) total += p.basePricePkr;
+      if (selected.includes(p.slug)) total += p.basePriceUsd;
     });
     return total;
   }, [product, defaults, selected]);
@@ -61,7 +64,7 @@ export function FrequentlyBoughtTogether({ product }: { product: Product }) {
               <strong>{product.name}</strong>
               <p className="tiny">
                 {mounted
-                  ? formatFromPkr(product.basePricePkr)
+                  ? formatFromUsd(product.basePriceUsd)
                   : `$${product.basePriceUsd.toFixed(2)}`}
               </p>
             </div>
@@ -81,7 +84,7 @@ export function FrequentlyBoughtTogether({ product }: { product: Product }) {
                   <div className="tiny">{p.name}</div>
                   <div className="tiny strong">
                     {mounted
-                      ? formatFromPkr(p.basePricePkr)
+                      ? formatFromUsd(p.basePriceUsd)
                       : `$${p.basePriceUsd.toFixed(2)}`}
                   </div>
                 </div>
@@ -99,7 +102,7 @@ export function FrequentlyBoughtTogether({ product }: { product: Product }) {
         <div>
           <div className="tiny">Combined total</div>
           <div className="product-price">
-            {mounted ? formatFromPkr(combinedTotal) : `$${(combinedTotal / 280).toFixed(2)}`}
+            {mounted ? formatFromUsd(combinedTotalUsd) : `$${combinedTotalUsd.toFixed(2)}`}
           </div>
         </div>
         <div className="action-row">

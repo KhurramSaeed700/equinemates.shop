@@ -3,17 +3,53 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useDeferredValue, useEffect, useState } from "react";
 
 import { SearchIcon } from "@/components/ui/icons";
-import { searchSuggestions } from "@/lib/catalog";
+
+type SearchSuggestion = {
+  id: string;
+  slug: string;
+  name: string;
+  sku: string;
+  image?: string;
+};
 
 export function SiteSearch() {
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const deferredQuery = useDeferredValue(query.trim());
   const router = useRouter();
 
-  const suggestions = useMemo(() => searchSuggestions(query), [query]);
+  useEffect(() => {
+    if (!deferredQuery) {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    fetch(`/api/search?mode=suggestions&q=${encodeURIComponent(deferredQuery)}`, {
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Search suggestions failed.");
+        }
+        return response.json() as Promise<{ suggestions?: SearchSuggestion[] }>;
+      })
+      .then((payload) => {
+        setSuggestions(payload.suggestions ?? []);
+      })
+      .catch((error) => {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+        setSuggestions([]);
+      });
+
+    return () => controller.abort();
+  }, [deferredQuery]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -49,7 +85,7 @@ export function SiteSearch() {
                     alt={product.name}
                     className="search-suggestion-thumb"
                     height={40}
-                    src={product.images[0] ?? "/place holder/1.webp"}
+                    src={product.image ?? "/place holder/1.webp"}
                     width={40}
                   />
                   <span className="search-suggestion-text">

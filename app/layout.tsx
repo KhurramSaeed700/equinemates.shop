@@ -2,15 +2,14 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { IBM_Plex_Sans, Sora } from "next/font/google";
-import { Suspense } from "react";
 import { Toaster } from "sonner";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { NewsletterPopup } from "@/components/marketing/newsletter-popup";
-import { SitePagination } from "@/components/layout/site-pagination";
 import { AppProviders } from "@/components/providers/app-providers";
 import { isClerkEnabledFromKey } from "@/lib/clerk";
+import { getNavbarMenus } from "@/lib/server/catalog-products";
 
 import "./globals.css";
 
@@ -71,7 +70,10 @@ export default async function RootLayout({
     configuredPublishableKey && configuredPublishableKey.trim().length > 0
       ? configuredPublishableKey
       : "pk_test_placeholder_do_not_use_in_production";
-  const initialSignedIn = clerkEnabled ? Boolean((await auth()).userId) : false;
+  const [initialSignedIn, shopMenus] = await Promise.all([
+    clerkEnabled ? auth().then((session) => Boolean(session.userId)) : false,
+    getNavbarMenus(),
+  ]);
 
   return (
     <html lang="en">
@@ -79,12 +81,13 @@ export default async function RootLayout({
         <ClerkProvider publishableKey={clerkPublishableKey}>
           <AppProviders>
             <div className="site-shell">
-              <SiteHeader clerkEnabled={clerkEnabled} initialSignedIn={initialSignedIn} />
+              <SiteHeader
+                clerkEnabled={clerkEnabled}
+                initialSignedIn={initialSignedIn}
+                shopMenus={shopMenus}
+              />
               <main className="site-main">
                 {children}
-                <Suspense fallback={null}>
-                  <SitePagination />
-                </Suspense>
               </main>
               <SiteFooter />
               <NewsletterPopup />

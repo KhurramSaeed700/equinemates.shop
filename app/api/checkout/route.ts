@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getProductBySlug } from "@/lib/catalog";
+import { getProductBySlug } from "@/lib/server/catalog-products";
 import { createCheckout } from "@/lib/server/checkout-service";
 import { CartItem, CurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/types";
 
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
     const normalizedItems: CartItem[] = [];
     for (const item of body.items) {
-      const product = getProductBySlug(item.productSlug);
+      const product = await getProductBySlug(item.productSlug);
       const quantity = Math.floor(item.quantity);
       if (!product || !Number.isFinite(quantity) || quantity <= 0) {
         continue;
