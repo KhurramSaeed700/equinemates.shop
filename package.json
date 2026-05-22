@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --webpack",
     "dev:turbo": "next dev --turbo",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "seed:catalog": "pnpm exec tsx ./scripts/seed-catalog-to-neon.ts"
