@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { ChangeEvent, KeyboardEvent, useRef, useState } from "react";
 import {
   FiArrowLeft,
@@ -10,10 +9,15 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 
-import { R2ImageUploadForm } from "@/components/forms/r2-image-upload-form";
+import {
+  R2ImageUploadForm,
+  type R2ImageUploadFormHandle,
+} from "@/components/forms/r2-image-upload-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ProductMedia } from "@/components/ui/product-media";
 import { Textarea } from "@/components/ui/textarea";
+import { getProductImageSrc } from "@/lib/image-utils";
 import { useToast } from "@/lib/use-toast";
 import { CurrencyCode, Product, ProductCategory } from "@/lib/types";
 
@@ -28,6 +32,7 @@ type ProductSummary = {
   name: string;
   sku: string;
   category: ProductCategory;
+  primaryImage: string | null;
 };
 
 type ProductDraft = {
@@ -59,6 +64,13 @@ type AdminProductEditorProps = {
 type ProductResponse = {
   message?: string;
   product?: Product;
+};
+
+type ProductDeleteResponse = {
+  message?: string;
+  name?: string;
+  deleted?: boolean;
+  deactivated?: boolean;
 };
 
 type SkuAvailabilityResponse = {
@@ -209,7 +221,7 @@ function createEmptyDraft(): ProductDraft {
     shortDescription: "",
     longDescription: "",
     basePriceUsd: "",
-    stock: "0",
+    stock: "",
     tags: "",
     images: [],
     isBestSeller: false,
@@ -245,6 +257,7 @@ function toSummary(product: Product): ProductSummary {
     name: product.name,
     sku: product.sku,
     category: product.category,
+    primaryImage: product.images[0] ?? null,
   };
 }
 
@@ -269,16 +282,21 @@ export function AdminProductEditor({
   const [isCategoryEditing, setIsCategoryEditing] = useState(
     () => !(initialProduct?.categoryPath.length),
   );
-  const [imageUrlInput, setImageUrlInput] = useState("");
   const [status, setStatus] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingProduct, setIsLoadingProduct] = useState(false);
+  const [deletingProductSlug, setDeletingProductSlug] = useState<string | null>(null);
+  const [productPendingDelete, setProductPendingDelete] =
+    useState<ProductSummary | null>(null);
+  const [productDeleteError, setProductDeleteError] = useState("");
+  const [uploadResetSignal, setUploadResetSignal] = useState(0);
   const [skuAvailability, setSkuAvailability] = useState<SkuAvailabilityState>({
     state: "idle",
     checkedSku: "",
     message: "",
   });
   const skuCheckRequestRef = useRef(0);
+  const uploadFormRef = useRef<R2ImageUploadFormHandle>(null);
 
   const selectedCategoryPath = splitCategoryPath(draft.categoryPath);
   const categoryPaths = flattenCategoryPaths(categoryTree);
@@ -491,6 +509,7 @@ export function AdminProductEditor({
       setProductSearch("");
       setCategorySearch("");
       setIsCategoryEditing(false);
+      setUploadResetSignal((currentSignal) => currentSignal + 1);
       resetSkuAvailability();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Could not load product.");
@@ -504,13 +523,64 @@ export function AdminProductEditor({
     setProductSearch("");
     setCategorySearch("");
     setIsCategoryEditing(true);
-    setImageUrlInput("");
+    setUploadResetSignal((currentSignal) => currentSignal + 1);
     resetSkuAvailability();
     setStatus("Creating a new product draft.");
   };
 
   const onProductSearchSelect = (slug: string) => {
     void loadProduct(slug);
+  };
+
+  const onProductDelete = async (product: ProductSummary) => {
+    const previousProducts = products;
+    const previousDraft = draft;
+    const previousCategorySearch = categorySearch;
+    const previousIsCategoryEditing = isCategoryEditing;
+
+    setDeletingProductSlug(product.slug);
+    setProductDeleteError("");
+    setProductPendingDelete(null);
+    setStatus(`Removing ${product.name}...`);
+    setProducts((currentProducts) =>
+      currentProducts.filter((currentProduct) => currentProduct.slug !== product.slug),
+    );
+
+    if (draft.slug === product.slug || draft.originalSlug === product.slug) {
+      setDraft(createEmptyDraft());
+      setCategorySearch("");
+      setIsCategoryEditing(true);
+      setUploadResetSignal((currentSignal) => currentSignal + 1);
+      resetSkuAvailability();
+    }
+
+    try {
+      const response = await fetch(
+        `/api/admin/products?slug=${encodeURIComponent(product.slug)}`,
+        { method: "DELETE" },
+      );
+      const payload = (await response.json()) as ProductDeleteResponse;
+
+      if (!response.ok) {
+        throw new Error(payload.message ?? "Could not remove product.");
+      }
+
+      setStatus(payload.message ?? `${product.name} was removed.`);
+      toast.success("Product removed", payload.message ?? product.name);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Could not remove product.";
+      setProducts(previousProducts);
+      setDraft(previousDraft);
+      setCategorySearch(previousCategorySearch);
+      setIsCategoryEditing(previousIsCategoryEditing);
+      setStatus(errorMessage);
+      setProductDeleteError(errorMessage);
+      setProductPendingDelete(product);
+      toast.error("Product removal failed", errorMessage);
+    } finally {
+      setDeletingProductSlug(null);
+    }
   };
 
   const onProductSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -520,23 +590,6 @@ export function AdminProductEditor({
 
     event.preventDefault();
     onProductSearchSelect(visibleProductResults[0].slug);
-  };
-
-  const addImageUrl = () => {
-    const nextUrl = imageUrlInput.trim();
-
-    if (!nextUrl) {
-      return;
-    }
-
-    setDraft((currentDraft) => ({
-      ...currentDraft,
-      images: currentDraft.images.includes(nextUrl)
-        ? currentDraft.images
-        : [...currentDraft.images, nextUrl],
-    }));
-    setImageUrlInput("");
-    setStatus("Image URL added to the current draft.");
   };
 
   const removeImage = (imageUrl: string) => {
@@ -604,6 +657,20 @@ export function AdminProductEditor({
     setIsSaving(true);
 
     try {
+      if (uploadFormRef.current?.hasPendingImages()) {
+        setStatus("Uploading product images to R2 before saving...");
+      }
+
+      const uploadedImages = await uploadFormRef.current?.uploadPendingImages();
+      const uploadedImageUrls =
+        uploadedImages
+          ?.map((upload) => upload.url)
+          .filter((url): url is string => Boolean(url)) ?? [];
+      const imagesForSave = [
+        ...draft.images,
+        ...uploadedImageUrls.filter((url) => !draft.images.includes(url)),
+      ];
+
       const response = await fetch("/api/admin/products", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -619,12 +686,12 @@ export function AdminProductEditor({
           basePriceUsd: Number(draft.basePriceUsd),
           basePricePkr: basePricePkrPreview !== null ? Math.round(basePricePkrPreview) : NaN,
           compareAtPricePkr: null,
-          stock: Number(draft.stock),
+          stock: draft.stock.trim() ? Number(draft.stock) : 0,
           tags: draft.tags
             .split(",")
             .map((tag) => tag.trim())
             .filter(Boolean),
-          images: draft.images,
+          images: imagesForSave,
           isBestSeller: draft.isBestSeller,
           isNewArrival: draft.isNewArrival,
           careInstructions: draft.careInstructions,
@@ -650,7 +717,7 @@ export function AdminProductEditor({
       setDraft(createEmptyDraft());
       setCategorySearch("");
       setIsCategoryEditing(true);
-      setImageUrlInput("");
+      setUploadResetSignal((currentSignal) => currentSignal + 1);
       resetSkuAvailability();
       const successMessage = payload.message ?? "Product saved.";
       setStatus(successMessage);
@@ -667,95 +734,162 @@ export function AdminProductEditor({
 
   return (
     <div className="admin-product-editor">
-      <section className="admin-editor-hero">
-        <div className="admin-form-toolbar">
-          <label className="admin-toolbar-field admin-toolbar-search">
-            <span>Find Product</span>
-            <span className="admin-toolbar-search-control">
-              <FiSearch aria-hidden="true" />
-              <Input
-                onKeyDown={onProductSearchKeyDown}
-                onChange={(event) => setProductSearch(event.currentTarget.value)}
-                placeholder="Search by name, SKU, or top-level category"
-                value={productSearch}
-              />
-            </span>
-          </label>
-          <Button
-            className="admin-toolbar-action"
-            onClick={startNewProduct}
-            variant="secondary"
-          >
-            New Draft
-          </Button>
-          {draft.slug ? (
-            <a
-              className="btn-secondary admin-toolbar-action"
-              href={`/products/${encodeURIComponent(draft.slug)}`}
-              rel="noreferrer"
-              target="_blank"
-            >
-              Open Product
-            </a>
-          ) : null}
-        </div>
-
-        {normalizedProductSearch ? (
-          <div className="admin-product-search-results">
-            {visibleProductResults.length > 0 ? (
-              visibleProductResults.map((product) => (
-                <button
-                  className="admin-product-search-result"
-                  key={product.id}
-                  onClick={() => onProductSearchSelect(product.slug)}
-                  type="button"
-                >
-                  <span className="admin-product-search-result-main">
-                    <span className="admin-product-search-result-name">{product.name}</span>
-                    <span className="admin-product-search-result-meta">
-                      {product.sku} - {product.category}
-                    </span>
-                  </span>
-                </button>
-              ))
-            ) : (
-              <p className="tiny admin-product-search-empty">
-                No products match that search yet.
+      {productPendingDelete ? (
+        <div
+          aria-labelledby="admin-delete-product-title"
+          aria-modal="true"
+          className="admin-confirm-overlay"
+          role="dialog"
+        >
+          <section className="admin-confirm-dialog">
+            <h3 id="admin-delete-product-title">
+              Are you sure you want to delete this product?
+            </h3>
+            {productDeleteError ? (
+              <p className="admin-confirm-error" role="alert">
+                {productDeleteError}
               </p>
-            )}
-          </div>
-        ) : null}
+            ) : null}
+            <div className="admin-confirm-actions">
+              <Button
+                disabled={deletingProductSlug === productPendingDelete.slug}
+                onClick={() => {
+                  setProductPendingDelete(null);
+                  setProductDeleteError("");
+                }}
+                variant="secondary"
+              >
+                Cancel
+              </Button>
+              <Button
+                className="admin-danger-btn"
+                disabled={deletingProductSlug === productPendingDelete.slug}
+                onClick={() => void onProductDelete(productPendingDelete)}
+                variant="primary"
+              >
+                {deletingProductSlug === productPendingDelete.slug
+                  ? "Removing..."
+                  : "Yes"}
+              </Button>
+            </div>
+          </section>
+        </div>
+      ) : null}
 
-        <div className="admin-draft-overview">
-          <article className="admin-draft-card">
-            <span className="admin-draft-label">Category Path</span>
-            <strong>{draft.categoryPath || "Pick a category path below"}</strong>
-          </article>
-          <article className="admin-draft-card">
-            <span className="admin-draft-label">Images Attached</span>
-            <strong>{draft.images.length} image(s)</strong>
-          </article>
+      <section className="admin-editor-hero">
+        <div className="admin-product-finder">
+          <div className="admin-form-toolbar">
+            <div className="admin-toolbar-search">
+              <label className="admin-toolbar-label" htmlFor="admin-product-search">
+                Find Product
+              </label>
+              <div className="admin-product-search-control">
+                <FiSearch aria-hidden="true" />
+                <Input
+                  className="admin-product-search-input"
+                  id="admin-product-search"
+                  onKeyDown={onProductSearchKeyDown}
+                  onChange={(event) => setProductSearch(event.currentTarget.value)}
+                  placeholder="Search by name, SKU, or top-level category"
+                  value={productSearch}
+                />
+              </div>
+            </div>
+            <Button
+              className="admin-toolbar-action"
+              disabled={!visibleProductResults.length}
+              onClick={() => {
+                const firstResult = visibleProductResults[0];
+
+                if (firstResult) {
+                  onProductSearchSelect(firstResult.slug);
+                }
+              }}
+              variant="secondary"
+            >
+              Search
+            </Button>
+            {draft.slug ? (
+              <a
+                className="btn-secondary admin-toolbar-action"
+                href={`/products/${encodeURIComponent(draft.slug)}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Open Product
+              </a>
+            ) : null}
+          </div>
+
+          {normalizedProductSearch ? (
+            <div className="admin-product-search-results">
+              {visibleProductResults.length > 0 ? (
+                visibleProductResults.map((product) => (
+                  <article
+                    className="admin-product-search-result"
+                    key={product.id}
+                  >
+                    <button
+                      className="admin-product-search-result-main"
+                      onClick={() => onProductSearchSelect(product.slug)}
+                      type="button"
+                    >
+                      <span className="admin-product-search-thumb">
+                        {product.primaryImage ? (
+                          <ProductMedia
+                            alt={product.name}
+                            className="admin-product-search-image"
+                            height={120}
+                            sizes="84px"
+                            src={getProductImageSrc(product.primaryImage)}
+                            width={120}
+                          />
+                        ) : (
+                          <span aria-hidden="true" className="admin-product-search-thumb-empty">
+                            No image
+                          </span>
+                        )}
+                      </span>
+                      <span className="admin-product-search-result-copy">
+                        <span className="admin-product-search-result-name">{product.name}</span>
+                        <span className="admin-product-search-result-meta">
+                          <span>{product.sku}</span>
+                          <span>{product.category}</span>
+                        </span>
+                      </span>
+                    </button>
+                    <Button
+                      className="admin-product-delete-btn"
+                      disabled={deletingProductSlug === product.slug}
+                      onClick={() => {
+                        setProductPendingDelete(product);
+                        setProductDeleteError("");
+                      }}
+                      size="compact"
+                      variant="secondary"
+                    >
+                      {deletingProductSlug === product.slug ? "Removing..." : "Remove"}
+                    </Button>
+                  </article>
+                ))
+              ) : (
+                <p className="tiny admin-product-search-empty">
+                  No products match that search yet.
+                </p>
+              )}
+            </div>
+          ) : null}
         </div>
       </section>
 
       <div className="admin-editor-layout">
         <section className="admin-editor-panel">
-          <div className="admin-panel-header">
-            <div>
-              <p className="section-eyebrow">Product Details</p>
-              <h3>Core product information</h3>
-            </div>
-            <p className="tiny">
-              Fill the essentials first, then set taxonomy and media just below.
-            </p>
-          </div>
-
           <div className="form-grid">
-            <label>
+            <label className="admin-field-name full-width">
               Product Name
               <Input name="name" onChange={onTextChange} value={draft.name} />
             </label>
-            <label>
+            <label className="admin-sku-field">
               SKU
               <Input
                 aria-describedby="admin-sku-availability"
@@ -775,7 +909,7 @@ export function AdminProductEditor({
                 </span>
               ) : null}
             </label>
-            <label>
+            <label className="admin-field-price">
               Base Price USD
               <Input
                 inputMode="decimal"
@@ -784,7 +918,16 @@ export function AdminProductEditor({
                 value={draft.basePriceUsd}
               />
             </label>
-            <div className="price-info-card">
+            <label className="admin-field-stock">
+              Stock
+              <Input
+                inputMode="numeric"
+                name="stock"
+                onChange={onTextChange}
+                value={draft.stock}
+              />
+            </label>
+            <div className="price-info-card admin-field-price-preview">
               <strong>Base Price Preview</strong>
               <p className="tiny">PKR: {formatCurrency(basePricePkrPreview, "PKR")}</p>
               <p className="tiny">
@@ -794,15 +937,6 @@ export function AdminProductEditor({
                   : "--"}
               </p>
             </div>
-            <label>
-              Stock
-              <Input
-                inputMode="numeric"
-                name="stock"
-                onChange={onTextChange}
-                value={draft.stock}
-              />
-            </label>
             <div className="checkbox-grid full-width">
               <label className="checkbox-label">
                 <input
@@ -863,100 +997,94 @@ export function AdminProductEditor({
         </section>
 
         <section className="admin-editor-panel admin-taxonomy-panel">
-          <div className="admin-panel-header">
-            <div>
-              <p className="section-eyebrow">Taxonomy</p>
-              <h3>Choose category and subcategory</h3>
-            </div>
-            <p className="tiny">
-              Search the full tree or click through each level until the path looks right.
-            </p>
-          </div>
+          <div className="admin-taxonomy-card">
+            <label className="admin-search-field">
+              Category Search
+              <Input
+                onChange={(event) => setCategorySearch(event.currentTarget.value)}
+                placeholder="Search blankets, bridles, cat collars, farrier tools..."
+                value={categorySearch}
+              />
+            </label>
 
-          <label className="admin-search-field">
-            Category Search
-            <Input
-              onChange={(event) => setCategorySearch(event.currentTarget.value)}
-              placeholder="Search blankets, bridles, cat collars, farrier tools..."
-              value={categorySearch}
-            />
-          </label>
+            {matchingCategoryPaths.length > 0 ? (
+              <div className="admin-taxonomy-search-results">
+                {matchingCategoryPaths.map(({ key, path }) => (
+                  <Button
+                    className="admin-taxonomy-match"
+                    key={key}
+                    onClick={() => {
+                      setCategoryPath(path);
+                      setCategorySearch("");
+                    }}
+                    variant="unstyled"
+                  >
+                    <span className="admin-taxonomy-match-leaf">{path[path.length - 1]}</span>
+                    <span className="admin-taxonomy-match-path">{key}</span>
+                  </Button>
+                ))}
+              </div>
+            ) : null}
 
-          {matchingCategoryPaths.length > 0 ? (
-            <div className="admin-taxonomy-search-results">
-              {matchingCategoryPaths.map(({ key, path }) => (
+            {!isCategoryEditing && categorySelectionComplete ? (
+              <div className="admin-taxonomy-summary">
+                <span className="admin-taxonomy-summary-label">Selected path</span>
+                <strong>{selectedCategoryPath.join(" > ")}</strong>
                 <Button
-                  className="admin-taxonomy-match"
-                  key={key}
+                  className="admin-taxonomy-edit-btn"
                   onClick={() => {
-                    setCategoryPath(path);
+                    updateDraft("category", "");
+                    updateDraft("categoryPath", "");
+                    setIsCategoryEditing(true);
                     setCategorySearch("");
                   }}
-                  variant="unstyled"
+                  size="compact"
+                  variant="secondary"
                 >
-                  <span className="admin-taxonomy-match-leaf">{path[path.length - 1]}</span>
-                  <span className="admin-taxonomy-match-path">{key}</span>
+                  Edit
                 </Button>
-              ))}
-            </div>
-          ) : null}
-
-          {!isCategoryEditing && categorySelectionComplete ? (
-            <div className="admin-taxonomy-summary">
-              <span className="admin-taxonomy-summary-label">Selected path</span>
-              <strong>{selectedCategoryPath.join(" > ")}</strong>
-              <Button
-                className="admin-taxonomy-edit-btn"
-                onClick={() => {
-                  updateDraft("category", "");
-                  updateDraft("categoryPath", "");
-                  setIsCategoryEditing(true);
-                  setCategorySearch("");
-                }}
-                size="compact"
-                variant="secondary"
-              >
-                Edit
-              </Button>
-            </div>
-          ) : (
-            <div className="admin-taxonomy-stepper">
-              <div className="admin-taxonomy-step-card">
-                <div className="admin-taxonomy-column-head">
-                  <strong>{categoryStepTitle}</strong>
-                </div>
-                {activeCategoryOptions.length > 0 ? (
-                  <div className="admin-taxonomy-options">
-                    {activeCategoryOptions.map((node) => {
-                      const level = selectedCategoryPath.length;
-                      const nextPath = [...selectedCategoryPath, node.name];
-
-                      return (
-                        <Button
-                          className="admin-taxonomy-option"
-                          key={`${level}-${node.name}`}
-                          onClick={() => onCategoryLevelChange(level, node.name)}
-                          variant="unstyled"
-                        >
-                          <span>{node.name}</span>
-                          <small>
-                            {node.children.length > 0 && nextPath.length < 3
-                              ? "Open next level"
-                              : "Select final path"}
-                          </small>
-                          <span className="admin-taxonomy-option-path">
-                            {nextPath.join(" > ")}
-                          </span>
-                        </Button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="tiny">No categories available at this level.</p>
-                )}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="admin-taxonomy-stepper">
+                <div className="admin-taxonomy-step-card">
+                  <div className="admin-taxonomy-column-head">
+                    <strong>{categoryStepTitle}</strong>
+                  </div>
+                  {activeCategoryOptions.length > 0 ? (
+                    <div className="admin-taxonomy-options">
+                      {activeCategoryOptions.map((node) => {
+                        const level = selectedCategoryPath.length;
+                        const nextPath = [...selectedCategoryPath, node.name];
+                        const opensNextLevel =
+                          node.children.length > 0 && nextPath.length < 3;
+
+                        return (
+                          <Button
+                            className="admin-taxonomy-option"
+                            key={`${level}-${node.name}`}
+                            onClick={() => onCategoryLevelChange(level, node.name)}
+                            variant="unstyled"
+                            aria-label={`${
+                              opensNextLevel ? "Open" : "Select"
+                            } ${nextPath.join(" > ")}`}
+                          >
+                            <span className="admin-taxonomy-option-copy">
+                              <span className="admin-taxonomy-option-label">
+                                {node.name}
+                              </span>
+                            </span>
+                            {opensNextLevel ? <FiArrowRight aria-hidden /> : null}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="tiny">No categories available at this level.</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </section>
       </div>
 
@@ -966,38 +1094,22 @@ export function AdminProductEditor({
             <p className="section-eyebrow">Media</p>
             <h3>Upload and order product images</h3>
           </div>
-          <p className="tiny">
-            The first image becomes the primary storefront image, so you can set cover order here.
-          </p>
         </div>
 
         <div className="admin-image-tools">
-          <div className="admin-image-input">
-            <label className="full-width">
-              Add Existing Image URL
-              <Input
-                onChange={(event) => setImageUrlInput(event.currentTarget.value)}
-                placeholder="https://cdn.example.com/products/..."
-                value={imageUrlInput}
-              />
-            </label>
-            <Button onClick={addImageUrl} size="compact" variant="secondary">
-              Attach URL
-            </Button>
-          </div>
-
           <div className="admin-upload-card">
             <div className="admin-upload-meta">
               <p className="tiny">
                 Upload folder: <strong>{uploadFolder}</strong>
               </p>
-              <p className="tiny">
-                Uploaded images are attached to this draft immediately.
-              </p>
             </div>
             <R2ImageUploadForm
+              ref={uploadFormRef}
               hideFolderField
               initialFolder={uploadFolder}
+              multiple
+              resetSignal={uploadResetSignal}
+              showUploadButton={false}
               onUploaded={(payload) => {
                 if (!payload.url) {
                   return;
@@ -1021,15 +1133,15 @@ export function AdminProductEditor({
             <article className="admin-image-card" key={imageUrl}>
               <div className="admin-image-card-head">
                 <span className={index === 0 ? "admin-image-badge admin-image-badge-primary" : "admin-image-badge"}>
-                  {index === 0 ? "Primary" : `Image ${index + 1}`}
+                  {index === 0 ? "Primary image" : `Image ${index + 1}`}
                 </span>
               </div>
-              <Image
+              <ProductMedia
                 alt={draft.name || "Product image"}
                 className="admin-image-preview"
                 height={144}
                 sizes="96px"
-                src={imageUrl}
+                src={getProductImageSrc(imageUrl)}
                 width={144}
               />
               <p className="tiny admin-image-url">{imageUrl}</p>

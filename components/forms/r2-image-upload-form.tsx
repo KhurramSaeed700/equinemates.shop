@@ -1,7 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useState } from "react";
+import {
+  DragEvent,
+  FormEvent,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
+import { FiX } from "react-icons/fi";
 
 import { useToast } from "@/lib/use-toast";
 
@@ -13,59 +24,167 @@ type UploadResponse = {
   contentType?: string;
 };
 
+export type R2ImageUploadFormHandle = {
+  clear: () => void;
+  hasPendingImages: () => boolean;
+  uploadPendingImages: () => Promise<UploadResponse[]>;
+};
+
 interface R2ImageUploadFormProps {
   hideFolderField?: boolean;
   initialFolder?: string;
+  multiple?: boolean;
   onUploaded?: (upload: UploadResponse) => void;
+  resetSignal?: number;
+  showUploadButton?: boolean;
   showUploadedPreview?: boolean;
 }
 
-export function R2ImageUploadForm({
-  hideFolderField = false,
-  initialFolder,
-  onUploaded,
-  showUploadedPreview = true,
-}: R2ImageUploadFormProps) {
+type SelectedImage = {
+  id: string;
+  file: File;
+  previewUrl: string;
+};
+
+export const R2ImageUploadForm = forwardRef<
+  R2ImageUploadFormHandle,
+  R2ImageUploadFormProps
+>(function R2ImageUploadForm(
+  {
+    hideFolderField = false,
+    initialFolder,
+    multiple = false,
+    onUploaded,
+    resetSignal = 0,
+    showUploadButton = true,
+    showUploadedPreview = true,
+  },
+  ref,
+) {
   const toast = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const selectedImagesRef = useRef<SelectedImage[]>([]);
   const [status, setStatus] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([]);
   const [upload, setUpload] = useState<UploadResponse | null>(null);
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const image = formData.get("image");
+  useEffect(() => {
+    selectedImagesRef.current = selectedImages;
+  }, [selectedImages]);
 
-    if (!(image instanceof File) || image.size === 0) {
-      const errorMessage = "Choose an image before uploading.";
+  useEffect(
+    () => () => {
+      selectedImagesRef.current.forEach((image) => URL.revokeObjectURL(image.previewUrl));
+    },
+    [],
+  );
+
+  const addFiles = (files: FileList | File[]) => {
+    const nextFiles = Array.from(files).filter((file) => file.type.startsWith("image/"));
+
+    if (!nextFiles.length) {
+      const errorMessage = "Choose image files before uploading.";
       setStatus(errorMessage);
-      setUpload(null);
       toast.error("Image upload failed", errorMessage);
       return;
+    }
+
+    setSelectedImages((currentImages) => {
+      const nextImages = nextFiles.map((file) => ({
+        id: `${file.name}-${file.size}-${file.lastModified}-${crypto.randomUUID()}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+      }));
+
+      if (multiple) {
+        return [...currentImages, ...nextImages];
+      }
+
+      currentImages.forEach((image) => URL.revokeObjectURL(image.previewUrl));
+      return nextImages;
+    });
+    setStatus("");
+  };
+
+  const removeSelectedImage = (imageId: string) => {
+    setSelectedImages((currentImages) => {
+      const imageToRemove = currentImages.find((image) => image.id === imageId);
+      if (imageToRemove) {
+        URL.revokeObjectURL(imageToRemove.previewUrl);
+      }
+
+      return currentImages.filter((image) => image.id !== imageId);
+    });
+  };
+
+  const clearSelectedImages = useCallback(() => {
+    setSelectedImages((currentImages) => {
+      currentImages.forEach((image) => URL.revokeObjectURL(image.previewUrl));
+      return [];
+    });
+  }, []);
+
+  useEffect(() => {
+    clearSelectedImages();
+    setUpload(null);
+    setStatus("");
+
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }, [clearSelectedImages, resetSignal]);
+
+  const uploadPendingImages = useCallback(async (): Promise<UploadResponse[]> => {
+    const imagesToUpload = selectedImagesRef.current;
+
+    if (!imagesToUpload.length) {
+      return [];
     }
 
     setIsSubmitting(true);
     setStatus("");
 
     try {
-      const response = await fetch("/api/admin/uploads", {
-        method: "POST",
-        body: formData,
-      });
+      const uploads: UploadResponse[] = [];
+      const folder = initialFolder ?? "";
 
-      const payload = (await response.json()) as UploadResponse;
+      for (const selectedImage of imagesToUpload) {
+        const uploadData = new FormData();
+        uploadData.set("folder", folder);
+        uploadData.set("image", selectedImage.file);
 
-      if (!response.ok) {
-        throw new Error(payload.message ?? "Upload failed.");
+        const response = await fetch("/api/admin/uploads", {
+          method: "POST",
+          body: uploadData,
+        });
+
+        const payload = (await response.json()) as UploadResponse;
+
+        if (!response.ok) {
+          throw new Error(payload.message ?? `Upload failed for ${selectedImage.file.name}.`);
+        }
+
+        uploads.push(payload);
+        onUploaded?.(payload);
       }
 
-      setUpload(payload);
-      onUploaded?.(payload);
-      const successMessage = payload.message ?? "Image uploaded.";
+      const lastUpload = uploads.at(-1) ?? null;
+      setUpload(lastUpload);
+      const successMessage =
+        uploads.length > 1
+          ? `${uploads.length} images uploaded to Cloudflare R2.`
+          : lastUpload?.message ?? "Image uploaded.";
       setStatus(successMessage);
-      toast.success(successMessage, "Image added to the current product draft.");
-      form.reset();
+      toast.success(successMessage, "Images added to the current product draft.");
+      clearSelectedImages();
+
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
+
+      return uploads;
     } catch (error) {
       setUpload(null);
       const errorMessage =
@@ -74,8 +193,54 @@ export function R2ImageUploadForm({
           : "Upload failed. Please try again.";
       setStatus(errorMessage);
       toast.error("Image upload failed", errorMessage);
+      throw error;
     } finally {
       setIsSubmitting(false);
+    }
+  }, [clearSelectedImages, initialFolder, onUploaded, toast]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      clear: clearSelectedImages,
+      hasPendingImages: () => selectedImagesRef.current.length > 0,
+      uploadPendingImages,
+    }),
+    [clearSelectedImages, uploadPendingImages],
+  );
+
+  const onDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragging(false);
+    addFiles(event.dataTransfer.files);
+  };
+
+  const onDropzoneKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    event.preventDefault();
+    inputRef.current?.click();
+  };
+
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+
+    if (!selectedImages.length) {
+      const errorMessage = "Choose image files before uploading.";
+      setStatus(errorMessage);
+      setUpload(null);
+      toast.error("Image upload failed", errorMessage);
+      return;
+    }
+
+    try {
+      await uploadPendingImages();
+      form.reset();
+    } catch (error) {
+      // uploadPendingImages already sets status and toast feedback.
     }
   };
 
@@ -94,7 +259,7 @@ export function R2ImageUploadForm({
 
   return (
     <>
-      <form className="form-grid compact" onSubmit={onSubmit}>
+      <form className="r2-drop-upload-form" onSubmit={onSubmit}>
         {hideFolderField ? (
           <input name="folder" readOnly type="hidden" value={initialFolder ?? ""} />
         ) : (
@@ -108,18 +273,76 @@ export function R2ImageUploadForm({
             />
           </label>
         )}
-        <label>
-          Image File
+        <div
+          className={`r2-dropzone${isDragging ? " is-dragging" : ""}`}
+          onClick={() => inputRef.current?.click()}
+          onDragEnter={(event) => {
+            event.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={(event) => {
+            event.preventDefault();
+            setIsDragging(false);
+          }}
+          onDragOver={(event) => event.preventDefault()}
+          onDrop={onDrop}
+          onKeyDown={onDropzoneKeyDown}
+          role="button"
+          tabIndex={0}
+        >
           <input
             accept="image/avif,image/gif,image/jpeg,image/png,image/webp"
+            className="r2-file-input"
+            multiple={multiple}
             name="image"
-            required
+            onChange={(event) => {
+              if (event.currentTarget.files) {
+                addFiles(event.currentTarget.files);
+                event.currentTarget.value = "";
+              }
+            }}
+            ref={inputRef}
             type="file"
           />
-        </label>
-        <button className="btn-primary" disabled={isSubmitting} type="submit">
-          {isSubmitting ? "Uploading..." : "Upload to R2"}
-        </button>
+          <strong>Drag images here or choose files</strong>
+          <span>PNG, JPG, WEBP, GIF, or AVIF. You can add multiple images.</span>
+        </div>
+
+        {selectedImages.length > 0 ? (
+          <div className="r2-selected-grid">
+            {selectedImages.map((image, index) => (
+              <article className="r2-selected-image" key={image.id}>
+                <Image
+                  alt={image.file.name}
+                  height={220}
+                  src={image.previewUrl}
+                  width={280}
+                  unoptimized
+                />
+                {index === 0 ? <span className="r2-primary-badge">Primary</span> : null}
+                <button
+                  aria-label={`Remove ${image.file.name}`}
+                  className="r2-selected-remove"
+                  onClick={() => removeSelectedImage(image.id)}
+                  title="Remove image"
+                  type="button"
+                >
+                  <FiX aria-hidden="true" />
+                </button>
+              </article>
+            ))}
+          </div>
+        ) : null}
+
+        {showUploadButton ? (
+          <button className="btn-primary" disabled={isSubmitting} type="submit">
+            {isSubmitting
+              ? "Uploading..."
+              : selectedImages.length > 1
+                ? `Upload ${selectedImages.length} Images`
+                : "Upload Image"}
+          </button>
+        ) : null}
         {status ? <p className="form-status">{status}</p> : null}
       </form>
 
@@ -165,4 +388,4 @@ export function R2ImageUploadForm({
       ) : null}
     </>
   );
-}
+});

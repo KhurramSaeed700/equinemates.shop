@@ -19,21 +19,6 @@ export const metadata: Metadata = {
     "Equinemates storefront for pet, horse, and rider products with wholesale-ready workflows.",
 };
 
-const valueProps = [
-  {
-    title: "Free Delivery Available",
-    text: "Cross-region shipping support across North America and Europe for qualifying orders.",
-  },
-  {
-    title: "Top Product Access",
-    text: "Stable, rider, and pet best sellers from one unified catalog.",
-  },
-  {
-    title: "Wholesale Assistance",
-    text: "Business quote workflows for clubs, stables, and distributors.",
-  },
-];
-
 export default async function Home() {
   const [bestSellers, featuredCategorySummary, newArrivals] = await Promise.all([
     getBestSellers(4),
@@ -63,15 +48,6 @@ export default async function Home() {
             </Link>
           </div>
         </div>
-      </section>
-
-      <section className="usp-strip section-spacing">
-        {valueProps.map((item) => (
-          <article key={item.title}>
-            <h3>{item.title}</h3>
-            <p>{item.text}</p>
-          </article>
-        ))}
       </section>
 
       <section className="category-ribbon section-spacing">

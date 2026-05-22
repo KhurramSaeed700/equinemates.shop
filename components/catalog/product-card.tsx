@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -11,6 +10,8 @@ import { useCurrency } from "@/components/providers/currency-provider";
 import { useWishlist } from "@/components/providers/wishlist-provider";
 import { HeartIcon } from "@/components/ui/icons";
 import { CartIcon } from "@/components/ui/icons";
+import { ProductMedia } from "@/components/ui/product-media";
+import { getProductImageSrc } from "@/lib/image-utils";
 import { FiCheck } from "react-icons/fi";
 import { Product } from "@/lib/types";
 import { useUser } from "@clerk/nextjs";
@@ -24,17 +25,18 @@ export function ProductCard({ product }: { product: Product }) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const mounted = useMounted();
   const isInCart = items.some((item) => item.productSlug === product.slug);
+  const primaryImage = getProductImageSrc(product.images[0]);
 
   return (
     <>
       <article className="product-card reveal">
         <Link href={`/products/${product.slug}`} className="product-link">
           <div className="product-image-wrap relative">
-            <Image
+            <ProductMedia
               alt={product.name}
               className="product-image"
               height={420}
-              src={product.images[0]}
+              src={primaryImage}
               width={640}
             />
             {isSignedIn ? (

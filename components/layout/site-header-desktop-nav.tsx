@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Dispatch, RefObject, SetStateAction } from "react";
 
-import { ChevronDownIcon } from "@/components/ui/icons";
 import type { NavMenu } from "@/lib/catalog";
 
 interface SiteHeaderDesktopNavProps {
@@ -43,44 +42,46 @@ export function SiteHeaderDesktopNav({
               openMenu === menu.label ? "mega-item mega-item-open" : "mega-item"
             }
             key={menu.label}
-            onMouseEnter={() => {
-              if (
-                window.matchMedia(touchNavQuery).matches ||
-                isTouchLikeDevice()
-              ) {
-                return;
-              }
-              if (closeTimerRef.current) {
-                clearTimeout(closeTimerRef.current);
-                closeTimerRef.current = null;
-              }
-              setOpenMenu(menu.label);
-            }}
-            onMouseLeave={() => {
-              if (
-                window.matchMedia(touchNavQuery).matches ||
-                isTouchLikeDevice()
-              ) {
-                return;
-              }
-              if (closeTimerRef.current) {
-                clearTimeout(closeTimerRef.current);
-              }
-              closeTimerRef.current = window.setTimeout(() => {
-                setOpenMenu((current) =>
-                  current === menu.label ? null : current,
-                );
-              }, 220);
-            }}
           >
             <div className="mega-trigger-row">
               <Link
+                aria-expanded={openMenu === menu.label}
+                aria-haspopup="true"
                 className={
                   openMenu === menu.label
                     ? "nav-link nav-link-active mega-trigger mega-trigger-link"
                     : "nav-link mega-trigger mega-trigger-link"
                 }
                 href={menu.href}
+                onMouseEnter={() => {
+                  if (
+                    window.matchMedia(touchNavQuery).matches ||
+                    isTouchLikeDevice()
+                  ) {
+                    return;
+                  }
+                  if (closeTimerRef.current) {
+                    clearTimeout(closeTimerRef.current);
+                    closeTimerRef.current = null;
+                  }
+                  setOpenMenu(menu.label);
+                }}
+                onMouseLeave={() => {
+                  if (
+                    window.matchMedia(touchNavQuery).matches ||
+                    isTouchLikeDevice()
+                  ) {
+                    return;
+                  }
+                  if (closeTimerRef.current) {
+                    clearTimeout(closeTimerRef.current);
+                  }
+                  closeTimerRef.current = window.setTimeout(() => {
+                    setOpenMenu((current) =>
+                      current === menu.label ? null : current,
+                    );
+                  }, 220);
+                }}
                 onFocus={() => {
                   if (!isTouchLikeDevice()) {
                     setOpenMenu(menu.label);
@@ -100,24 +101,6 @@ export function SiteHeaderDesktopNav({
               >
                 <span>{menu.label}</span>
               </Link>
-              <button
-                aria-expanded={openMenu === menu.label}
-                aria-haspopup="true"
-                aria-label={`Toggle ${menu.label} menu`}
-                className={
-                  openMenu === menu.label
-                    ? "nav-link nav-link-active mega-trigger mega-trigger-toggle"
-                    : "nav-link mega-trigger mega-trigger-toggle"
-                }
-                onClick={() =>
-                  setOpenMenu((current) =>
-                    current === menu.label ? null : menu.label,
-                  )
-                }
-                type="button"
-              >
-                <ChevronDownIcon height={13} width={13} />
-              </button>
             </div>
             <div
               className="mega-panel"

@@ -68,11 +68,15 @@ export async function POST(request: Request) {
     });
 
     const status =
-      message.includes("Unsupported image type") ||
-      message.includes("upload limit") ||
-      message.includes("selected file is empty")
-        ? 400
-        : 500;
+      message.includes("denied the upload") || message.includes("write access")
+        ? 403
+        : message.includes("could not find the configured bucket")
+          ? 404
+          : message.includes("Unsupported image type") ||
+              message.includes("upload limit") ||
+              message.includes("selected file is empty")
+            ? 400
+            : 500;
 
     return NextResponse.json({ message }, { status });
   }

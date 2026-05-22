@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { IBM_Plex_Sans, Sora } from "next/font/google";
-import { Toaster } from "sonner";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -23,6 +22,21 @@ const plexSans = IBM_Plex_Sans({
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
+
+const themeInitScript = `
+  (() => {
+    try {
+      const storedTheme = window.localStorage.getItem("equinemates-theme");
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      const theme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : systemTheme;
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+    } catch {
+      document.documentElement.dataset.theme = "light";
+      document.documentElement.style.colorScheme = "light";
+    }
+  })();
+`;
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://equinemates.example"),
@@ -76,7 +90,10 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className={`${sora.variable} ${plexSans.variable}`}>
         <ClerkProvider publishableKey={clerkPublishableKey}>
           <AppProviders>
@@ -94,7 +111,6 @@ export default async function RootLayout({
             </div>
           </AppProviders>
         </ClerkProvider>
-        <Toaster position="bottom-right" richColors theme="light" />
       </body>
     </html>
   );

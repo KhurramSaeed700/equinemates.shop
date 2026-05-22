@@ -9,6 +9,7 @@ import { CurrencySwitcher } from "@/components/layout/currency-switcher";
 import { SiteHeaderDesktopNav } from "@/components/layout/site-header-desktop-nav";
 import { SiteHeaderMobileDrawer } from "@/components/layout/site-header-mobile-drawer";
 import { SiteSearch } from "@/components/layout/site-search";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useCart } from "@/components/providers/cart-provider";
 import { useWishlist } from "@/components/providers/wishlist-provider";
 import type { NavMenu } from "@/lib/catalog";
@@ -125,10 +126,18 @@ export function SiteHeader({
           <Link aria-label="Go to homepage" className="brand-mark" href="/">
             <Image
               alt="Equinemates"
-              className="brand-mark-image"
+              className="brand-mark-image brand-mark-image-light"
               height={52}
               priority
               src="/logo-t.png"
+              width={240}
+            />
+            <Image
+              alt="Equinemates"
+              className="brand-mark-image brand-mark-image-dark"
+              height={52}
+              priority
+              src="/logo-white.png"
               width={240}
             />
           </Link>
@@ -144,6 +153,7 @@ export function SiteHeader({
             <CartIcon height={17} width={17} />
             <span className="counter-dot">{itemCount}</span>
           </Link>
+          <ThemeToggle />
           <button
             aria-controls="mobile-site-nav"
             aria-expanded={mobileNavOpen}

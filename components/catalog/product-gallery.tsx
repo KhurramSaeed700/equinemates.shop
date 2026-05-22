@@ -1,7 +1,22 @@
 "use client";
 
-import Image from "next/image";
-import { TouchEvent, useEffect, useMemo, useRef, useState } from "react";
+import { PointerEvent, TouchEvent, useEffect, useMemo, useRef, useState } from "react";
+
+import { ProductMedia } from "@/components/ui/product-media";
+import { getProductImageSrc } from "@/lib/image-utils";
+
+type PanOffset = {
+  x: number;
+  y: number;
+};
+
+type PanDragState = {
+  originX: number;
+  originY: number;
+  pointerId: number;
+  startX: number;
+  startY: number;
+};
 
 export function ProductGallery({
   images,
@@ -14,13 +29,34 @@ export function ProductGallery({
   const MAX_ZOOM = 2.6;
   const ZOOM_STEP = 0.25;
   const safeImages = useMemo(
-    () => (images.length > 0 ? images : ["/place holder/1.webp"]),
+    () => (images.length > 0 ? images.map(getProductImageSrc) : ["/place holder/1.webp"]),
     [images],
   );
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(MIN_ZOOM);
+  const [panOffset, setPanOffset] = useState<PanOffset>({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const lightboxStageRef = useRef<HTMLDivElement>(null);
+  const panDragRef = useRef<PanDragState | null>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  const clampPanOffset = (offset: PanOffset, scale = zoomLevel): PanOffset => {
+    const stage = lightboxStageRef.current;
+
+    if (!stage || scale <= MIN_ZOOM) {
+      return { x: 0, y: 0 };
+    }
+
+    const { width, height } = stage.getBoundingClientRect();
+    const maxX = (width * (scale - 1)) / 2;
+    const maxY = (height * (scale - 1)) / 2;
+
+    return {
+      x: Math.min(maxX, Math.max(-maxX, offset.x)),
+      y: Math.min(maxY, Math.max(-maxY, offset.y)),
+    };
+  };
 
   const prevImage = () => {
     setActiveIndex((current) =>
@@ -35,6 +71,11 @@ export function ProductGallery({
   };
 
   const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+    if (lightboxOpen && zoomLevel > MIN_ZOOM) {
+      touchStartRef.current = null;
+      return;
+    }
+
     const touch = event.touches[0];
     if (!touch) {
       return;
@@ -43,6 +84,11 @@ export function ProductGallery({
   };
 
   const handleTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
+    if (lightboxOpen && zoomLevel > MIN_ZOOM) {
+      touchStartRef.current = null;
+      return;
+    }
+
     const start = touchStartRef.current;
     const touch = event.changedTouches[0];
     touchStartRef.current = null;
@@ -90,7 +136,21 @@ export function ProductGallery({
 
   useEffect(() => {
     setZoomLevel(MIN_ZOOM);
+    setPanOffset({ x: 0, y: 0 });
+    panDragRef.current = null;
+    setIsPanning(false);
   }, [activeIndex]);
+
+  useEffect(() => {
+    if (zoomLevel <= MIN_ZOOM) {
+      setPanOffset({ x: 0, y: 0 });
+      panDragRef.current = null;
+      setIsPanning(false);
+      return;
+    }
+
+    setPanOffset((current) => clampPanOffset(current, zoomLevel));
+  }, [zoomLevel]);
 
   const zoomIn = () => {
     setZoomLevel((current) => Math.min(MAX_ZOOM, current + ZOOM_STEP));
@@ -102,8 +162,65 @@ export function ProductGallery({
 
   const closeLightbox = () => {
     setZoomLevel(MIN_ZOOM);
+    setPanOffset({ x: 0, y: 0 });
+    panDragRef.current = null;
+    setIsPanning(false);
     setLightboxOpen(false);
   };
+
+  const handlePanStart = (event: PointerEvent<HTMLDivElement>) => {
+    if (zoomLevel <= MIN_ZOOM) {
+      return;
+    }
+
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    panDragRef.current = {
+      originX: panOffset.x,
+      originY: panOffset.y,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+    };
+    setIsPanning(true);
+  };
+
+  const handlePanMove = (event: PointerEvent<HTMLDivElement>) => {
+    const dragState = panDragRef.current;
+
+    if (!dragState || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    event.preventDefault();
+    setPanOffset(
+      clampPanOffset({
+        x: dragState.originX + event.clientX - dragState.startX,
+        y: dragState.originY + event.clientY - dragState.startY,
+      }),
+    );
+  };
+
+  const handlePanEnd = (event: PointerEvent<HTMLDivElement>) => {
+    if (panDragRef.current?.pointerId !== event.pointerId) {
+      return;
+    }
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    panDragRef.current = null;
+    setIsPanning(false);
+  };
+
+  const activeImage = safeImages[activeIndex] ?? "/place holder/1.webp";
+  const lightboxStageClassName =
+    zoomLevel > MIN_ZOOM
+      ? `product-gallery-lightbox-stage product-gallery-lightbox-stage-pannable${
+          isPanning ? " product-gallery-lightbox-stage-panning" : ""
+        }`
+      : "product-gallery-lightbox-stage";
 
   return (
     <div className="product-gallery-component">
@@ -129,9 +246,9 @@ export function ProductGallery({
           }}
           type="button"
         >
-          <Image
+          <ProductMedia
             alt={name}
-            src={safeImages[activeIndex]}
+            src={activeImage}
             width={640}
             height={420}
             className="product-gallery-main"
@@ -159,7 +276,7 @@ export function ProductGallery({
             onClick={() => setActiveIndex(index)}
             aria-label={`Show image ${index + 1}`}
           >
-            <Image
+            <ProductMedia
               src={img}
               alt={`${name} image ${index + 1}`}
               width={120}
@@ -218,14 +335,23 @@ export function ProductGallery({
             >
               {"<"}
             </button>
-            <div className="product-gallery-lightbox-stage">
-              <Image
+            <div
+              className={lightboxStageClassName}
+              onPointerCancel={handlePanEnd}
+              onPointerDown={handlePanStart}
+              onPointerMove={handlePanMove}
+              onPointerUp={handlePanEnd}
+              ref={lightboxStageRef}
+            >
+              <ProductMedia
                 alt={name}
-                src={safeImages[activeIndex]}
+                src={activeImage}
                 width={1600}
                 height={1200}
                 className="product-gallery-lightbox-image"
-                style={{ transform: `scale(${zoomLevel})` }}
+                style={{
+                  transform: `translate3d(${panOffset.x}px, ${panOffset.y}px, 0) scale(${zoomLevel})`,
+                }}
               />
             </div>
             <button

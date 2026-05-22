@@ -52,6 +52,7 @@ type PersistedProductRow = {
   stock: number;
   careInstructions: string | null;
   shippingInfo: string | null;
+  isActive: boolean;
   images: string[] | null;
   variants: unknown;
 };
@@ -66,6 +67,13 @@ type PersistedProductMatch = {
 };
 
 type ProductSkuMatch = {
+  id: string;
+  slug: string;
+  sku: string;
+  name: string;
+};
+
+type ProductDeleteMatch = {
   id: string;
   slug: string;
   sku: string;
@@ -119,7 +127,188 @@ function collectLeafPaths(node: CategoryTreeNode, path: string[]): string[][] {
   return paths;
 }
 
+let productIsActiveColumnReady: boolean | null = null;
+const databaseTableExistsCache = new Map<string, boolean>();
+const productColumnExistsCache = new Map<string, boolean>();
+
+async function ensureProductIsActiveColumn(): Promise<boolean> {
+  if (productIsActiveColumnReady !== null) {
+    return productIsActiveColumnReady;
+  }
+
+  try {
+    await prisma.$executeRaw`
+      ALTER TABLE "Product"
+      ADD COLUMN IF NOT EXISTS "isActive" BOOLEAN NOT NULL DEFAULT true
+    `;
+    productIsActiveColumnReady = true;
+  } catch (error) {
+    productIsActiveColumnReady = false;
+    console.error("Could not ensure Product.isActive column exists.", error);
+  }
+
+  return productIsActiveColumnReady;
+}
+
+async function databaseTableExists(tableName: string): Promise<boolean> {
+  const cached = databaseTableExistsCache.get(tableName);
+  if (typeof cached === "boolean") {
+    return cached;
+  }
+
+  const quotedTableName = `"${tableName.replace(/"/g, '""')}"`;
+
+  try {
+    const rows = await prisma.$queryRaw<Array<{ exists: boolean }>>`
+      SELECT to_regclass(${quotedTableName}) IS NOT NULL AS "exists"
+    `;
+    const exists = Boolean(rows[0]?.exists);
+    databaseTableExistsCache.set(tableName, exists);
+    return exists;
+  } catch (error) {
+    console.error(`Could not check whether ${tableName} exists.`, error);
+    databaseTableExistsCache.set(tableName, false);
+    return false;
+  }
+}
+
+async function productColumnExists(columnName: string): Promise<boolean> {
+  const cached = productColumnExistsCache.get(columnName);
+  if (typeof cached === "boolean") {
+    return cached;
+  }
+
+  try {
+    const rows = await prisma.$queryRaw<Array<{ exists: boolean }>>`
+      SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = current_schema()
+          AND table_name = 'Product'
+          AND column_name = ${columnName}
+      ) AS "exists"
+    `;
+    const exists = Boolean(rows[0]?.exists);
+    productColumnExistsCache.set(columnName, exists);
+    return exists;
+  } catch (error) {
+    console.error(`Could not check whether Product.${columnName} exists.`, error);
+    productColumnExistsCache.set(columnName, false);
+    return false;
+  }
+}
+
 async function getPersistedProductRows(): Promise<PersistedProductRow[]> {
+  const hasIsActiveColumn = await ensureProductIsActiveColumn();
+  const hasImagesColumn = await productColumnExists("images");
+
+  if (hasImagesColumn && !hasIsActiveColumn) {
+    return prisma.$queryRaw<PersistedProductRow[]>`
+      SELECT
+        p.*,
+        true AS "isActive",
+        COALESCE(
+          NULLIF(
+            (
+              SELECT array_agg(pi.url ORDER BY pi.position)
+              FROM "ProductImage" pi
+              WHERE pi."productId" = p.id
+            ),
+            ARRAY[]::text[]
+          ),
+          p.images,
+          ARRAY[]::text[]
+        ) AS images,
+        COALESCE(
+          (
+            SELECT json_agg(
+              json_build_object(
+                'id', pv.id,
+                'label', pv.label,
+                'options', pv.options
+              )
+              ORDER BY pv."createdAt"
+            )
+            FROM "ProductVariant" pv
+            WHERE pv."productId" = p.id
+          ),
+          '[]'::json
+        ) AS variants
+      FROM "Product" p
+      ORDER BY p.name ASC
+    `;
+  }
+
+  if (hasImagesColumn) {
+    return prisma.$queryRaw<PersistedProductRow[]>`
+      SELECT
+        p.*,
+        COALESCE(
+          NULLIF(
+            (
+              SELECT array_agg(pi.url ORDER BY pi.position)
+              FROM "ProductImage" pi
+              WHERE pi."productId" = p.id
+            ),
+            ARRAY[]::text[]
+          ),
+          p.images,
+          ARRAY[]::text[]
+        ) AS images,
+        COALESCE(
+          (
+            SELECT json_agg(
+              json_build_object(
+                'id', pv.id,
+                'label', pv.label,
+                'options', pv.options
+              )
+              ORDER BY pv."createdAt"
+            )
+            FROM "ProductVariant" pv
+            WHERE pv."productId" = p.id
+          ),
+          '[]'::json
+        ) AS variants
+      FROM "Product" p
+      WHERE p."isActive" = true
+      ORDER BY p.name ASC
+    `;
+  }
+
+  if (!hasIsActiveColumn) {
+    return prisma.$queryRaw<PersistedProductRow[]>`
+      SELECT
+        p.*,
+        true AS "isActive",
+        COALESCE(
+          (
+            SELECT array_agg(pi.url ORDER BY pi.position)
+            FROM "ProductImage" pi
+            WHERE pi."productId" = p.id
+          ),
+          ARRAY[]::text[]
+        ) AS images,
+        COALESCE(
+          (
+            SELECT json_agg(
+              json_build_object(
+                'id', pv.id,
+                'label', pv.label,
+                'options', pv.options
+              )
+              ORDER BY pv."createdAt"
+            )
+            FROM "ProductVariant" pv
+            WHERE pv."productId" = p.id
+          ),
+          '[]'::json
+        ) AS variants
+      FROM "Product" p
+      ORDER BY p.name ASC
+    `;
+  }
+
   return prisma.$queryRaw<PersistedProductRow[]>`
     SELECT
       p.*,
@@ -147,6 +336,7 @@ async function getPersistedProductRows(): Promise<PersistedProductRow[]> {
         '[]'::json
       ) AS variants
     FROM "Product" p
+    WHERE p."isActive" = true
     ORDER BY p.name ASC
   `;
 }
@@ -154,6 +344,47 @@ async function getPersistedProductRows(): Promise<PersistedProductRow[]> {
 async function getPersistedProductRowById(
   productId: string,
 ): Promise<PersistedProductRow | null> {
+  const hasImagesColumn = await productColumnExists("images");
+
+  if (hasImagesColumn) {
+    const rows = await prisma.$queryRaw<PersistedProductRow[]>`
+      SELECT
+        p.*,
+        COALESCE(
+          NULLIF(
+            (
+              SELECT array_agg(pi.url ORDER BY pi.position)
+              FROM "ProductImage" pi
+              WHERE pi."productId" = p.id
+            ),
+            ARRAY[]::text[]
+          ),
+          p.images,
+          ARRAY[]::text[]
+        ) AS images,
+        COALESCE(
+          (
+            SELECT json_agg(
+              json_build_object(
+                'id', pv.id,
+                'label', pv.label,
+                'options', pv.options
+              )
+              ORDER BY pv."createdAt"
+            )
+            FROM "ProductVariant" pv
+            WHERE pv."productId" = p.id
+          ),
+          '[]'::json
+        ) AS variants
+      FROM "Product" p
+      WHERE p.id = ${productId}
+      LIMIT 1
+    `;
+
+    return rows[0] ?? null;
+  }
+
   const rows = await prisma.$queryRaw<PersistedProductRow[]>`
     SELECT
       p.*,
@@ -322,11 +553,27 @@ async function getRelatedSlugsForCategory(
   productSlug: string,
   category: ProductCategory,
 ): Promise<string[]> {
+  const hasIsActiveColumn = await ensureProductIsActiveColumn();
+
+  if (!hasIsActiveColumn) {
+    const rows = await prisma.$queryRaw<Array<{ slug: string }>>`
+      SELECT slug
+      FROM "Product"
+      WHERE category = ${category}
+        AND slug <> ${productSlug}
+      ORDER BY name ASC
+      LIMIT 4
+    `;
+
+    return rows.map((row) => row.slug);
+  }
+
   const rows = await prisma.$queryRaw<Array<{ slug: string }>>`
     SELECT slug
     FROM "Product"
     WHERE category = ${category}
       AND slug <> ${productSlug}
+      AND "isActive" = true
     ORDER BY name ASC
     LIMIT 4
   `;
@@ -527,6 +774,7 @@ export async function getAdminProductSummaries(): Promise<AdminProductSummary[]>
       name: product.name,
       sku: product.sku,
       category: product.category,
+      primaryImage: product.images[0] ?? null,
     }))
     .sort((left, right) => left.name.localeCompare(right.name));
 }
@@ -765,5 +1013,171 @@ export async function saveAdminProduct(input: AdminProductInput): Promise<{
   return {
     product: dbProductToProduct(savedProduct),
     created: !existingProduct,
+  };
+}
+
+export async function deleteAdminProduct(slug: string): Promise<{
+  name: string;
+  deleted: boolean;
+  deactivated: boolean;
+}> {
+  const normalizedSlug = normalizeSlug(slug);
+
+  if (!normalizedSlug) {
+    throw new Error("Product slug is required.");
+  }
+
+  const hasIsActiveColumn = await ensureProductIsActiveColumn();
+  const rows = hasIsActiveColumn
+    ? await prisma.$queryRaw<ProductDeleteMatch[]>`
+        SELECT id, slug, sku, name
+        FROM "Product"
+        WHERE slug = ${normalizedSlug}
+          AND "isActive" = true
+        LIMIT 1
+      `
+    : await prisma.$queryRaw<ProductDeleteMatch[]>`
+        SELECT id, slug, sku, name
+        FROM "Product"
+        WHERE slug = ${normalizedSlug}
+        LIMIT 1
+      `;
+  const product = rows[0] ?? null;
+
+  if (!product) {
+    throw new Error("Product not found.");
+  }
+
+  const [
+    hasOrderItemTable,
+    hasCartItemTable,
+    hasWishlistItemTable,
+    hasProductRelationTable,
+    hasProductImageTable,
+    hasProductVariantTable,
+    hasRelatedSlugsColumn,
+  ] = await Promise.all([
+    databaseTableExists("OrderItem"),
+    databaseTableExists("CartItem"),
+    databaseTableExists("WishlistItem"),
+    databaseTableExists("ProductRelation"),
+    databaseTableExists("ProductImage"),
+    databaseTableExists("ProductVariant"),
+    productColumnExists("relatedSlugs"),
+  ]);
+  const orderRows = hasOrderItemTable
+    ? await prisma.$queryRaw<Array<{ count: number }>>`
+        SELECT COUNT(*)::int AS count
+        FROM "OrderItem"
+        WHERE "productId" = ${product.id}
+      `
+    : [];
+  const orderItemCount = Number(orderRows[0]?.count ?? 0);
+
+  if (orderItemCount > 0) {
+    if (!hasIsActiveColumn) {
+      throw new Error(
+        "This product has order history and cannot be removed until the Product.isActive column exists.",
+      );
+    }
+
+    const removedToken = product.id.slice(0, 8);
+    const removedSlug = normalizeSlug(`removed-${product.slug}-${removedToken}`);
+    const removedSku = normalizeSku(`REMOVED-${product.sku}-${removedToken}`);
+    const now = new Date();
+
+    await prisma.$transaction(async (transaction) => {
+      if (hasCartItemTable) {
+        await transaction.$executeRaw`
+          DELETE FROM "CartItem"
+          WHERE "productId" = ${product.id}
+        `;
+      }
+      if (hasWishlistItemTable) {
+        await transaction.$executeRaw`
+          DELETE FROM "WishlistItem"
+          WHERE "productId" = ${product.id}
+        `;
+      }
+      if (hasProductRelationTable) {
+        await transaction.$executeRaw`
+          DELETE FROM "ProductRelation"
+          WHERE "sourceProductId" = ${product.id}
+            OR "targetProductId" = ${product.id}
+        `;
+      }
+      if (hasRelatedSlugsColumn) {
+        await transaction.$executeRaw`
+          UPDATE "Product"
+          SET
+            "isActive" = false,
+            slug = ${removedSlug},
+            sku = ${removedSku},
+            "relatedSlugs" = ARRAY[]::text[],
+            "updatedAt" = ${now}
+          WHERE id = ${product.id}
+        `;
+      } else {
+        await transaction.$executeRaw`
+          UPDATE "Product"
+          SET
+            "isActive" = false,
+            slug = ${removedSlug},
+            sku = ${removedSku},
+            "updatedAt" = ${now}
+          WHERE id = ${product.id}
+        `;
+      }
+    });
+
+    return {
+      name: product.name,
+      deleted: false,
+      deactivated: true,
+    };
+  }
+
+  await prisma.$transaction(async (transaction) => {
+    if (hasProductImageTable) {
+      await transaction.$executeRaw`
+        DELETE FROM "ProductImage"
+        WHERE "productId" = ${product.id}
+      `;
+    }
+    if (hasProductVariantTable) {
+      await transaction.$executeRaw`
+        DELETE FROM "ProductVariant"
+        WHERE "productId" = ${product.id}
+      `;
+    }
+    if (hasCartItemTable) {
+      await transaction.$executeRaw`
+        DELETE FROM "CartItem"
+        WHERE "productId" = ${product.id}
+      `;
+    }
+    if (hasWishlistItemTable) {
+      await transaction.$executeRaw`
+        DELETE FROM "WishlistItem"
+        WHERE "productId" = ${product.id}
+      `;
+    }
+    if (hasProductRelationTable) {
+      await transaction.$executeRaw`
+        DELETE FROM "ProductRelation"
+        WHERE "sourceProductId" = ${product.id}
+          OR "targetProductId" = ${product.id}
+      `;
+    }
+    await transaction.$executeRaw`
+      DELETE FROM "Product"
+      WHERE id = ${product.id}
+    `;
+  });
+
+  return {
+    name: product.name,
+    deleted: true,
+    deactivated: false,
   };
 }

@@ -1,10 +1,17 @@
 import type { NextConfig } from "next";
 
 function getR2RemotePatterns(): NonNullable<NextConfig["images"]>["remotePatterns"] {
+  const remotePatterns: NonNullable<NextConfig["images"]>["remotePatterns"] = [
+    {
+      protocol: "https",
+      hostname: "**.r2.dev",
+      pathname: "/**",
+    },
+  ];
   const publicBaseUrl = process.env.R2_PUBLIC_BASE_URL;
 
   if (!publicBaseUrl) {
-    return [];
+    return remotePatterns;
   }
 
   try {
@@ -12,17 +19,17 @@ function getR2RemotePatterns(): NonNullable<NextConfig["images"]>["remotePattern
     const pathname =
       url.pathname === "/" ? "/**" : `${url.pathname.replace(/\/$/, "")}/**`;
 
-    return [
-      {
-        protocol: url.protocol.replace(":", "") as "http" | "https",
-        hostname: url.hostname,
-        port: url.port,
-        pathname,
-      },
-    ];
+    remotePatterns.push({
+      protocol: url.protocol.replace(":", "") as "http" | "https",
+      hostname: url.hostname,
+      port: url.port,
+      pathname,
+    });
   } catch {
-    return [];
+    return remotePatterns;
   }
+
+  return remotePatterns;
 }
 
 const nextConfig: NextConfig = {

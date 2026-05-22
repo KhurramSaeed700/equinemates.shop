@@ -1,12 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { useWishlist } from "@/components/providers/wishlist-provider";
+import { ProductMedia } from "@/components/ui/product-media";
+import { getProductImageSrc } from "@/lib/image-utils";
 import { Product } from "@/lib/types";
 
 interface ProductPreviewModalProps {
@@ -25,7 +26,10 @@ export function ProductPreviewModal({
   const { has: hasInWishlist, toggle } = useWishlist();
   const { isSignedIn } = useUser();
   const safeImages = useMemo(
-    () => (product.images.length > 0 ? product.images : ["/place holder/1.webp"]),
+    () =>
+      product.images.length > 0
+        ? product.images.map(getProductImageSrc)
+        : ["/place holder/1.webp"],
     [product.images],
   );
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -67,6 +71,7 @@ export function ProductPreviewModal({
   if (!isOpen) return null;
 
   const isWishlisted = hasInWishlist(product.slug);
+  const activeImage = safeImages[activeImageIndex] ?? "/place holder/1.webp";
 
   return (
     <div className="preview-modal-overlay" onClick={onClose}>
@@ -85,11 +90,11 @@ export function ProductPreviewModal({
           <div className="preview-modal-gallery">
             <div className="preview-modal-images">
               <div className="preview-modal-image-stage">
-                <Image
+                <ProductMedia
                   alt={`${product.name} image ${activeImageIndex + 1}`}
                   className="preview-modal-image"
                   height={720}
-                  src={safeImages[activeImageIndex]}
+                  src={activeImage}
                   width={720}
                 />
               </div>
@@ -107,7 +112,7 @@ export function ProductPreviewModal({
                       onClick={() => setActiveImageIndex(index)}
                       type="button"
                     >
-                      <Image
+                      <ProductMedia
                         alt={`${product.name} thumbnail ${index + 1}`}
                         className="preview-modal-thumb-image"
                         height={84}

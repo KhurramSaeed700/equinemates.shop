@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getR2Config, type R2Config } from "@/lib/server/r2-config";
 
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -19,7 +19,15 @@ type R2UploadInput = {
 type R2UploadResult = {
   key: string;
   url: string;
+  publicUrl: string;
   size: number;
+  contentType: string;
+};
+
+type R2ObjectResult = {
+  body: ReadableStream;
+  cacheControl: string;
+  contentLength?: number;
   contentType: string;
 };
 
@@ -78,6 +86,13 @@ function buildObjectKey(uploadPrefix: string, folder: string | undefined, file: 
 
 function buildPublicUrl(baseUrl: string, key: string): string {
   return new URL(key, baseUrl).toString();
+}
+
+function buildProxyUrl(key: string): string {
+  return `/api/r2-images/${key
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/")}`;
 }
 
 function getS3Client(config: R2Config): S3Client {
@@ -172,8 +187,30 @@ export async function uploadImageToR2({
 
   return {
     key,
-    url: buildPublicUrl(config.publicBaseUrl, key),
+    url: buildProxyUrl(key),
+    publicUrl: buildPublicUrl(config.publicBaseUrl, key),
     size: file.size,
     contentType: file.type,
+  };
+}
+
+export async function getImageFromR2(key: string): Promise<R2ObjectResult> {
+  const config = getR2Config();
+  const response = await getS3Client(config).send(
+    new GetObjectCommand({
+      Bucket: config.bucketName,
+      Key: key,
+    }),
+  );
+
+  if (!response.Body) {
+    throw new Error("R2 object has no response body.");
+  }
+
+  return {
+    body: response.Body.transformToWebStream(),
+    cacheControl: response.CacheControl ?? "public, max-age=31536000, immutable",
+    contentLength: response.ContentLength,
+    contentType: response.ContentType ?? "application/octet-stream",
   };
 }

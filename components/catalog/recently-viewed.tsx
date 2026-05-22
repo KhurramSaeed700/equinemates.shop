@@ -6,6 +6,7 @@ import { useRecentlyViewed } from "../hooks/useRecentlyViewed";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { useMounted } from "@/components/hooks/useMounted";
+import { getProductImageSrc } from "@/lib/image-utils";
 
 export function RecentlyViewedSection() {
   const { slugs } = useRecentlyViewed();
@@ -29,7 +30,7 @@ export function RecentlyViewedSection() {
               <img
                 alt={product.name}
                 className="product-image"
-                src={product.images[0]}
+                src={getProductImageSrc(product.images[0])}
               />
               <p className="product-meta small">{product.category}</p>
               <h3>{product.name}</h3>

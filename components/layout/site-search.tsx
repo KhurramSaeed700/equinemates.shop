@@ -1,11 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useDeferredValue, useEffect, useState } from "react";
 
 import { SearchIcon } from "@/components/ui/icons";
+import { ProductMedia } from "@/components/ui/product-media";
+import { getProductImageSrc } from "@/lib/image-utils";
 
 type SearchSuggestion = {
   id: string;
@@ -81,11 +82,11 @@ export function SiteSearch() {
                 onClick={() => setFocused(false)}
               >
                 <span className="search-suggestion-main">
-                  <Image
+                  <ProductMedia
                     alt={product.name}
                     className="search-suggestion-thumb"
                     height={40}
-                    src={product.image ?? "/place holder/1.webp"}
+                    src={getProductImageSrc(product.image)}
                     width={40}
                   />
                   <span className="search-suggestion-text">

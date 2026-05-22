@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 import {
   checkProductSkuAvailability,
+  deleteAdminProduct,
   getAdminProductSummaries,
   getProductBySlug,
   saveAdminProduct,
@@ -139,5 +141,54 @@ export async function POST(request: Request) {
       },
       { status: 400 },
     );
+  }
+}
+
+export async function DELETE(request: Request) {
+  const adminAccess = await getAdminAccess();
+
+  if (!adminAccess.isAuthorized) {
+    return getUnauthorizedResponse(
+      adminAccess.reason,
+      adminAccess.isAuthenticated,
+    );
+  }
+
+  const { searchParams } = new URL(request.url);
+  const slug = searchParams.get("slug");
+
+  try {
+    if (!slug) {
+      return NextResponse.json(
+        { message: "Product slug is required." },
+        { status: 400 },
+      );
+    }
+
+    const result = await deleteAdminProduct(slug);
+    const message = result.deleted
+      ? `${result.name} was removed.`
+      : `${result.name} was removed from the storefront.`;
+
+    revalidatePath("/admin");
+    revalidatePath("/products");
+    revalidatePath(`/products/${slug}`);
+
+    return NextResponse.json({
+      message,
+      ...result,
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Could not remove product.";
+    const status = message === "Product not found." ? 404 : 400;
+
+    console.error("[api/admin/products] Product removal failed.", {
+      slug,
+      message,
+      error,
+    });
+
+    return NextResponse.json({ message }, { status });
   }
 }

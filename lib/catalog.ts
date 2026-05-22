@@ -951,6 +951,7 @@ export interface AdminProductSummary {
   name: string;
   sku: string;
   category: ProductCategory;
+  primaryImage: string | null;
 }
 
 export interface AdminProductInput {

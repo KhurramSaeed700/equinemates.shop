@@ -1,4 +1,14 @@
 import type { Metadata } from "next";
+import type { IconType } from "react-icons";
+import {
+  FiBarChart2,
+  FiGift,
+  FiPackage,
+  FiShoppingBag,
+  FiTag,
+  FiTruck,
+  FiUsers,
+} from "react-icons/fi";
 
 import { AdminProductEditor } from "@/components/forms/admin-product-editor";
 import { getAdminAccess } from "@/lib/server/admin-auth";
@@ -16,14 +26,14 @@ export const metadata: Metadata = {
     "Manage products, orders, users, wholesale flows, reports, promotions, and currency rates.",
 };
 
-const adminModules = [
-  "Products",
-  "Orders",
-  "Users",
-  "Wholesale",
-  "Reports",
-  "Promotions",
-  "Currency Rates",
+const adminModules: { icon: IconType; label: string }[] = [
+  { icon: FiPackage, label: "Products" },
+  { icon: FiShoppingBag, label: "Orders" },
+  { icon: FiUsers, label: "Users" },
+  { icon: FiTruck, label: "Wholesale" },
+  { icon: FiBarChart2, label: "Reports" },
+  { icon: FiGift, label: "Promotions" },
+  { icon: FiTag, label: "Currency Rates" },
 ];
 
 export default async function AdminPage() {
@@ -35,7 +45,8 @@ export default async function AdminPage() {
         <h2>Admin Access Required</h2>
         <p>You are not authorized to visit this page.</p>
         <p className="tiny">
-          Sign in with the admin account to access the admin panel.
+          {adminAccess.reason ||
+            "Sign in with the admin account to access the admin panel."}
         </p>
       </section>
     );
@@ -57,16 +68,8 @@ export default async function AdminPage() {
         <div className="admin-page-header-copy">
           <p className="section-eyebrow">Catalog Operations</p>
           <h1>Admin Workspace</h1>
-          <p>
-            Manage products, images, categories, and pricing from one wider workspace
-            designed for real catalog entry instead of squeezed dashboard cards.
-          </p>
         </div>
         <div className="admin-page-header-meta">
-          <article className="admin-page-stat">
-            <span>Signed In</span>
-            <strong>{adminAccess.primaryEmail ?? "admin user"}</strong>
-          </article>
           <article className="admin-page-stat">
             <span>Products</span>
             <strong>{productSummaries.length}</strong>
@@ -75,10 +78,6 @@ export default async function AdminPage() {
             <span>Top Categories</span>
             <strong>{categoryOptions.length}</strong>
           </article>
-          <article className="admin-page-stat">
-            <span>R2 Status</span>
-            <strong>{r2Configuration.isConfigured ? "Connected" : "Needs Setup"}</strong>
-          </article>
         </div>
       </section>
 
@@ -86,11 +85,21 @@ export default async function AdminPage() {
         <aside className="admin-side-rail">
           <section className="panel admin-rail-panel">
             <h2>Modules</h2>
-            <div className="admin-module-list">
-              {adminModules.map((module) => (
-                <article className="admin-module-card" key={module}>
-                  <strong>{module}</strong>
-                  <p className="tiny">Ready for operational workflows and role-based expansion.</p>
+            <div aria-label="Admin modules" className="admin-module-list" role="list">
+              {adminModules.map(({ icon: Icon, label }) => (
+                <article
+                  aria-label={label}
+                  className="admin-module-card"
+                  key={label}
+                  role="listitem"
+                  title={label}
+                >
+                  <span className="admin-module-icon" aria-hidden="true">
+                    <Icon />
+                  </span>
+                  <span className="admin-module-copy">
+                    <strong>{label}</strong>
+                  </span>
                 </article>
               ))}
             </div>
@@ -98,21 +107,14 @@ export default async function AdminPage() {
         </aside>
 
         <section className="panel admin-workspace-panel">
-          <div className="admin-workspace-header">
-            <div>
-              <h2>Product Editor</h2>
-              <p className="tiny">
-                Use the full workspace to create products, assign category paths, upload to
-                R2, and arrange storefront images without fighting a narrow layout.
-              </p>
-            </div>
-            {!r2Configuration.isConfigured ? (
+          {!r2Configuration.isConfigured ? (
+            <div className="admin-workspace-header">
               <div className="empty-state admin-inline-state">
                 <p>R2 is not configured yet.</p>
                 <p className="tiny">Missing variables: {r2Configuration.missing.join(", ")}</p>
               </div>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
 
           {r2Configuration.isConfigured ? (
             <AdminProductEditor
