@@ -235,7 +235,7 @@ export function ProductGallery({
           className="gallery-arrow gallery-arrow-left"
           onClick={prevImage}
         >
-          {"<"}
+          <span aria-hidden="true">&lsaquo;</span>
         </button>
         <button
           aria-label="Open image in full screen"
@@ -260,7 +260,7 @@ export function ProductGallery({
           className="gallery-arrow gallery-arrow-right"
           onClick={nextImage}
         >
-          {">"}
+          <span aria-hidden="true">&rsaquo;</span>
         </button>
       </div>
       <div className="product-gallery-thumbs">

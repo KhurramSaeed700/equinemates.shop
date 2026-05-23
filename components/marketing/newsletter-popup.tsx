@@ -81,10 +81,7 @@ export function NewsletterPopup() {
       NEWSLETTER_POPUP_STORAGE_KEY,
       JSON.stringify({ status: "subscribed", email }),
     );
-    toast.success(
-      "You’re on the list",
-      "We’ll send product drops, stable specials, and limited offers to your inbox.",
-    );
+    toast.success("You're on the list", "We'll send new drops and offers to your inbox.");
     setOpen(false);
   }
 
@@ -95,6 +92,7 @@ export function NewsletterPopup() {
   return (
     <div
       aria-labelledby="newsletter-popup-title"
+      aria-modal="true"
       className="newsletter-popup-overlay"
       role="dialog"
     >
@@ -105,23 +103,21 @@ export function NewsletterPopup() {
           onClick={closePopup}
           type="button"
         >
-          ×
+          &times;
         </button>
 
         <div className="newsletter-popup-grid">
           <section className="newsletter-popup-promo">
-            <p className="newsletter-popup-kicker">Clearance Update</p>
-            <h2 id="newsletter-popup-title">Fresh markdowns in clearance.</h2>
-            <p>New reduced-price picks are now live across everyday riding and stable gear.</p>
+            <p className="newsletter-popup-kicker">Clearance</p>
+            <h2 id="newsletter-popup-title">Fresh markdowns are live.</h2>
             <Link className="btn-secondary newsletter-popup-link" href="/products">
-              Shop now
+              Shop clearance
             </Link>
           </section>
 
           <section className="newsletter-popup-signup">
-            <p className="newsletter-popup-kicker">Join Our Newsletter</p>
-            <h3>Get first notice on launches and sale drops.</h3>
-            <p>Short updates, product drops, and special offers.</p>
+            <p className="newsletter-popup-kicker">Newsletter</p>
+            <h3>Get sale alerts first.</h3>
 
             <form className="newsletter-popup-form" onSubmit={handleSubmit}>
               <label className="visually-hidden" htmlFor="newsletter-popup-email">

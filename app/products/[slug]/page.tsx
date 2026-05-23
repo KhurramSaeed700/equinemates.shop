@@ -5,6 +5,7 @@ import { ProductDetailActions } from "@/components/catalog/product-detail-action
 import { ProductGallery } from "@/components/catalog/product-gallery";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { FormattedDescription } from "@/components/ui/formatted-description";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { buildCategoryPathHref } from "@/lib/catalog";
@@ -63,7 +64,7 @@ export default async function ProductDetailPage({
   });
 
   return (
-    <>
+    <div className="product-detail-page">
       <Breadcrumb
         items={[
           { href: "/products", label: "Products" },
@@ -71,10 +72,7 @@ export default async function ProductDetailPage({
         ]}
       />
 
-      <SectionHeading
-        eyebrow={product.category}
-        title={product.name}
-      />
+      <SectionHeading title={product.name} />
 
       <div className="grid-two product-detail-grid">
         <div className="left-column">
@@ -120,7 +118,7 @@ export default async function ProductDetailPage({
 
       <section className="section-spacing">
         <CollapsibleSection title="Description">
-          <p>{product.longDescription}</p>
+          <FormattedDescription text={product.longDescription} />
         </CollapsibleSection>
         <CollapsibleSection title="Care Instructions">
           <p>{product.careInstructions ?? "Care instructions will be provided soon."}</p>
@@ -131,6 +129,6 @@ export default async function ProductDetailPage({
         <SectionHeading title="Related Products" />
         <ProductGrid products={relatedProducts} />
       </section>
-    </>
+    </div>
   );
 }

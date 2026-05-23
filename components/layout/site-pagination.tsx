@@ -83,12 +83,12 @@ export function SitePagination({ totalItems }: { totalItems: number }) {
     <div className="section-spacing">
       {isListingPage ? (
         <div className="mb-3 flex justify-end">
-          <label className="inline-flex items-center gap-2 text-sm text-[var(--ink-soft)]">
+          <label className="site-pagination-control inline-flex items-center gap-2 text-sm text-[var(--ink-soft)]">
             Show
             <select
               value={String(perPage)}
               onChange={(event) => handlePerPageChange(event.target.value)}
-              className="h-9 border border-[var(--line)] bg-white px-2 text-sm text-[var(--ink)]"
+              className="site-pagination-select h-9 border border-[var(--line)] bg-white px-2 text-sm text-[var(--ink)]"
             >
               {PER_PAGE_OPTIONS.map((option) => (
                 <option key={option} value={option}>
@@ -105,7 +105,7 @@ export function SitePagination({ totalItems }: { totalItems: number }) {
             {previousPage ? (
               <PaginationPrevious href={pageHref(previousPage)}>Prev</PaginationPrevious>
             ) : (
-              <span className="inline-flex h-9 min-w-9 items-center justify-center border border-[var(--line)] px-3 text-sm text-[var(--ink-soft)]">
+              <span className="pagination-disabled inline-flex h-9 min-w-9 items-center justify-center border border-[var(--line)] px-3 text-sm text-[var(--ink-soft)]">
                 Prev
               </span>
             )}
@@ -130,7 +130,7 @@ export function SitePagination({ totalItems }: { totalItems: number }) {
             {nextPage ? (
               <PaginationNext href={pageHref(nextPage)}>Next</PaginationNext>
             ) : (
-              <span className="inline-flex h-9 min-w-9 items-center justify-center border border-[var(--line)] px-3 text-sm text-[var(--ink-soft)]">
+              <span className="pagination-disabled inline-flex h-9 min-w-9 items-center justify-center border border-[var(--line)] px-3 text-sm text-[var(--ink-soft)]">
                 Next
               </span>
             )}

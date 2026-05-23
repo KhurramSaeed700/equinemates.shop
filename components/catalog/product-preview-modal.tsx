@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { useWishlist } from "@/components/providers/wishlist-provider";
+import { FormattedDescription } from "@/components/ui/formatted-description";
 import { ProductMedia } from "@/components/ui/product-media";
 import { getProductImageSrc } from "@/lib/image-utils";
 import { Product } from "@/lib/types";
@@ -83,7 +84,7 @@ export function ProductPreviewModal({
           onClick={onClose}
           type="button"
         >
-          X
+          <span aria-hidden="true">&times;</span>
         </button>
 
         <div className="preview-modal-body">
@@ -129,7 +130,7 @@ export function ProductPreviewModal({
           <div className="preview-modal-info">
             <h2 className="preview-modal-title">{product.name}</h2>
             <div className="preview-modal-rating-row">
-              <span className="preview-modal-stars">★★★★☆</span>
+              <span className="preview-modal-stars">{"\u2605\u2605\u2605\u2605\u2606"}</span>
               <span>{product.rating.toFixed(1)}</span>
               <span>{product.reviewCount} reviews</span>
               <span>{product.stock} in stock</span>
@@ -168,7 +169,7 @@ export function ProductPreviewModal({
             ) : null}
 
             <div className="preview-modal-description">
-              <p>{product.shortDescription}</p>
+              <FormattedDescription text={product.shortDescription} />
             </div>
 
             {isSignedIn ? (

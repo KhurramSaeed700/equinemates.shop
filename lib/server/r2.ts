@@ -1,14 +1,17 @@
-import { randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 
-import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { getR2Config, type R2Config } from "@/lib/server/r2-config";
 
 const ALLOWED_IMAGE_TYPES = new Set([
-  "image/avif",
-  "image/gif",
   "image/jpeg",
   "image/png",
-  "image/webp",
 ]);
 
 type R2UploadInput = {
@@ -22,6 +25,7 @@ type R2UploadResult = {
   publicUrl: string;
   size: number;
   contentType: string;
+  reused: boolean;
 };
 
 type R2ObjectResult = {
@@ -31,55 +35,39 @@ type R2ObjectResult = {
   contentType: string;
 };
 
+type R2DeleteImagesResult = {
+  deletedKeys: string[];
+  failed: Array<{
+    key: string;
+    message: string;
+  }>;
+  skippedSharedKeys: string[];
+  skippedSources: string[];
+};
+
+type R2DeleteImagesOptions = {
+  protectedSources?: string[];
+};
+
 let cachedClient: S3Client | null = null;
 let cachedEndpoint = "";
 
 function getFileExtension(contentType: string): string {
   switch (contentType) {
-    case "image/avif":
-      return "avif";
-    case "image/gif":
-      return "gif";
     case "image/jpeg":
       return "jpg";
     case "image/png":
       return "png";
-    case "image/webp":
-      return "webp";
     default:
       return "bin";
   }
 }
 
-function sanitizeSegment(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9._-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
-function sanitizeFolderPath(folder: string | undefined): string {
-  if (!folder) {
-    return "";
-  }
-
-  return folder
-    .split("/")
-    .map((segment) => sanitizeSegment(segment))
-    .filter(Boolean)
-    .join("/");
-}
-
-function buildObjectKey(uploadPrefix: string, folder: string | undefined, file: File): string {
-  const sanitizedFolder = sanitizeFolderPath(folder);
-  const baseName = sanitizeSegment(file.name.replace(/\.[^.]+$/, "")) || "image";
+function buildObjectKey(uploadPrefix: string, contentHash: string, file: File): string {
   const extension = getFileExtension(file.type);
-  const objectName = `${randomUUID().slice(0, 8)}-${baseName}.${extension}`;
-  const dateSegment = new Date().toISOString().slice(0, 10);
+  const objectName = `${contentHash}.${extension}`;
 
-  return [uploadPrefix, sanitizedFolder, dateSegment, objectName]
+  return [uploadPrefix, "images", objectName]
     .filter(Boolean)
     .join("/");
 }
@@ -93,6 +81,74 @@ function buildProxyUrl(key: string): string {
     .split("/")
     .map((segment) => encodeURIComponent(segment))
     .join("/")}`;
+}
+
+function decodeKeyPath(value: string): string | null {
+  const key = value
+    .split("/")
+    .map((segment) => {
+      try {
+        return decodeURIComponent(segment);
+      } catch {
+        return segment;
+      }
+    })
+    .join("/")
+    .replace(/^\/+/, "")
+    .trim();
+
+  return key || null;
+}
+
+function getR2ObjectKeyFromImageSource(source: string, config: R2Config): string | null {
+  const trimmedSource = source.trim();
+
+  if (!trimmedSource) {
+    return null;
+  }
+
+  const proxyPrefix = "/api/r2-images/";
+
+  if (trimmedSource.startsWith(proxyPrefix)) {
+    return decodeKeyPath(trimmedSource.slice(proxyPrefix.length));
+  }
+
+  if (/^https?:\/\//i.test(trimmedSource)) {
+    try {
+      const sourceUrl = new URL(trimmedSource);
+      const publicBaseUrl = new URL(config.publicBaseUrl);
+
+      if (sourceUrl.origin === publicBaseUrl.origin) {
+        const basePath = publicBaseUrl.pathname.replace(/\/+$/, "");
+        const sourcePathMatchesBase =
+          !basePath ||
+          sourceUrl.pathname === basePath ||
+          sourceUrl.pathname.startsWith(`${basePath}/`);
+
+        if (!sourcePathMatchesBase) {
+          return null;
+        }
+
+        const keyPath = basePath
+          ? sourceUrl.pathname.slice(basePath.length).replace(/^\/+/, "")
+          : sourceUrl.pathname.replace(/^\/+/, "");
+
+        return decodeKeyPath(keyPath);
+      }
+
+      if (sourceUrl.hostname.endsWith(".r2.dev")) {
+        return decodeKeyPath(sourceUrl.pathname);
+      }
+    } catch {
+      return null;
+    }
+  }
+
+  if (!trimmedSource.startsWith("/") && trimmedSource.includes("/")) {
+    return decodeKeyPath(trimmedSource);
+  }
+
+  return null;
 }
 
 function getS3Client(config: R2Config): S3Client {
@@ -113,9 +169,47 @@ function getS3Client(config: R2Config): S3Client {
   return cachedClient;
 }
 
+async function r2ObjectExists({
+  bucketName,
+  client,
+  key,
+}: {
+  bucketName: string;
+  client: S3Client;
+  key: string;
+}): Promise<boolean | null> {
+  try {
+    await client.send(
+      new HeadObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+      }),
+    );
+
+    return true;
+  } catch (error) {
+    const statusCode =
+      typeof error === "object" &&
+      error !== null &&
+      "$metadata" in error &&
+      typeof error.$metadata === "object" &&
+      error.$metadata !== null &&
+      "httpStatusCode" in error.$metadata &&
+      typeof error.$metadata.httpStatusCode === "number"
+        ? error.$metadata.httpStatusCode
+        : undefined;
+
+    if (statusCode === 404 || statusCode === 403) {
+      return statusCode === 404 ? false : null;
+    }
+
+    throw error;
+  }
+}
+
 function assertUploadableImage(file: File, maxUploadBytes: number) {
   if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
-    throw new Error("Unsupported image type. Use AVIF, GIF, JPG, PNG, or WebP.");
+    throw new Error("Unsupported image type. Use JPG or PNG.");
   }
 
   if (file.size <= 0) {
@@ -131,17 +225,34 @@ function assertUploadableImage(file: File, maxUploadBytes: number) {
 
 export async function uploadImageToR2({
   file,
-  folder,
 }: R2UploadInput): Promise<R2UploadResult> {
   const config = getR2Config();
 
   assertUploadableImage(file, config.maxUploadBytes);
 
-  const key = buildObjectKey(config.uploadPrefix, folder, file);
   const body = Buffer.from(await file.arrayBuffer());
+  const contentHash = createHash("sha256").update(body).digest("hex");
+  const key = buildObjectKey(config.uploadPrefix, contentHash, file);
+  const client = getS3Client(config);
+  const exists = await r2ObjectExists({
+    bucketName: config.bucketName,
+    client,
+    key,
+  });
+
+  if (exists) {
+    return {
+      key,
+      url: buildProxyUrl(key),
+      publicUrl: buildPublicUrl(config.publicBaseUrl, key),
+      size: file.size,
+      contentType: file.type,
+      reused: true,
+    };
+  }
 
   try {
-    await getS3Client(config).send(
+    await client.send(
       new PutObjectCommand({
         Bucket: config.bucketName,
         Key: key,
@@ -191,7 +302,116 @@ export async function uploadImageToR2({
     publicUrl: buildPublicUrl(config.publicBaseUrl, key),
     size: file.size,
     contentType: file.type,
+    reused: false,
   };
+}
+
+export async function deleteImagesFromR2(
+  imageSources: string[],
+  options: R2DeleteImagesOptions = {},
+): Promise<R2DeleteImagesResult> {
+  const candidateSources = imageSources
+    .map((source) => source.trim())
+    .filter(
+      (source) =>
+        source.startsWith("/api/r2-images/") ||
+        /^https?:\/\//i.test(source) ||
+        (!source.startsWith("/") && source.includes("/")),
+    );
+
+  if (!candidateSources.length) {
+    return {
+      deletedKeys: [],
+      failed: [],
+      skippedSharedKeys: [],
+      skippedSources: imageSources,
+    };
+  }
+
+  const config = getR2Config();
+  const skippedSources: string[] = [];
+  const protectedKeys = new Set(
+    (options.protectedSources ?? [])
+      .map((source) => getR2ObjectKeyFromImageSource(source, config))
+      .filter((key): key is string => Boolean(key)),
+  );
+  const keys = Array.from(
+    new Set(
+      candidateSources
+        .map((source) => {
+          const key = getR2ObjectKeyFromImageSource(source, config);
+
+          if (!key) {
+            skippedSources.push(source);
+          }
+
+          return key;
+        })
+        .filter((key): key is string => Boolean(key)),
+    ),
+  );
+
+  if (!keys.length) {
+    return {
+      deletedKeys: [],
+      failed: [],
+      skippedSharedKeys: [],
+      skippedSources,
+    };
+  }
+
+  const client = getS3Client(config);
+  const keysToDelete = keys.filter((key) => !protectedKeys.has(key));
+  const skippedSharedKeys = keys.filter((key) => protectedKeys.has(key));
+
+  if (!keysToDelete.length) {
+    return {
+      deletedKeys: [],
+      failed: [],
+      skippedSharedKeys,
+      skippedSources,
+    };
+  }
+
+  const settledResults = await Promise.allSettled(
+    keysToDelete.map(async (key) => {
+      await client.send(
+        new DeleteObjectCommand({
+          Bucket: config.bucketName,
+          Key: key,
+        }),
+      );
+
+      return key;
+    }),
+  );
+
+  return settledResults.reduce<R2DeleteImagesResult>(
+    (result, settledResult, index) => {
+      const key = keysToDelete[index];
+
+      if (settledResult.status === "fulfilled") {
+        result.deletedKeys.push(settledResult.value);
+        return result;
+      }
+
+      result.failed.push({
+        key,
+        message:
+          settledResult.reason instanceof Error
+            ? settledResult.reason.message
+            : "Unknown R2 deletion error.",
+      });
+
+      return result;
+    },
+    {
+      deletedKeys: [],
+      failed: [],
+      skippedSharedKeys,
+      skippedSources,
+    },
+  );
 }
 
 export async function getImageFromR2(key: string): Promise<R2ObjectResult> {

@@ -6,9 +6,11 @@ import {
   deleteAdminProduct,
   getAdminProductSummaries,
   getProductBySlug,
+  getReferencedProductImageSources,
   saveAdminProduct,
 } from "@/lib/server/catalog-products";
 import { getAdminAccess } from "@/lib/server/admin-auth";
+import { deleteImagesFromR2 } from "@/lib/server/r2";
 import { ProductCategory } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -165,18 +167,64 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const result = await deleteAdminProduct(slug);
+    const { imageSources, ...result } = await deleteAdminProduct(slug);
+    let r2DeletedCount = 0;
+    let r2FailedCount = 0;
+    let r2SkippedSharedCount = 0;
+
+    if (imageSources.length) {
+      try {
+        const referencedImageSources = await getReferencedProductImageSources();
+        const r2Cleanup = await deleteImagesFromR2(imageSources, {
+          protectedSources: referencedImageSources,
+        });
+        r2DeletedCount = r2Cleanup.deletedKeys.length;
+        r2FailedCount = r2Cleanup.failed.length;
+        r2SkippedSharedCount = r2Cleanup.skippedSharedKeys.length;
+
+        if (r2Cleanup.failed.length) {
+          console.error("[api/admin/products] R2 image cleanup had failures.", {
+            slug,
+            failed: r2Cleanup.failed,
+          });
+        }
+      } catch (error) {
+        r2FailedCount = imageSources.length;
+        console.error("[api/admin/products] R2 image cleanup failed.", {
+          slug,
+          error,
+        });
+      }
+    }
+
     const message = result.deleted
       ? `${result.name} was removed.`
       : `${result.name} was removed from the storefront.`;
+    const r2CleanupMessage =
+      r2DeletedCount > 0
+        ? ` Removed ${r2DeletedCount} image${r2DeletedCount === 1 ? "" : "s"} from R2.`
+        : "";
+    const r2FailureMessage =
+      r2FailedCount > 0
+        ? ` ${r2FailedCount} R2 image${r2FailedCount === 1 ? "" : "s"} could not be deleted.`
+        : "";
+    const r2SharedMessage =
+      r2SkippedSharedCount > 0
+        ? ` Kept ${r2SkippedSharedCount} shared R2 image${r2SkippedSharedCount === 1 ? "" : "s"}.`
+        : "";
 
     revalidatePath("/admin");
     revalidatePath("/products");
     revalidatePath(`/products/${slug}`);
 
     return NextResponse.json({
-      message,
+      message: `${message}${r2CleanupMessage}${r2FailureMessage}${r2SharedMessage}`,
       ...result,
+      r2Cleanup: {
+        deletedCount: r2DeletedCount,
+        failedCount: r2FailedCount,
+        skippedSharedCount: r2SkippedSharedCount,
+      },
     });
   } catch (error) {
     const message =

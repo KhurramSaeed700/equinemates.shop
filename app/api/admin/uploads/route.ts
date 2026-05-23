@@ -50,7 +50,9 @@ export async function POST(request: Request) {
     const result = await uploadImageToR2({ file: image, folder });
 
     return NextResponse.json({
-      message: "Image uploaded to Cloudflare R2.",
+      message: result.reused
+        ? "Image already exists in Cloudflare R2. Reusing existing image."
+        : "Image uploaded to Cloudflare R2.",
       ...result,
     });
   } catch (error) {

@@ -10,6 +10,7 @@ import { useCurrency } from "@/components/providers/currency-provider";
 import { useWishlist } from "@/components/providers/wishlist-provider";
 import { HeartIcon } from "@/components/ui/icons";
 import { CartIcon } from "@/components/ui/icons";
+import { FormattedDescription } from "@/components/ui/formatted-description";
 import { ProductMedia } from "@/components/ui/product-media";
 import { getProductImageSrc } from "@/lib/image-utils";
 import { FiCheck } from "react-icons/fi";
@@ -42,7 +43,12 @@ export function ProductCard({ product }: { product: Product }) {
             {isSignedIn ? (
               <button
                 type="button"
-                className="absolute top-2 right-2 p-1 bg-white/80 rounded-full hover:bg-white"
+                aria-label={isFavorited ? "Remove from wishlist" : "Add to wishlist"}
+                className={
+                  isFavorited
+                    ? "product-wishlist product-wishlist-active"
+                    : "product-wishlist"
+                }
                 onClick={(e) => {
                   // prevent the surrounding link from firing
                   e.preventDefault();
@@ -51,7 +57,8 @@ export function ProductCard({ product }: { product: Product }) {
                 }}
               >
                 <HeartIcon
-                  className={`w-5 h-5 text-red-500 ${isFavorited ? "fill-current" : ""}`}
+                  aria-hidden="true"
+                  className={isFavorited ? "fill-current" : undefined}
                 />
               </button>
             ) : null}
@@ -62,7 +69,11 @@ export function ProductCard({ product }: { product: Product }) {
               <span>{product.sku}</span>
             </p>
             <h3>{product.name}</h3>
-            <p className="product-description">{product.shortDescription}</p>
+            <FormattedDescription
+              className="product-description"
+              compact
+              text={product.shortDescription}
+            />
             <p className="product-price">
               {mounted
                 ? formatFromUsd(product.basePriceUsd)

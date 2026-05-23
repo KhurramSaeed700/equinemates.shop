@@ -80,6 +80,10 @@ type ProductDeleteMatch = {
   name: string;
 };
 
+type ProductImageSourceRow = {
+  source: string | null;
+};
+
 function normalizeSlug(value: string): string {
   return decodeURIComponent(value)
     .trim()
@@ -417,6 +421,118 @@ async function getPersistedProductRowById(
   `;
 
   return rows[0] ?? null;
+}
+
+async function getProductImageSourcesForCleanup({
+  hasImagesColumn,
+  hasProductImageTable,
+  productId,
+}: {
+  hasImagesColumn: boolean;
+  hasProductImageTable: boolean;
+  productId: string;
+}): Promise<string[]> {
+  if (hasImagesColumn && hasProductImageTable) {
+    const rows = await prisma.$queryRaw<ProductImageSourceRow[]>`
+      SELECT unnest(
+        COALESCE(p.images, ARRAY[]::text[]) ||
+        COALESCE(
+          (
+            SELECT array_agg(pi.url ORDER BY pi.position)
+            FROM "ProductImage" pi
+            WHERE pi."productId" = p.id
+          ),
+          ARRAY[]::text[]
+        )
+      ) AS source
+      FROM "Product" p
+      WHERE p.id = ${productId}
+    `;
+
+    return Array.from(
+      new Set(rows.map((row) => row.source?.trim()).filter(Boolean) as string[]),
+    );
+  }
+
+  if (hasImagesColumn) {
+    const rows = await prisma.$queryRaw<ProductImageSourceRow[]>`
+      SELECT unnest(COALESCE(p.images, ARRAY[]::text[])) AS source
+      FROM "Product" p
+      WHERE p.id = ${productId}
+    `;
+
+    return Array.from(
+      new Set(rows.map((row) => row.source?.trim()).filter(Boolean) as string[]),
+    );
+  }
+
+  if (hasProductImageTable) {
+    const rows = await prisma.$queryRaw<ProductImageSourceRow[]>`
+      SELECT pi.url AS source
+      FROM "ProductImage" pi
+      WHERE pi."productId" = ${productId}
+      ORDER BY pi.position
+    `;
+
+    return Array.from(
+      new Set(rows.map((row) => row.source?.trim()).filter(Boolean) as string[]),
+    );
+  }
+
+  return [];
+}
+
+export async function getReferencedProductImageSources(): Promise<string[]> {
+  const [hasImagesColumn, hasProductImageTable] = await Promise.all([
+    productColumnExists("images"),
+    databaseTableExists("ProductImage"),
+  ]);
+
+  if (hasImagesColumn && hasProductImageTable) {
+    const rows = await prisma.$queryRaw<ProductImageSourceRow[]>`
+      SELECT unnest(
+        COALESCE(p.images, ARRAY[]::text[]) ||
+        COALESCE(
+          (
+            SELECT array_agg(pi.url ORDER BY pi.position)
+            FROM "ProductImage" pi
+            WHERE pi."productId" = p.id
+          ),
+          ARRAY[]::text[]
+        )
+      ) AS source
+      FROM "Product" p
+    `;
+
+    return Array.from(
+      new Set(rows.map((row) => row.source?.trim()).filter(Boolean) as string[]),
+    );
+  }
+
+  if (hasImagesColumn) {
+    const rows = await prisma.$queryRaw<ProductImageSourceRow[]>`
+      SELECT unnest(COALESCE(p.images, ARRAY[]::text[])) AS source
+      FROM "Product" p
+    `;
+
+    return Array.from(
+      new Set(rows.map((row) => row.source?.trim()).filter(Boolean) as string[]),
+    );
+  }
+
+  if (hasProductImageTable) {
+    const rows = await prisma.$queryRaw<ProductImageSourceRow[]>`
+      SELECT pi.url AS source
+      FROM "ProductImage" pi
+      ORDER BY pi.position
+    `;
+
+    return Array.from(
+      new Set(rows.map((row) => row.source?.trim()).filter(Boolean) as string[]),
+    );
+  }
+
+  return [];
 }
 
 function dbProductToProduct(product: PersistedProductRow): Product {
@@ -1020,6 +1136,7 @@ export async function deleteAdminProduct(slug: string): Promise<{
   name: string;
   deleted: boolean;
   deactivated: boolean;
+  imageSources: string[];
 }> {
   const normalizedSlug = normalizeSlug(slug);
 
@@ -1056,6 +1173,7 @@ export async function deleteAdminProduct(slug: string): Promise<{
     hasProductImageTable,
     hasProductVariantTable,
     hasRelatedSlugsColumn,
+    hasImagesColumn,
   ] = await Promise.all([
     databaseTableExists("OrderItem"),
     databaseTableExists("CartItem"),
@@ -1064,7 +1182,13 @@ export async function deleteAdminProduct(slug: string): Promise<{
     databaseTableExists("ProductImage"),
     databaseTableExists("ProductVariant"),
     productColumnExists("relatedSlugs"),
+    productColumnExists("images"),
   ]);
+  const imageSources = await getProductImageSourcesForCleanup({
+    hasImagesColumn,
+    hasProductImageTable,
+    productId: product.id,
+  });
   const orderRows = hasOrderItemTable
     ? await prisma.$queryRaw<Array<{ count: number }>>`
         SELECT COUNT(*)::int AS count
@@ -1109,11 +1233,24 @@ export async function deleteAdminProduct(slug: string): Promise<{
       if (hasRelatedSlugsColumn) {
         await transaction.$executeRaw`
           UPDATE "Product"
+          SET "relatedSlugs" = ARRAY[]::text[]
+          WHERE id = ${product.id}
+        `;
+      }
+      if (hasProductImageTable) {
+        await transaction.$executeRaw`
+          DELETE FROM "ProductImage"
+          WHERE "productId" = ${product.id}
+        `;
+      }
+      if (hasImagesColumn) {
+        await transaction.$executeRaw`
+          UPDATE "Product"
           SET
             "isActive" = false,
             slug = ${removedSlug},
             sku = ${removedSku},
-            "relatedSlugs" = ARRAY[]::text[],
+            images = ARRAY[]::text[],
             "updatedAt" = ${now}
           WHERE id = ${product.id}
         `;
@@ -1134,6 +1271,7 @@ export async function deleteAdminProduct(slug: string): Promise<{
       name: product.name,
       deleted: false,
       deactivated: true,
+      imageSources,
     };
   }
 
@@ -1179,5 +1317,6 @@ export async function deleteAdminProduct(slug: string): Promise<{
     name: product.name,
     deleted: true,
     deactivated: false,
+    imageSources,
   };
 }

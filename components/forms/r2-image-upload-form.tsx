@@ -16,12 +16,15 @@ import { FiX } from "react-icons/fi";
 
 import { useToast } from "@/lib/use-toast";
 
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
+
 type UploadResponse = {
   message?: string;
   key?: string;
   url?: string;
   size?: number;
   contentType?: string;
+  reused?: boolean;
 };
 
 export type R2ImageUploadFormHandle = {
@@ -82,13 +85,23 @@ export const R2ImageUploadForm = forwardRef<
   );
 
   const addFiles = (files: FileList | File[]) => {
-    const nextFiles = Array.from(files).filter((file) => file.type.startsWith("image/"));
+    const allFiles = Array.from(files);
+    const nextFiles = allFiles.filter((file) => ALLOWED_IMAGE_TYPES.has(file.type));
 
     if (!nextFiles.length) {
-      const errorMessage = "Choose image files before uploading.";
+      const errorMessage = "Choose PNG or JPG image files before uploading.";
       setStatus(errorMessage);
       toast.error("Image upload failed", errorMessage);
       return;
+    }
+
+    if (nextFiles.length !== allFiles.length) {
+      const skippedCount = allFiles.length - nextFiles.length;
+      setStatus(
+        `${skippedCount} unsupported file${skippedCount === 1 ? "" : "s"} skipped. Use PNG or JPG images.`,
+      );
+    } else {
+      setStatus("");
     }
 
     setSelectedImages((currentImages) => {
@@ -105,7 +118,6 @@ export const R2ImageUploadForm = forwardRef<
       currentImages.forEach((image) => URL.revokeObjectURL(image.previewUrl));
       return nextImages;
     });
-    setStatus("");
   };
 
   const removeSelectedImage = (imageId: string) => {
@@ -172,9 +184,12 @@ export const R2ImageUploadForm = forwardRef<
 
       const lastUpload = uploads.at(-1) ?? null;
       setUpload(lastUpload);
+      const reusedCount = uploads.filter((item) => item.reused).length;
       const successMessage =
         uploads.length > 1
-          ? `${uploads.length} images uploaded to Cloudflare R2.`
+          ? reusedCount > 0
+            ? `${uploads.length} images ready. Reused ${reusedCount} existing R2 image${reusedCount === 1 ? "" : "s"}.`
+            : `${uploads.length} images uploaded to Cloudflare R2.`
           : lastUpload?.message ?? "Image uploaded.";
       setStatus(successMessage);
       toast.success(successMessage, "Images added to the current product draft.");
@@ -291,7 +306,7 @@ export const R2ImageUploadForm = forwardRef<
           tabIndex={0}
         >
           <input
-            accept="image/avif,image/gif,image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,.jpg,.jpeg,.png"
             className="r2-file-input"
             multiple={multiple}
             name="image"
@@ -305,7 +320,7 @@ export const R2ImageUploadForm = forwardRef<
             type="file"
           />
           <strong>Drag images here or choose files</strong>
-          <span>PNG, JPG, WEBP, GIF, or AVIF. You can add multiple images.</span>
+          <span>PNG or JPG. You can add multiple images.</span>
         </div>
 
         {selectedImages.length > 0 ? (

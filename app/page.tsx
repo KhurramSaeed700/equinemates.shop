@@ -91,7 +91,7 @@ export default async function Home() {
         </article>
       </section>
 
-      <section className="section-spacing">
+      <section className="home-product-section section-spacing">
         <SectionHeading
           eyebrow="Best Sellers"
           ctaHref="/products"
@@ -102,7 +102,7 @@ export default async function Home() {
         <ProductGrid products={bestSellers} />
       </section>
 
-      <section className="home-highlight section-spacing">
+      <section className="home-highlight home-product-section section-spacing">
         <SectionHeading
           eyebrow="New Arrivals"
           ctaHref="/search?tag=new"

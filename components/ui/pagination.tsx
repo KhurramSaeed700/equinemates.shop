@@ -44,10 +44,10 @@ export function PaginationLink({
     <Link
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "inline-flex h-9 min-w-9 items-center justify-center border border-[var(--line)] px-3 text-sm transition-colors",
+        "pagination-link inline-flex h-9 min-w-9 items-center justify-center border border-[var(--line)] px-3 text-sm transition-colors",
         isActive
-          ? "bg-[var(--ink)] !text-white hover:bg-[var(--ink)] hover:!text-white"
-          : "bg-white text-[var(--ink)] hover:bg-[var(--bg-elevated)]",
+          ? "pagination-link-active bg-[var(--ink)] !text-white hover:bg-[var(--ink)] hover:!text-white"
+          : "pagination-link-inactive bg-white text-[var(--ink)] hover:bg-[var(--bg-elevated)]",
         className,
       )}
       {...props}

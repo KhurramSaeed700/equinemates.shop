@@ -13,10 +13,16 @@ import {
   R2ImageUploadForm,
   type R2ImageUploadFormHandle,
 } from "@/components/forms/r2-image-upload-form";
+import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
 import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ProductMedia } from "@/components/ui/product-media";
-import { Textarea } from "@/components/ui/textarea";
 import { getProductImageSrc } from "@/lib/image-utils";
 import { useToast } from "@/lib/use-toast";
 import { CurrencyCode, Product, ProductCategory } from "@/lib/types";
@@ -115,6 +121,19 @@ function splitCategoryPath(value: string): string[] {
     .split(">")
     .map((segment) => segment.trim())
     .filter(Boolean);
+}
+
+function normalizeDescriptionListText(value: string): string {
+  return value
+    .split(/\r?\n/)
+    .map((line) => {
+      const trimmedLine = line.trim();
+      const bulletMatch = trimmedLine.match(/^(?:[-*+•‣▪–—]|\d+[.)])\s*(.+)$/u);
+
+      return bulletMatch ? `- ${bulletMatch[1].trim()}` : trimmedLine;
+    })
+    .filter(Boolean)
+    .join("\n");
 }
 
 function flattenCategoryPaths(
@@ -285,6 +304,7 @@ export function AdminProductEditor({
   const [status, setStatus] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingProduct, setIsLoadingProduct] = useState(false);
+  const [loadingProductSlug, setLoadingProductSlug] = useState("");
   const [deletingProductSlug, setDeletingProductSlug] = useState<string | null>(null);
   const [productPendingDelete, setProductPendingDelete] =
     useState<ProductSummary | null>(null);
@@ -347,6 +367,14 @@ export function AdminProductEditor({
     draft.name.trim() ||
     draft.categoryPath.split(" > ").at(-1) ||
     "products";
+  const isEditingProduct = Boolean(draft.originalSlug);
+  const saveButtonLabel = isSaving
+    ? isEditingProduct
+      ? "Updating..."
+      : "Uploading..."
+    : isEditingProduct
+      ? "Update Product"
+      : "Upload Product";
 
   const updateDraft = (
     field: keyof ProductDraft,
@@ -495,6 +523,7 @@ export function AdminProductEditor({
 
   const loadProduct = async (slug: string) => {
     setIsLoadingProduct(true);
+    setLoadingProductSlug(slug);
     setStatus("");
 
     try {
@@ -515,6 +544,7 @@ export function AdminProductEditor({
       setStatus(error instanceof Error ? error.message : "Could not load product.");
     } finally {
       setIsLoadingProduct(false);
+      setLoadingProductSlug("");
     }
   };
 
@@ -681,8 +711,8 @@ export function AdminProductEditor({
           sku: draft.sku,
           category: draft.category,
           categoryPath: splitCategoryPath(draft.categoryPath),
-          shortDescription: draft.shortDescription,
-          longDescription: draft.longDescription,
+          shortDescription: normalizeDescriptionListText(draft.shortDescription),
+          longDescription: normalizeDescriptionListText(draft.longDescription),
           basePriceUsd: Number(draft.basePriceUsd),
           basePricePkr: basePricePkrPreview !== null ? Math.round(basePricePkrPreview) : NaN,
           compareAtPricePkr: null,
@@ -694,7 +724,7 @@ export function AdminProductEditor({
           images: imagesForSave,
           isBestSeller: draft.isBestSeller,
           isNewArrival: draft.isNewArrival,
-          careInstructions: draft.careInstructions,
+          careInstructions: normalizeDescriptionListText(draft.careInstructions),
         }),
       });
 
@@ -811,7 +841,7 @@ export function AdminProductEditor({
             </Button>
             {draft.slug ? (
               <a
-                className="btn-secondary admin-toolbar-action"
+                className="btn-secondary admin-toolbar-action admin-open-product-link"
                 href={`/products/${encodeURIComponent(draft.slug)}`}
                 rel="noreferrer"
                 target="_blank"
@@ -824,54 +854,69 @@ export function AdminProductEditor({
           {normalizedProductSearch ? (
             <div className="admin-product-search-results">
               {visibleProductResults.length > 0 ? (
-                visibleProductResults.map((product) => (
-                  <article
-                    className="admin-product-search-result"
-                    key={product.id}
-                  >
-                    <button
-                      className="admin-product-search-result-main"
-                      onClick={() => onProductSearchSelect(product.slug)}
-                      type="button"
+                visibleProductResults.map((product) => {
+                  const isProductLoading = loadingProductSlug === product.slug;
+
+                  return (
+                    <article
+                      className={
+                        isProductLoading
+                          ? "admin-product-search-result is-loading"
+                          : "admin-product-search-result"
+                      }
+                      key={product.id}
                     >
-                      <span className="admin-product-search-thumb">
-                        {product.primaryImage ? (
-                          <ProductMedia
-                            alt={product.name}
-                            className="admin-product-search-image"
-                            height={120}
-                            sizes="84px"
-                            src={getProductImageSrc(product.primaryImage)}
-                            width={120}
-                          />
-                        ) : (
-                          <span aria-hidden="true" className="admin-product-search-thumb-empty">
-                            No image
-                          </span>
-                        )}
-                      </span>
-                      <span className="admin-product-search-result-copy">
-                        <span className="admin-product-search-result-name">{product.name}</span>
-                        <span className="admin-product-search-result-meta">
-                          <span>{product.sku}</span>
-                          <span>{product.category}</span>
+                      <button
+                        className="admin-product-search-result-main"
+                        disabled={isLoadingProduct}
+                        onClick={() => onProductSearchSelect(product.slug)}
+                        type="button"
+                      >
+                        <span className="admin-product-search-thumb">
+                          {product.primaryImage ? (
+                            <ProductMedia
+                              alt={product.name}
+                              className="admin-product-search-image"
+                              height={120}
+                              sizes="84px"
+                              src={getProductImageSrc(product.primaryImage)}
+                              width={120}
+                            />
+                          ) : (
+                            <span aria-hidden="true" className="admin-product-search-thumb-empty">
+                              No image
+                            </span>
+                          )}
                         </span>
-                      </span>
-                    </button>
-                    <Button
-                      className="admin-product-delete-btn"
-                      disabled={deletingProductSlug === product.slug}
-                      onClick={() => {
-                        setProductPendingDelete(product);
-                        setProductDeleteError("");
-                      }}
-                      size="compact"
-                      variant="secondary"
-                    >
-                      {deletingProductSlug === product.slug ? "Removing..." : "Remove"}
-                    </Button>
-                  </article>
-                ))
+                        <span className="admin-product-search-result-copy">
+                          <span className="admin-product-search-result-name">{product.name}</span>
+                          <span className="admin-product-search-result-meta">
+                            <span>{product.sku}</span>
+                            <span>{product.category}</span>
+                          </span>
+                        </span>
+                        {isProductLoading ? (
+                          <span className="admin-product-search-loading">
+                            <span aria-hidden="true" className="admin-loading-spinner" />
+                            Loading
+                          </span>
+                        ) : null}
+                      </button>
+                      <Button
+                        className="admin-product-delete-btn"
+                        disabled={isLoadingProduct || deletingProductSlug === product.slug}
+                        onClick={() => {
+                          setProductPendingDelete(product);
+                          setProductDeleteError("");
+                        }}
+                        size="compact"
+                        variant="secondary"
+                      >
+                        {deletingProductSlug === product.slug ? "Removing..." : "Remove"}
+                      </Button>
+                    </article>
+                  );
+                })
               ) : (
                 <p className="tiny admin-product-search-empty">
                   No products match that search yet.
@@ -885,114 +930,139 @@ export function AdminProductEditor({
       <div className="admin-editor-layout">
         <section className="admin-editor-panel">
           <div className="form-grid">
-            <label className="admin-field-name full-width">
-              Product Name
-              <Input name="name" onChange={onTextChange} value={draft.name} />
-            </label>
-            <label className="admin-sku-field">
-              SKU
+            <Field className="admin-field-name full-width">
+              <FieldLabel htmlFor="admin-product-name">Product Name</FieldLabel>
+              <AutosizeTextarea
+                className="admin-product-name-textarea"
+                id="admin-product-name"
+                name="name"
+                onChange={onTextChange}
+                rows={2}
+                value={draft.name}
+              />
+            </Field>
+            <Field
+              className="admin-sku-field"
+              dataInvalid={skuIsKnownDuplicate}
+            >
+              <FieldLabel htmlFor="admin-product-sku">SKU</FieldLabel>
               <Input
                 aria-describedby="admin-sku-availability"
                 aria-invalid={skuIsKnownDuplicate}
                 className={skuIsKnownDuplicate ? "is-invalid" : undefined}
+                id="admin-product-sku"
                 name="sku"
                 onBlur={() => void checkSkuAvailability()}
                 onChange={onTextChange}
                 value={draft.sku}
               />
               {skuAvailability.message ? (
-                <span
-                  className={`tiny sku-field-status sku-field-status-${skuAvailability.state}`}
-                  id="admin-sku-availability"
-                >
-                  {skuAvailability.message}
-                </span>
+                skuAvailability.state === "duplicate" ||
+                skuAvailability.state === "error" ? (
+                  <FieldError
+                    className={`sku-field-status sku-field-status-${skuAvailability.state}`}
+                    id="admin-sku-availability"
+                  >
+                    {skuAvailability.message}
+                  </FieldError>
+                ) : (
+                  <FieldDescription
+                    className={`sku-field-status sku-field-status-${skuAvailability.state}`}
+                    id="admin-sku-availability"
+                  >
+                    {skuAvailability.message}
+                  </FieldDescription>
+                )
               ) : null}
-            </label>
-            <label className="admin-field-price">
-              Base Price USD
+            </Field>
+            <Field className="admin-field-price">
+              <FieldLabel htmlFor="admin-product-price">Base Price USD</FieldLabel>
               <Input
+                id="admin-product-price"
                 inputMode="decimal"
                 name="basePriceUsd"
                 onChange={onTextChange}
                 value={draft.basePriceUsd}
               />
-            </label>
-            <label className="admin-field-stock">
-              Stock
+            </Field>
+            <Field className="admin-field-stock">
+              <FieldLabel htmlFor="admin-product-stock">Stock</FieldLabel>
               <Input
+                id="admin-product-stock"
                 inputMode="numeric"
                 name="stock"
                 onChange={onTextChange}
                 value={draft.stock}
               />
-            </label>
-            <div className="price-info-card admin-field-price-preview">
-              <strong>Base Price Preview</strong>
-              <p className="tiny">PKR: {formatCurrency(basePricePkrPreview, "PKR")}</p>
-              <p className="tiny">
-                EUR:{" "}
-                {basePricePkrPreview !== null
-                  ? formatCurrency(basePricePkrPreview * ratesFromPkr.EUR, "EUR")
-                  : "--"}
-              </p>
+            </Field>
+            <div className="admin-price-flags-row full-width">
+              <div className="price-info-card admin-field-price-preview">
+                <strong>Base Price Preview</strong>
+                <p className="tiny">
+                  PKR: {formatCurrency(basePricePkrPreview, "PKR")}
+                </p>
+                <p className="tiny">
+                  EUR:{" "}
+                  {basePricePkrPreview !== null
+                    ? formatCurrency(basePricePkrPreview * ratesFromPkr.EUR, "EUR")
+                    : "--"}
+                </p>
+              </div>
+              <div className="checkbox-grid admin-inline-flags">
+                <label className="checkbox-label">
+                  <input
+                    checked={draft.isBestSeller}
+                    name="isBestSeller"
+                    onChange={onCheckboxChange}
+                    type="checkbox"
+                  />
+                  <span>Mark as best seller</span>
+                </label>
+                <label className="checkbox-label">
+                  <input
+                    checked={draft.isNewArrival}
+                    name="isNewArrival"
+                    onChange={onCheckboxChange}
+                    type="checkbox"
+                  />
+                  <span>Mark as new arrival</span>
+                </label>
+              </div>
             </div>
-            <div className="checkbox-grid full-width">
-              <label className="checkbox-label">
-                <input
-                  checked={draft.isBestSeller}
-                  name="isBestSeller"
-                  onChange={onCheckboxChange}
-                  type="checkbox"
-                />
-                <span>Mark as best seller</span>
-              </label>
-              <label className="checkbox-label">
-                <input
-                  checked={draft.isNewArrival}
-                  name="isNewArrival"
-                  onChange={onCheckboxChange}
-                  type="checkbox"
-                />
-                <span>Mark as new arrival</span>
-              </label>
-            </div>
-            <label className="full-width">
-              Short Description
-              <Textarea
+            <Field className="full-width">
+              <FieldLabel htmlFor="admin-product-short-description">
+                Short Description
+              </FieldLabel>
+              <AutosizeTextarea
+                id="admin-product-short-description"
                 name="shortDescription"
                 onChange={onTextChange}
                 rows={3}
                 value={draft.shortDescription}
               />
-            </label>
-            <label className="full-width">
-              Long Description
-              <Textarea
+            </Field>
+            <Field className="full-width">
+              <FieldLabel htmlFor="admin-product-long-description">
+                Long Description
+              </FieldLabel>
+              <AutosizeTextarea
+                id="admin-product-long-description"
                 name="longDescription"
                 onChange={onTextChange}
                 rows={5}
                 value={draft.longDescription}
               />
-            </label>
-            <label className="full-width">
-              Tags
-              <Input
-                name="tags"
-                onChange={onTextChange}
-                placeholder="horse, saddle, premium"
-                value={draft.tags}
-              />
-            </label>
-            <label className="full-width">
-              Care Instructions
-              <Textarea
+            </Field>
+            <Field className="full-width">
+              <FieldLabel htmlFor="admin-product-care">Care Instructions</FieldLabel>
+              <AutosizeTextarea
+                id="admin-product-care"
                 name="careInstructions"
                 onChange={onTextChange}
                 rows={3}
                 value={draft.careInstructions}
               />
-            </label>
+            </Field>
           </div>
         </section>
 
@@ -1098,11 +1168,6 @@ export function AdminProductEditor({
 
         <div className="admin-image-tools">
           <div className="admin-upload-card">
-            <div className="admin-upload-meta">
-              <p className="tiny">
-                Upload folder: <strong>{uploadFolder}</strong>
-              </p>
-            </div>
             <R2ImageUploadForm
               ref={uploadFormRef}
               hideFolderField
@@ -1144,7 +1209,6 @@ export function AdminProductEditor({
                 src={getProductImageSrc(imageUrl)}
                 width={144}
               />
-              <p className="tiny admin-image-url">{imageUrl}</p>
               <div className="admin-image-actions">
                 <div className="admin-image-order-controls">
                   <Button
@@ -1202,7 +1266,7 @@ export function AdminProductEditor({
           onClick={onSave}
           variant="primary"
         >
-          {isSaving ? "Saving..." : "Save Product"}
+          {saveButtonLabel}
         </Button>
         {status ? <p className="form-status">{status}</p> : null}
       </div>

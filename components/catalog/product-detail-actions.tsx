@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { useWishlist } from "@/components/providers/wishlist-provider";
+import { FormattedDescription } from "@/components/ui/formatted-description";
 import { Product } from "@/lib/types";
 import { useUser } from "@clerk/nextjs";
 import { FrequentlyBoughtTogether } from "./frequently-bought-together";
@@ -50,7 +51,10 @@ export function ProductDetailActions({
         <p className="tiny">
           Rating {product.rating.toFixed(1)}/5 ({product.reviewCount} reviews)
         </p>
-        <p>{product.shortDescription}</p>
+        <FormattedDescription
+          className="product-detail-summary"
+          text={product.shortDescription}
+        />
 
         {product.variants.length > 0 ? (
           <div className="variant-list">
