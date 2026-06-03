@@ -8319,21 +8319,24 @@ html[data-theme="dark"] .preview-modal-actions {
 }
 
 .newsletter-popup-panel {
-  width: min(620px, calc(100vw - 2.5rem));
+  width: min(820px, calc(100vw - 3rem));
   max-height: calc(100dvh - 2.5rem);
   border-color: var(--line);
-  border-radius: 16px;
+  border-radius: 18px;
   background: var(--surface);
   box-shadow: 0 24px 70px rgba(8, 12, 10, 0.28);
 }
 
 .newsletter-popup-grid {
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+  grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.1fr);
+  min-height: 280px;
 }
 
 .newsletter-popup-promo {
   min-height: 0;
-  padding: 1.25rem;
+  display: grid;
+  align-content: center;
+  padding: 2rem 2.1rem;
   background:
     radial-gradient(circle at 14% 10%, color-mix(in oklab, var(--accent), transparent 72%), transparent 34%),
     linear-gradient(
@@ -8345,7 +8348,9 @@ html[data-theme="dark"] .preview-modal-actions {
 }
 
 .newsletter-popup-signup {
-  padding: 1.25rem;
+  display: grid;
+  align-content: center;
+  padding: 2rem 2.2rem;
   background: color-mix(in oklab, var(--surface), var(--bg) 10%);
 }
 
@@ -8355,14 +8360,14 @@ html[data-theme="dark"] .preview-modal-actions {
 }
 
 .newsletter-popup-promo h2 {
-  max-width: 13ch;
+  max-width: 14ch;
   color: var(--ink);
-  font-size: clamp(1.25rem, 2vw, 1.65rem);
+  font-size: clamp(1.55rem, 2.35vw, 2.05rem);
 }
 
 .newsletter-popup-signup h3 {
-  max-width: 15ch;
-  font-size: clamp(1.08rem, 1.6vw, 1.35rem);
+  max-width: 18ch;
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
 }
 
 .newsletter-popup-promo .newsletter-popup-link {
@@ -8378,13 +8383,15 @@ html[data-theme="dark"] .preview-modal-actions {
 }
 
 .newsletter-popup-form {
-  gap: 0.5rem;
-  margin-top: 0.85rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  margin-top: 1.3rem;
 }
 
 .newsletter-popup-form input,
 .newsletter-popup-form .btn-primary {
-  min-height: 2.55rem;
+  min-height: 3rem;
 }
 
 .newsletter-popup-form input {
@@ -8392,11 +8399,17 @@ html[data-theme="dark"] .preview-modal-actions {
   background: var(--bg-elevated);
 }
 
+.newsletter-popup-form .btn-primary {
+  min-width: 7.4rem;
+  justify-content: center;
+  padding-inline: 1.15rem;
+}
+
 .newsletter-popup-close {
-  top: 0.75rem;
-  right: 0.75rem;
-  width: 2rem;
-  height: 2rem;
+  top: 1rem;
+  right: 1rem;
+  width: 2.15rem;
+  height: 2.15rem;
   border-color: var(--line);
   background: var(--bg-elevated);
   box-shadow: none;
