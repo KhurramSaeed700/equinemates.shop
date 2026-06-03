@@ -482,27 +482,49 @@ async function getProductImageSourcesForCleanup({
   return [];
 }
 
-export async function getReferencedProductImageSources(): Promise<string[]> {
+export async function getReferencedProductImageSources({
+  excludeProductSlug,
+}: {
+  excludeProductSlug?: string;
+} = {}): Promise<string[]> {
   const [hasImagesColumn, hasProductImageTable] = await Promise.all([
     productColumnExists("images"),
     databaseTableExists("ProductImage"),
   ]);
 
+  const excludedSlug = excludeProductSlug?.trim();
+
   if (hasImagesColumn && hasProductImageTable) {
-    const rows = await prisma.$queryRaw<ProductImageSourceRow[]>`
-      SELECT unnest(
-        COALESCE(p.images, ARRAY[]::text[]) ||
-        COALESCE(
-          (
-            SELECT array_agg(pi.url ORDER BY pi.position)
-            FROM "ProductImage" pi
-            WHERE pi."productId" = p.id
-          ),
-          ARRAY[]::text[]
-        )
-      ) AS source
-      FROM "Product" p
-    `;
+    const rows = excludedSlug
+      ? await prisma.$queryRaw<ProductImageSourceRow[]>`
+          SELECT unnest(
+            COALESCE(p.images, ARRAY[]::text[]) ||
+            COALESCE(
+              (
+                SELECT array_agg(pi.url ORDER BY pi.position)
+                FROM "ProductImage" pi
+                WHERE pi."productId" = p.id
+              ),
+              ARRAY[]::text[]
+            )
+          ) AS source
+          FROM "Product" p
+          WHERE p.slug <> ${excludedSlug}
+        `
+      : await prisma.$queryRaw<ProductImageSourceRow[]>`
+          SELECT unnest(
+            COALESCE(p.images, ARRAY[]::text[]) ||
+            COALESCE(
+              (
+                SELECT array_agg(pi.url ORDER BY pi.position)
+                FROM "ProductImage" pi
+                WHERE pi."productId" = p.id
+              ),
+              ARRAY[]::text[]
+            )
+          ) AS source
+          FROM "Product" p
+        `;
 
     return Array.from(
       new Set(rows.map((row) => row.source?.trim()).filter(Boolean) as string[]),
@@ -510,10 +532,16 @@ export async function getReferencedProductImageSources(): Promise<string[]> {
   }
 
   if (hasImagesColumn) {
-    const rows = await prisma.$queryRaw<ProductImageSourceRow[]>`
-      SELECT unnest(COALESCE(p.images, ARRAY[]::text[])) AS source
-      FROM "Product" p
-    `;
+    const rows = excludedSlug
+      ? await prisma.$queryRaw<ProductImageSourceRow[]>`
+          SELECT unnest(COALESCE(p.images, ARRAY[]::text[])) AS source
+          FROM "Product" p
+          WHERE p.slug <> ${excludedSlug}
+        `
+      : await prisma.$queryRaw<ProductImageSourceRow[]>`
+          SELECT unnest(COALESCE(p.images, ARRAY[]::text[])) AS source
+          FROM "Product" p
+        `;
 
     return Array.from(
       new Set(rows.map((row) => row.source?.trim()).filter(Boolean) as string[]),
@@ -521,11 +549,19 @@ export async function getReferencedProductImageSources(): Promise<string[]> {
   }
 
   if (hasProductImageTable) {
-    const rows = await prisma.$queryRaw<ProductImageSourceRow[]>`
-      SELECT pi.url AS source
-      FROM "ProductImage" pi
-      ORDER BY pi.position
-    `;
+    const rows = excludedSlug
+      ? await prisma.$queryRaw<ProductImageSourceRow[]>`
+          SELECT pi.url AS source
+          FROM "ProductImage" pi
+          JOIN "Product" p ON p.id = pi."productId"
+          WHERE p.slug <> ${excludedSlug}
+          ORDER BY pi.position
+        `
+      : await prisma.$queryRaw<ProductImageSourceRow[]>`
+          SELECT pi.url AS source
+          FROM "ProductImage" pi
+          ORDER BY pi.position
+        `;
 
     return Array.from(
       new Set(rows.map((row) => row.source?.trim()).filter(Boolean) as string[]),

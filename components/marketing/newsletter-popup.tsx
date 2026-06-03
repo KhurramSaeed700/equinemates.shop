@@ -19,6 +19,7 @@ export function NewsletterPopup() {
   const toast = useToast();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!mounted || pathname !== "/") {
@@ -69,7 +70,7 @@ export function NewsletterPopup() {
     setOpen(false);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!isValidEmail(email)) {
@@ -77,12 +78,41 @@ export function NewsletterPopup() {
       return;
     }
 
-    window.localStorage.setItem(
-      NEWSLETTER_POPUP_STORAGE_KEY,
-      JSON.stringify({ status: "subscribed", email }),
-    );
-    toast.success("You're on the list", "We'll send new drops and offers to your inbox.");
-    setOpen(false);
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          source: "popup",
+        }),
+      });
+      const payload = (await response.json()) as {
+        message?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(payload.message ?? "Could not save newsletter signup.");
+      }
+
+      window.localStorage.setItem(
+        NEWSLETTER_POPUP_STORAGE_KEY,
+        JSON.stringify({ status: "subscribed", email }),
+      );
+      toast.success(payload.message ?? "You're on the email list.");
+      setOpen(false);
+    } catch (error) {
+      toast.error(
+        "Newsletter signup failed",
+        error instanceof Error ? error.message : "Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (!mounted || pathname !== "/" || !open) {
@@ -125,23 +155,17 @@ export function NewsletterPopup() {
               </label>
               <input
                 id="newsletter-popup-email"
+                disabled={isSubmitting}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="Email address"
                 type="email"
                 value={email}
               />
-              <button className="btn-primary" type="submit">
-                Join now
+              <button className="btn-primary" disabled={isSubmitting} type="submit">
+                {isSubmitting ? "Joining..." : "Join now"}
               </button>
             </form>
 
-            <button
-              className="newsletter-popup-dismiss"
-              onClick={closePopup}
-              type="button"
-            >
-              No thanks
-            </button>
           </section>
         </div>
       </div>

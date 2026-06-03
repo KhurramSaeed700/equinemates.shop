@@ -21,7 +21,6 @@ export function CategoryStrip({
   const stripRef = useRef<HTMLElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [hasOverflow, setHasOverflow] = useState(false);
-  const [hasScrolledHorizontally, setHasScrolledHorizontally] = useState(false);
 
   const updateOverflowState = useCallback(() => {
     const strip = stripRef.current;
@@ -33,14 +32,9 @@ export function CategoryStrip({
 
     const nextHasOverflow = scroller.scrollWidth > strip.clientWidth + 1;
     setHasOverflow(nextHasOverflow);
-
-    if (!nextHasOverflow) {
-      setHasScrolledHorizontally(false);
-    }
   }, []);
 
   useEffect(() => {
-    setHasScrolledHorizontally(false);
     updateOverflowState();
 
     const strip = stripRef.current;
@@ -96,11 +90,6 @@ export function CategoryStrip({
 
       <div
         className="category-strip-track"
-        onScroll={(event) => {
-          if (event.currentTarget.scrollLeft > 2) {
-            setHasScrolledHorizontally(true);
-          }
-        }}
         ref={scrollerRef}
       >
         {items.map((item) => (
@@ -120,20 +109,6 @@ export function CategoryStrip({
         >
           <FiChevronRight aria-hidden="true" />
         </button>
-      ) : null}
-
-      {hasOverflow ? (
-        <span
-          aria-hidden="true"
-          className={
-            hasScrolledHorizontally
-              ? "category-strip-scroll-hint category-strip-scroll-hint-hidden"
-              : "category-strip-scroll-hint"
-          }
-        >
-          Swipe
-          <FiChevronRight aria-hidden="true" />
-        </span>
       ) : null}
     </section>
   );

@@ -16,15 +16,30 @@ type FormattedDescriptionProps = {
   text: string;
 };
 
+const bulletPrefixPattern = /^(?:[-*+\u2022\u2023\u25AA\u2013\u2014]|\d+[.)])\s*(.+)$/u;
+
+function shouldTreatLinesAsList(lines: string[]): boolean {
+  if (lines.length < 2) {
+    return false;
+  }
+
+  return lines.every((line) => line.length <= 160);
+}
+
 function parseDescription(text: string): DescriptionBlock[] {
   const lines = text
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
+  const hasExplicitBullets = lines.some((line) => bulletPrefixPattern.test(line));
   const blocks: DescriptionBlock[] = [];
 
+  if (!hasExplicitBullets && shouldTreatLinesAsList(lines)) {
+    return [{ type: "list", items: lines }];
+  }
+
   for (const line of lines) {
-    const bulletMatch = line.match(/^(?:[-*+•‣▪–—]|\d+[.)])\s*(.+)$/u);
+    const bulletMatch = line.match(bulletPrefixPattern);
 
     if (bulletMatch) {
       const lastBlock = blocks[blocks.length - 1];
@@ -65,7 +80,12 @@ export function FormattedDescription({
         block.type === "list" ? (
           <ul key={`list-${index}`}>
             {block.items.map((item, itemIndex) => (
-              <li key={`${item}-${itemIndex}`}>{item}</li>
+              <li key={`${item}-${itemIndex}`}>
+                <span aria-hidden="true" className="formatted-description-bullet">
+                  {"\u2022"}
+                </span>
+                <span>{item}</span>
+              </li>
             ))}
           </ul>
         ) : (

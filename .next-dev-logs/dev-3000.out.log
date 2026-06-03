@@ -1,0 +1,1294 @@
+▲ Next.js 16.1.6 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://172.30.209.216:3000
+- Environments: .env.local, .env
+
+✓ Starting...
+✓ Ready in 13.4s
+○ Compiling proxy ...
+○ Compiling / ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET / 200 in 26.5s (compile: 15.8s, proxy.ts: 31ms, render: 10.6s)
+○ Compiling /admin ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ POST / 200 in 2.3s (compile: 160ms, proxy.ts: 2.1s, render: 86ms)
+○ Compiling /api/currency/rates ...
+ GET /admin 200 in 39.8s (compile: 8.6s, proxy.ts: 742ms, render: 30.5s)
+ GET /api/currency/rates 200 in 33.9s (compile: 31.8s, proxy.ts: 2.0s, render: 87ms)
+○ Compiling /products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET / 200 in 9.8s (compile: 103ms, proxy.ts: 980ms, render: 8.8s)
+ GET /products?category=Horse&path=Horse+%3E+Bits+%26+Tack+%3E+CNC+Bits 200 in 24.7s (compile: 13.6s, proxy.ts: 81ms, render: 11.1s)
+ GET / 200 in 11.4s (compile: 23ms, proxy.ts: 114ms, render: 11.2s)
+ GET /api/currency/rates 200 in 1638ms (compile: 1400ms, proxy.ts: 36ms, render: 201ms)
+ POST /products?category=Horse&path=Horse+%3E+Bits+%26+Tack+%3E+CNC+Bits 200 in 1638ms (compile: 386ms, proxy.ts: 820ms, render: 431ms)
+ GET / 200 in 4.3s (compile: 17ms, proxy.ts: 33ms, render: 4.3s)
+ GET /api/currency/rates 200 in 45ms (compile: 7ms, proxy.ts: 25ms, render: 13ms)
+ POST / 200 in 74ms (compile: 11ms, proxy.ts: 40ms, render: 23ms)
+ GET /api/currency/rates 200 in 75ms (compile: 10ms, proxy.ts: 37ms, render: 28ms)
+ POST /admin 200 in 108ms (compile: 42ms, proxy.ts: 21ms, render: 45ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /products?category=Horse&path=Horse+%3E+Bits+%26+Tack+%3E+CNC+Bits 200 in 9.3s (compile: 304ms, proxy.ts: 2.6s, render: 6.3s)
+ GET / 200 in 9.6s (compile: 777ms, proxy.ts: 282ms, render: 8.6s)
+ GET /admin 200 in 11.8s (compile: 58ms, proxy.ts: 34ms, render: 11.7s)
+ GET / 200 in 6.2s (compile: 17ms, proxy.ts: 51ms, render: 6.1s)
+○ Compiling /api/currency/rates ...
+ GET /products?category=Horse&path=Horse+%3E+Bits+%26+Tack+%3E+CNC+Bits 200 in 9.1s (compile: 19ms, proxy.ts: 44ms, render: 9.0s)
+ GET /admin 200 in 10.6s (compile: 187ms, proxy.ts: 48ms, render: 10.3s)
+ GET /api/currency/rates 200 in 14.2s (compile: 14.0s, proxy.ts: 28ms, render: 107ms)
+ POST / 200 in 1144ms (compile: 252ms, proxy.ts: 594ms, render: 298ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /api/currency/rates 200 in 135ms (compile: 38ms, proxy.ts: 37ms, render: 59ms)
+ POST /products?category=Horse&path=Horse+%3E+Bits+%26+Tack+%3E+CNC+Bits 200 in 268ms (compile: 128ms, proxy.ts: 71ms, render: 69ms)
+ GET / 200 in 6.4s (compile: 129ms, proxy.ts: 44ms, render: 6.3s)
+ GET / 200 in 4.8s (compile: 10ms, proxy.ts: 36ms, render: 4.7s)
+ GET /api/currency/rates 200 in 51ms (compile: 7ms, proxy.ts: 30ms, render: 15ms)
+ POST /admin 200 in 136ms (compile: 43ms, proxy.ts: 23ms, render: 70ms)
+ GET /api/currency/rates 200 in 65ms (compile: 9ms, proxy.ts: 24ms, render: 32ms)
+ POST / 200 in 49ms (compile: 6ms, proxy.ts: 18ms, render: 25ms)
+ GET / 200 in 5.5s (compile: 67ms, proxy.ts: 113ms, render: 5.4s)
+ GET /api/currency/rates 200 in 51ms (compile: 10ms, proxy.ts: 30ms, render: 11ms)
+ POST / 200 in 41ms (compile: 6ms, proxy.ts: 19ms, render: 16ms)
+ GET / 200 in 2.7s (compile: 30ms, proxy.ts: 41ms, render: 2.6s)
+ GET /api/currency/rates 200 in 30ms (compile: 6ms, proxy.ts: 13ms, render: 10ms)
+ POST / 200 in 43ms (compile: 6ms, proxy.ts: 20ms, render: 17ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /products?category=Horse&path=Horse+%3E+Bits+%26+Tack+%3E+CNC+Bits 200 in 7.1s (compile: 56ms, proxy.ts: 2.8s, render: 4.3s)
+ GET /admin 200 in 4.5s (compile: 59ms, proxy.ts: 43ms, render: 4.4s)
+ GET / 200 in 14.3s (compile: 764ms, proxy.ts: 366ms, render: 13.2s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /products?category=Horse&path=Horse+%3E+Bits+%26+Tack+%3E+CNC+Bits 200 in 9.7s (compile: 182ms, proxy.ts: 2.5s, render: 7.1s)
+ GET /admin 200 in 4.4s (compile: 61ms, proxy.ts: 41ms, render: 4.3s)
+ GET / 200 in 14.0s (compile: 812ms, proxy.ts: 37ms, render: 13.2s)
+○ Compiling /products/[slug] ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET / 200 in 8.0s (compile: 288ms, proxy.ts: 224ms, render: 7.5s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 34.8s (compile: 31.8s, proxy.ts: 528ms, render: 2.4s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 3.8s (compile: 67ms, proxy.ts: 52ms, render: 3.7s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 13.3s (compile: 7.9s, proxy.ts: 31ms, render: 5.4s)
+ GET / 200 in 6.0s (compile: 248ms, proxy.ts: 130ms, render: 5.6s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.6s (compile: 1301ms, proxy.ts: 134ms, render: 5.2s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /admin 200 in 1645ms (compile: 37ms, proxy.ts: 17ms, render: 1591ms)
+ GET /admin 200 in 1677ms (compile: 7ms, proxy.ts: 21ms, render: 1650ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET / 200 in 7.3s (compile: 705ms, proxy.ts: 164ms, render: 6.5s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 4.3s (compile: 103ms, proxy.ts: 945ms, render: 3.2s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET /admin 200 in 4.9s (compile: 54ms, proxy.ts: 1232ms, render: 3.7s)
+ GET / 200 in 5.2s (compile: 70ms, proxy.ts: 27ms, render: 5.1s)
+ GET /admin 200 in 2.9s (compile: 27ms, proxy.ts: 1258ms, render: 1594ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.9s (compile: 139ms, proxy.ts: 1262ms, render: 4.5s)
+ GET / 200 in 5.2s (compile: 45ms, proxy.ts: 497ms, render: 4.7s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 7.3s (compile: 710ms, proxy.ts: 816ms, render: 5.8s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET /admin 200 in 4.0s (compile: 25ms, proxy.ts: 29ms, render: 4.0s)
+ GET /admin 200 in 9.4s (compile: 14ms, proxy.ts: 28ms, render: 9.4s)
+ GET / 200 in 22.3s (compile: 69ms, proxy.ts: 928ms, render: 21.3s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 12.0s (compile: 29ms, proxy.ts: 34ms, render: 11.9s)
+ GET / 200 in 7.0s (compile: 92ms, proxy.ts: 653ms, render: 6.3s)
+ GET / 200 in 4.5s (compile: 128ms, proxy.ts: 334ms, render: 4.0s)
+ GET /admin 200 in 6.4s (compile: 998ms, proxy.ts: 273ms, render: 5.1s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.5s (compile: 1313ms, proxy.ts: 270ms, render: 4.9s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+ GET /admin 200 in 1586ms (compile: 8ms, proxy.ts: 29ms, render: 1548ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 2.7s (compile: 75ms, proxy.ts: 44ms, render: 2.6s)
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET / 200 in 59s (compile: 51s, proxy.ts: 2.4s, render: 5.3s)
+ GET /admin 200 in 9.0s (compile: 90ms, proxy.ts: 8.0s, render: 953ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 43s (compile: 333ms, proxy.ts: 8.0s, render: 35.2s)
+ GET /admin 200 in 36.4s (compile: 133ms, proxy.ts: 1001ms, render: 35.3s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 38.3s (compile: 31.4s, proxy.ts: 973ms, render: 6.0s)
+ GET / 200 in 4.4s (compile: 65ms, proxy.ts: 213ms, render: 4.1s)
+ GET / 200 in 49s (compile: 13ms, proxy.ts: 118ms, render: 49s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /admin 200 in 2.7s (compile: 7ms, proxy.ts: 26ms, render: 2.7s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 2.9s (compile: 27ms, proxy.ts: 22ms, render: 2.9s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET / 200 in 6.2s (compile: 460ms, proxy.ts: 65ms, render: 5.6s)
+ GET /admin 200 in 4.6s (compile: 88ms, proxy.ts: 126ms, render: 4.4s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 4.8s (compile: 479ms, proxy.ts: 118ms, render: 4.2s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET / 200 in 4.7s (compile: 151ms, proxy.ts: 57ms, render: 4.5s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /admin 200 in 5.7s (compile: 64ms, proxy.ts: 601ms, render: 5.0s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 8.3s (compile: 412ms, proxy.ts: 594ms, render: 7.3s)
+○ Compiling /api/newsletter ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ POST /api/newsletter 200 in 9.5s (compile: 4.9s, proxy.ts: 12ms, render: 4.6s)
+ GET / 200 in 4.7s (compile: 284ms, proxy.ts: 67ms, render: 4.4s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /admin 200 in 5.4s (compile: 916ms, proxy.ts: 84ms, render: 4.4s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.5s (compile: 1166ms, proxy.ts: 102ms, render: 4.3s)
+○ Compiling /api/currency/rates ...
+ GET /api/currency/rates 200 in 5.2s (compile: 3.7s, proxy.ts: 1408ms, render: 48ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /admin 200 in 4.9s (compile: 599ms, proxy.ts: 80ms, render: 4.2s)
+ GET /api/currency/rates 200 in 79ms (compile: 7ms, proxy.ts: 51ms, render: 22ms)
+ GET / 200 in 5.2s (compile: 116ms, proxy.ts: 76ms, render: 5.0s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.0s (compile: 851ms, proxy.ts: 84ms, render: 5.0s)
+ GET /api/currency/rates 200 in 42ms (compile: 7ms, proxy.ts: 23ms, render: 11ms)
+ GET /api/currency/rates 200 in 971ms (compile: 11ms, proxy.ts: 951ms, render: 9ms)
+ GET /api/currency/rates 200 in 38ms (compile: 8ms, proxy.ts: 18ms, render: 12ms)
+ GET /api/currency/rates 200 in 42ms (compile: 7ms, proxy.ts: 26ms, render: 9ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.3s (compile: 30ms, proxy.ts: 434ms, render: 4.8s)
+○ Compiling /api/currency/rates ...
+ GET / 200 in 8.6s (compile: 14ms, proxy.ts: 38ms, render: 8.6s)
+ GET /admin 200 in 9.3s (compile: 10ms, proxy.ts: 47ms, render: 9.3s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 10.6s (compile: 10.1s, proxy.ts: 230ms, render: 255ms)
+ GET /api/currency/rates 200 in 10.6s (compile: 10.2s, proxy.ts: 185ms, render: 297ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 15.0s (compile: 10.2s, proxy.ts: 182ms, render: 4.6s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.4s (compile: 83ms, proxy.ts: 79ms, render: 6.2s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.8s (compile: 22ms, proxy.ts: 48ms, render: 6.8s)
+ GET /api/currency/rates 200 in 537ms (compile: 401ms, proxy.ts: 64ms, render: 73ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 292ms (compile: 219ms, proxy.ts: 49ms, render: 24ms)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 2.0s (compile: 136ms, proxy.ts: 60ms, render: 1825ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET / 200 in 17.8s (compile: 231ms, proxy.ts: 49ms, render: 17.5s)
+ GET /admin 200 in 22.1s (compile: 403ms, proxy.ts: 2.3s, render: 19.4s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 16.3s (compile: 1952ms, proxy.ts: 2.7s, render: 11.6s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ GET /api/currency/rates 200 in 88ms (compile: 12ms, proxy.ts: 33ms, render: 43ms)
+ POST / 200 in 263ms (compile: 126ms, proxy.ts: 30ms, render: 108ms)
+ GET / 200 in 10.9s (compile: 299ms, proxy.ts: 688ms, render: 9.9s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.4s (compile: 43ms, proxy.ts: 72ms, render: 5.3s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /api/currency/rates 200 in 73ms (compile: 23ms, proxy.ts: 37ms, render: 12ms)
+ GET /api/currency/rates 200 in 60ms (compile: 7ms, proxy.ts: 42ms, render: 12ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 85ms (compile: 33ms, proxy.ts: 27ms, render: 25ms)
+ POST /admin 200 in 69ms (compile: 13ms, proxy.ts: 34ms, render: 21ms)
+ GET / 200 in 3.7s (compile: 10ms, proxy.ts: 37ms, render: 3.7s)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 3.2s (compile: 23ms, proxy.ts: 25ms, render: 3.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /api/currency/rates 200 in 45ms (compile: 5ms, proxy.ts: 31ms, render: 9ms)
+ POST / 200 in 73ms (compile: 9ms, proxy.ts: 26ms, render: 38ms)
+○ Compiling /account ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET /account 200 in 20.2s (compile: 19.3s, proxy.ts: 15ms, render: 974ms)
+ GET /account 200 in 2.7s (compile: 11ms, proxy.ts: 41ms, render: 2.6s)
+ GET /admin 200 in 3.5s (compile: 47ms, proxy.ts: 25ms, render: 3.4s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 4.3s (compile: 200ms, proxy.ts: 52ms, render: 4.0s)
+ GET /products?category=Health+%26+Care 200 in 6.4s (compile: 39ms, proxy.ts: 25ms, render: 6.3s)
+ GET /products?category=Health+%26+Care 200 in 1820ms (compile: 26ms, proxy.ts: 61ms, render: 1733ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 3.8s (compile: 27ms, proxy.ts: 30ms, render: 3.8s)
+ GET /admin 200 in 4.4s (compile: 9ms, proxy.ts: 870ms, render: 3.5s)
+○ Compiling /api/newsletter ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ POST /api/newsletter 200 in 10.2s (compile: 5.3s, proxy.ts: 20ms, render: 4.9s)
+ GET /products?category=Health+%26+Care 200 in 5.3s (compile: 216ms, proxy.ts: 53ms, render: 5.0s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 3.0s (compile: 94ms, proxy.ts: 513ms, render: 2.4s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /admin 200 in 5.1s (compile: 42ms, proxy.ts: 1034ms, render: 4.0s)
+ GET /products?category=Health+%26+Care&path=Health+%26+Care+%3E+Veterinary+Instruments 200 in 3.0s (compile: 7ms, proxy.ts: 16ms, render: 3.0s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /admin 200 in 4.5s (compile: 190ms, proxy.ts: 192ms, render: 4.2s)
+ GET /products?category=Health+%26+Care&path=Health+%26+Care+%3E+Veterinary+Instruments 200 in 4.3s (compile: 59ms, proxy.ts: 467ms, render: 3.8s)
+ GET /products?category=Health+%26+Care&path=Health+%26+Care+%3E+Veterinary+Instruments 200 in 6.7s (compile: 232ms, proxy.ts: 926ms, render: 5.5s)
+ GET /admin 200 in 2.2s (compile: 25ms, proxy.ts: 23ms, render: 2.2s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 3.2s (compile: 68ms, proxy.ts: 36ms, render: 3.0s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 3.5s (compile: 58ms, proxy.ts: 27ms, render: 3.4s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /products?category=Health+%26+Care&path=Health+%26+Care+%3E+Veterinary+Instruments 200 in 6.8s (compile: 1497ms, proxy.ts: 104ms, render: 5.2s)
+ GET /admin 200 in 4.3s (compile: 78ms, proxy.ts: 29ms, render: 4.1s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 2.7s (compile: 94ms, proxy.ts: 26ms, render: 2.5s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+Clerk: Refreshing the session token resulted in an infinite redirect loop. This usually means that your Clerk instance keys do not match - make sure to copy the correct publishable and secret keys from the Clerk dashboard.
+ GET /products?category=Health+%26+Care 200 in 6.4s (compile: 13ms, proxy.ts: 23ms, render: 6.4s)
+○ Compiling /api/currency/rates ...
+ GET /products?category=Health%20%26%20Care&path=Health%20%26%20Care%20%3E%20Veterinary%20Instruments 200 in 4.3s (compile: 13ms, proxy.ts: 17ms, render: 4.3s)
+ GET /api/currency/rates 200 in 12.6s (compile: 12.4s, proxy.ts: 33ms, render: 80ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ POST /products?category=Health+%26+Care 200 in 1823ms (compile: 287ms, proxy.ts: 597ms, render: 939ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /api/currency/rates 200 in 4.5s (compile: 960ms, proxy.ts: 3.5s, render: 20ms)
+ GET /products?category=Health+%26+Care 200 in 8.1s (compile: 66ms, proxy.ts: 77ms, render: 7.9s)
+ POST /products?category=Health%20%26%20Care&path=Health%20%26%20Care%20%3E%20Veterinary%20Instruments 200 in 5.3s (compile: 1234ms, proxy.ts: 3.6s, render: 494ms)
+ GET /products?category=Health+%26+Care 200 in 7.6s (compile: 2.8s, proxy.ts: 859ms, render: 3.9s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 11.3s (compile: 1235ms, proxy.ts: 631ms, render: 9.4s)
+ GET /admin 200 in 11.3s (compile: 508ms, proxy.ts: 622ms, render: 10.2s)
+ GET /api/currency/rates 200 in 133ms (compile: 7ms, proxy.ts: 31ms, render: 96ms)
+ POST /products?category=Health+%26+Care 200 in 176ms (compile: 24ms, proxy.ts: 21ms, render: 132ms)
+Clerk: Refreshing the session token resulted in an infinite redirect loop. This usually means that your Clerk instance keys do not match - make sure to copy the correct publishable and secret keys from the Clerk dashboard.
+ GET /products?category=Health+%26+Care 200 in 4.3s (compile: 10ms, proxy.ts: 32ms, render: 4.3s)
+ GET /api/currency/rates 200 in 108ms (compile: 12ms, proxy.ts: 18ms, render: 79ms)
+ POST /products?category=Health+%26+Care 200 in 152ms (compile: 16ms, proxy.ts: 34ms, render: 102ms)
+ GET /api/currency/rates 200 in 69ms (compile: 9ms, proxy.ts: 47ms, render: 12ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 672ms (compile: 74ms, proxy.ts: 459ms, render: 139ms)
+ POST /admin 200 in 91ms (compile: 7ms, proxy.ts: 17ms, render: 68ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+ GET /api/currency/rates 200 in 733ms (compile: 191ms, proxy.ts: 432ms, render: 110ms)
+ GET /products?category=Health+%26+Care&path=Health+%26+Care+%3E+Veterinary+Instruments 200 in 6.3s (compile: 483ms, proxy.ts: 379ms, render: 5.4s)
+ GET /products?category=Health+%26+Care 200 in 6.8s (compile: 517ms, proxy.ts: 347ms, render: 5.9s)
+ GET /products?category=Health+%26+Care 200 in 6.8s (compile: 488ms, proxy.ts: 376ms, render: 6.0s)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 15.9s (compile: 8.6s, proxy.ts: 28ms, render: 7.2s)
+ GET /admin 200 in 3.3s (compile: 65ms, proxy.ts: 36ms, render: 3.2s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 4.1s (compile: 79ms, proxy.ts: 225ms, render: 3.8s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+Clerk: Refreshing the session token resulted in an infinite redirect loop. This usually means that your Clerk instance keys do not match - make sure to copy the correct publishable and secret keys from the Clerk dashboard.
+ GET /products?category=Health+%26+Care 200 in 5.4s (compile: 8ms, proxy.ts: 23ms, render: 5.3s)
+ GET /api/currency/rates 200 in 2.6s (compile: 81ms, proxy.ts: 2.4s, render: 34ms)
+ POST /products?category=Health+%26+Care 200 in 2.6s (compile: 112ms, proxy.ts: 2.5s, render: 57ms)
+ GET /products?category=Health+%26+Care 200 in 16.0s (compile: 1196ms, proxy.ts: 1053ms, render: 13.7s)
+ GET /products?category=Health+%26+Care 200 in 16.0s (compile: 1534ms, proxy.ts: 710ms, render: 13.8s)
+ GET /products?category=Health%20%26%20Care&path=Health%20%26%20Care%20%3E%20Veterinary%20Instruments 200 in 16.0s (compile: 1295ms, proxy.ts: 954ms, render: 13.8s)
+ GET /admin 200 in 10.3s (compile: 1515ms, proxy.ts: 1703ms, render: 7.1s)
+ GET /api/currency/rates 200 in 759ms (compile: 376ms, proxy.ts: 73ms, render: 310ms)
+ GET /api/currency/rates 200 in 1253ms (compile: 276ms, proxy.ts: 884ms, render: 93ms)
+ GET /api/currency/rates 200 in 1254ms (compile: 187ms, proxy.ts: 974ms, render: 93ms)
+ POST /products?category=Health%20%26%20Care&path=Health%20%26%20Care%20%3E%20Veterinary%20Instruments 200 in 1797ms (compile: 344ms, proxy.ts: 934ms, render: 520ms)
+ POST /products?category=Health+%26+Care 200 in 1848ms (compile: 341ms, proxy.ts: 937ms, render: 570ms)
+ POST /products?category=Health+%26+Care 200 in 1288ms (compile: -184151µs, proxy.ts: 816ms, render: 657ms)
+Clerk: Refreshing the session token resulted in an infinite redirect loop. This usually means that your Clerk instance keys do not match - make sure to copy the correct publishable and secret keys from the Clerk dashboard.
+ GET /products?category=Health+%26+Care 200 in 6.2s (compile: 6ms, proxy.ts: 34ms, render: 6.1s)
+ GET /api/currency/rates 200 in 160ms (compile: 30ms, proxy.ts: 26ms, render: 103ms)
+ POST /products?category=Health+%26+Care 200 in 262ms (compile: 11ms, proxy.ts: 37ms, render: 213ms)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.7s (compile: 129ms, proxy.ts: 1019ms, render: 4.6s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /products?category=Health+%26+Care&path=Health+%26+Care+%3E+Veterinary+Instruments 200 in 6.2s (compile: 929ms, proxy.ts: 270ms, render: 5.0s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /products?category=Health+%26+Care&path=Health+%26+Care+%3E+Veterinary+Instruments 200 in 7.2s (compile: 1317ms, proxy.ts: 189ms, render: 5.7s)
+ GET /products?category=Health%20%26%20Care&path=Health%20%26%20Care%20%3E%20Veterinary%20Instruments 200 in 4.2s (compile: 10ms, proxy.ts: 22ms, render: 4.2s)
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /api/currency/rates 200 in 13.2s (compile: 12.6s, proxy.ts: 570ms, render: 78ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 379ms (compile: 193ms, proxy.ts: 26ms, render: 160ms)
+ GET /api/currency/rates 200 in 86ms (compile: 30ms, proxy.ts: 36ms, render: 21ms)
+ GET /api/currency/rates 200 in 87ms (compile: 21ms, proxy.ts: 44ms, render: 22ms)
+ POST /admin 200 in 148ms (compile: 43ms, proxy.ts: 80ms, render: 25ms)
+ POST /admin 200 in 89ms (compile: 8ms, proxy.ts: 58ms, render: 23ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 17.5s (compile: 12.5s, proxy.ts: 599ms, render: 4.4s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 4.8s (compile: 34ms, proxy.ts: 37ms, render: 4.7s)
+ GET /admin 200 in 3.2s (compile: 10ms, proxy.ts: 38ms, render: 3.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /api/currency/rates 200 in 75ms (compile: 22ms, proxy.ts: 39ms, render: 15ms)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 8.8s (compile: 39ms, proxy.ts: 181ms, render: 8.6s)
+ GET /admin 200 in 9.0s (compile: 26ms, proxy.ts: 34ms, render: 8.9s)
+ POST /products?category=Health%20%26%20Care&path=Health%20%26%20Care%20%3E%20Veterinary%20Instruments 200 in 138ms (compile: 74ms, proxy.ts: 29ms, render: 34ms)
+ GET /api/currency/rates 200 in 84ms (compile: 6ms, proxy.ts: 64ms, render: 14ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 118ms (compile: 49ms, proxy.ts: 38ms, render: 32ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 5.4s (compile: 14ms, proxy.ts: 43ms, render: 5.3s)
+ GET /products?category=Health+%26+Care 200 in 3.1s (compile: 11ms, proxy.ts: 34ms, render: 3.1s)
+ GET /api/currency/rates 200 in 51ms (compile: 6ms, proxy.ts: 34ms, render: 11ms)
+ GET /api/currency/rates 200 in 49ms (compile: 6ms, proxy.ts: 33ms, render: 10ms)
+ POST /admin 200 in 56ms (compile: 12ms, proxy.ts: 19ms, render: 25ms)
+ POST /admin 200 in 45ms (compile: 7ms, proxy.ts: 21ms, render: 17ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ GET /admin 200 in 6.0s (compile: 121ms, proxy.ts: 1895ms, render: 4.0s)
+ GET /products?category=Health+%26+Care 200 in 4.2s (compile: 80ms, proxy.ts: 434ms, render: 3.6s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.8s (compile: 676ms, proxy.ts: 37ms, render: 6.0s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET /products?category=Health+%26+Care 200 in 4.4s (compile: 70ms, proxy.ts: 49ms, render: 4.3s)
+ GET /admin 200 in 4.4s (compile: 459ms, proxy.ts: 55ms, render: 3.9s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.4s (compile: 409ms, proxy.ts: 60ms, render: 6.0s)
+○ Compiling /api/currency/rates ...
+ GET /api/currency/rates 200 in 55s (compile: 53s, proxy.ts: 27ms, render: 2.0s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /api/currency/rates 200 in 10.3s (compile: 390ms, proxy.ts: 9.9s, render: 35ms)
+ GET /api/currency/rates 200 in 10.3s (compile: 383ms, proxy.ts: 9.9s, render: 80ms)
+ GET /admin 200 in 17.7s (compile: 136ms, proxy.ts: 9.6s, render: 8.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET /products?category=Health%20%26%20Care 200 in 22.5s (compile: 708ms, proxy.ts: 5.4s, render: 16.4s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 27.3s (compile: 492ms, proxy.ts: 9.5s, render: 17.3s)
+ GET /api/currency/rates 200 in 47ms (compile: 7ms, proxy.ts: 23ms, render: 16ms)
+ POST /admin 200 in 56ms (compile: 9ms, proxy.ts: 21ms, render: 26ms)
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /api/currency/rates 200 in 6.2s (compile: 6.1s, proxy.ts: 57ms, render: 51ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 546ms (compile: 149ms, proxy.ts: 291ms, render: 106ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 13.0s (compile: 6.2s, proxy.ts: 24ms, render: 6.8s)
+ GET /admin 200 in 4.9s (compile: 42ms, proxy.ts: 31ms, render: 4.9s)
+ GET /products?category=Health+%26+Care 200 in 13.0s (compile: 56ms, proxy.ts: 13ms, render: 13.0s)
+ GET /api/currency/rates 200 in 33ms (compile: 5ms, proxy.ts: 18ms, render: 10ms)
+ POST /products?category=Health%20%26%20Care 200 in 55ms (compile: 9ms, proxy.ts: 29ms, render: 17ms)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 22.4s (compile: 28ms, proxy.ts: 26ms, render: 22.3s)
+ GET / 200 in 4.5s (compile: 29ms, proxy.ts: 19ms, render: 4.4s)
+ GET /products?category=Health+%26+Care 200 in 2.8s (compile: 7ms, proxy.ts: 36ms, render: 2.7s)
+ GET / 200 in 2.8s (compile: 9ms, proxy.ts: 16ms, render: 2.8s)
+○ Compiling /account ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /account 200 in 5.6s (compile: 5.1s, proxy.ts: 30ms, render: 503ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /account 200 in 2.5s (compile: 15ms, proxy.ts: 56ms, render: 2.4s)
+ GET /admin 200 in 4.0s (compile: 36ms, proxy.ts: 583ms, render: 3.4s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 4.5s (compile: 165ms, proxy.ts: 584ms, render: 3.7s)
+ GET / 200 in 5.0s (compile: 50ms, proxy.ts: 44ms, render: 5.0s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+○ Compiling /api/currency/rates ...
+ GET /admin 200 in 6.5s (compile: 21ms, proxy.ts: 31ms, render: 6.4s)
+ GET /api/currency/rates 200 in 6.5s (compile: 6.4s, proxy.ts: 17ms, render: 50ms)
+ POST / 200 in 614ms (compile: 125ms, proxy.ts: 402ms, render: 87ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 500 in 12.1s (compile: 162ms, proxy.ts: 34ms, render: 11.9s)
+○ Compiling /wishlist ...
+ GET / 200 in 6.2s (compile: 11ms, proxy.ts: 26ms, render: 6.2s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /wishlist 200 in 10.3s (compile: 9.7s, proxy.ts: 98ms, render: 565ms)
+ GET /admin 200 in 8.1s (compile: 78ms, proxy.ts: 52ms, render: 8.0s)
+ GET / 200 in 9.4s (compile: 31ms, proxy.ts: 993ms, render: 8.4s)
+ GET /api/currency/rates 200 in 136ms (compile: 38ms, proxy.ts: 78ms, render: 21ms)
+ GET /api/currency/rates 200 in 351ms (compile: 238ms, proxy.ts: 99ms, render: 15ms)
+ GET /admin 200 in 8.6s (compile: 738ms, proxy.ts: 1313ms, render: 6.5s)
+ GET /api/currency/rates 200 in 122ms (compile: 28ms, proxy.ts: 79ms, render: 14ms)
+ POST / 200 in 85ms (compile: 16ms, proxy.ts: 43ms, render: 25ms)
+○ Compiling /api/search ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /api/search?mode=suggestions&q=1001 200 in 8.0s (compile: 31ms, proxy.ts: 535ms, render: 7.4s)
+ GET / 200 in 8.0s (compile: 182ms, proxy.ts: 115ms, render: 7.7s)
+○ Compiling /api/r2-images/[...key] ...
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 13.0s (compile: 1285ms, proxy.ts: 118ms, render: 11.6s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET / 200 in 11.3s (compile: 719ms, proxy.ts: 1684ms, render: 8.9s)
+ GET /api/r2-images/eqm-/images/4c89f229eacfdc8ff2531d18881b9080897da588e8a0d14f3eb13198803f9cf8.png 200 in 49s (compile: 44s, proxy.ts: 123ms, render: 4.8s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.6s (compile: 1933ms, proxy.ts: 76ms, render: 4.5s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /api/r2-images/eqm-/images/d0a3db7207114d75c300256be471adc1d3128a60554bf63cf8f1b96c68572b00.png 200 in 1801ms (compile: 226ms, proxy.ts: 342ms, render: 1233ms)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 2.2s (compile: 91ms, proxy.ts: 326ms, render: 1819ms)
+ GET /api/r2-images/eqm-/images/ac715693fd9a07bb992d0f18472ec72d866817e60fcfbb121e1d48014cc282cf.png 200 in 2.9s (compile: 235ms, proxy.ts: 333ms, render: 2.3s)
+ GET /api/r2-images/eqm-/equinemates-cnc-monogram-junior-cow-horse-bit-triple-joint-dogbone-with-copper-roller-precision-cut-stainless-steel-western-riding-bit-classic-western-bit/2026-05-23/3a478686-sts_1571-copyf.jpg 200 in 4.1s (compile: 218ms, proxy.ts: 350ms, render: 3.5s)
+ GET /api/r2-images/eqm-/images/274097a70a085e767ae0c40d1885ed87c100693ebec60b6441307c3da9c6e524.png 200 in 4.6s (compile: 231ms, proxy.ts: 337ms, render: 4.1s)
+Clerk: Refreshing the session token resulted in an infinite redirect loop. This usually means that your Clerk instance keys do not match - make sure to copy the correct publishable and secret keys from the Clerk dashboard.
+ GET / 200 in 3.7s (compile: 8ms, proxy.ts: 23ms, render: 3.7s)
+ GET /api/currency/rates 200 in 52ms (compile: 9ms, proxy.ts: 27ms, render: 16ms)
+ POST / 200 in 54ms (compile: 9ms, proxy.ts: 24ms, render: 21ms)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 3.8s (compile: 29ms, proxy.ts: 24ms, render: 3.7s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /account 200 in 148ms (compile: 44ms, proxy.ts: 30ms, render: 74ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET / 200 in 7.8s (compile: 268ms, proxy.ts: 31ms, render: 7.5s)
+ GET /api/currency/rates 200 in 105ms (compile: 57ms, proxy.ts: 28ms, render: 20ms)
+ POST / 200 in 265ms (compile: 111ms, proxy.ts: 23ms, render: 131ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /account 200 in 2.0s (compile: 37ms, proxy.ts: 28ms, render: 1953ms)
+ POST /admin 200 in 95ms (compile: 48ms, proxy.ts: 19ms, render: 28ms)
+ GET /api/currency/rates 200 in 755ms (compile: 6ms, proxy.ts: 736ms, render: 13ms)
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /api/currency/rates 200 in 4.9s (compile: 30ms, proxy.ts: 4.8s, render: 49ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 1027ms (compile: 531ms, proxy.ts: 342ms, render: 154ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 9.6s (compile: 4.8s, proxy.ts: 35ms, render: 4.8s)
+ GET / 200 in 5.5s (compile: 159ms, proxy.ts: 345ms, render: 5.0s)
+ GET / 200 in 4.7s (compile: 24ms, proxy.ts: 41ms, render: 4.6s)
+ GET /admin 200 in 6.1s (compile: 585ms, proxy.ts: 103ms, render: 5.4s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.7s (compile: 139ms, proxy.ts: 44ms, render: 5.6s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /account 200 in 3.9s (compile: 46ms, proxy.ts: 171ms, render: 3.7s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.1s (compile: 35ms, proxy.ts: 153ms, render: 4.9s)
+ GET /admin 200 in 5.3s (compile: 15ms, proxy.ts: 26ms, render: 5.3s)
+ GET /api/currency/rates 200 in 577ms (compile: 21ms, proxy.ts: 545ms, render: 11ms)
+ POST /account 200 in 613ms (compile: 35ms, proxy.ts: 552ms, render: 26ms)
+ GET /api/currency/rates 200 in 57ms (compile: 6ms, proxy.ts: 35ms, render: 16ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 94ms (compile: 35ms, proxy.ts: 34ms, render: 25ms)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 5.3s (compile: 9ms, proxy.ts: 23ms, render: 5.3s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ GET /api/currency/rates 200 in 36ms (compile: 6ms, proxy.ts: 19ms, render: 10ms)
+ GET /api/currency/rates 200 in 32ms (compile: 6ms, proxy.ts: 16ms, render: 10ms)
+ POST /admin 200 in 59ms (compile: 7ms, proxy.ts: 31ms, render: 21ms)
+ POST /admin 200 in 42ms (compile: 8ms, proxy.ts: 17ms, render: 18ms)
+ GET / 200 in 4.6s (compile: 8ms, proxy.ts: 575ms, render: 4.0s)
+ GET /api/currency/rates 200 in 38ms (compile: 7ms, proxy.ts: 21ms, render: 10ms)
+ POST / 200 in 46ms (compile: 7ms, proxy.ts: 19ms, render: 20ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ GET /admin 200 in 4.8s (compile: 123ms, proxy.ts: 297ms, render: 4.4s)
+ GET / 200 in 5.1s (compile: 40ms, proxy.ts: 183ms, render: 4.9s)
+ GET / 200 in 5.1s (compile: 56ms, proxy.ts: 192ms, render: 4.8s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.0s (compile: 265ms, proxy.ts: 254ms, render: 5.5s)
+ GET /admin 200 in 6.5s (compile: 319ms, proxy.ts: 199ms, render: 6.0s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 10.9s (compile: 461ms, proxy.ts: 106ms, render: 10.3s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET / 200 in 4.2s (compile: 368ms, proxy.ts: 24ms, render: 3.8s)
+ GET /account 200 in 3.2s (compile: 167ms, proxy.ts: 184ms, render: 2.8s)
+ GET /account 200 in 2.8s (compile: 42ms, proxy.ts: 476ms, render: 2.2s)
+ GET /account 200 in 3.6s (compile: 82ms, proxy.ts: 149ms, render: 3.4s)
+ GET / 200 in 2.8s (compile: 18ms, proxy.ts: 30ms, render: 2.8s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET / 200 in 9.0s (compile: 506ms, proxy.ts: 97ms, render: 8.4s)
+ GET / 200 in 9.1s (compile: 79ms, proxy.ts: 1896ms, render: 7.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET / 200 in 5.5s (compile: 412ms, proxy.ts: 85ms, render: 5.0s)
+ GET / 200 in 5.4s (compile: 68ms, proxy.ts: 1273ms, render: 4.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET / 200 in 5.2s (compile: 424ms, proxy.ts: 177ms, render: 4.6s)
+ GET / 200 in 5.2s (compile: 439ms, proxy.ts: 163ms, render: 4.6s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET / 200 in 5.7s (compile: 381ms, proxy.ts: 299ms, render: 5.0s)
+ GET / 200 in 5.8s (compile: 370ms, proxy.ts: 310ms, render: 5.2s)
+ GET / 200 in 5.7s (compile: 56ms, proxy.ts: 32ms, render: 5.6s)
+ GET / 200 in 8.8s (compile: 2.2s, proxy.ts: 414ms, render: 6.2s)
+ GET / 200 in 10.7s (compile: 2.2s, proxy.ts: 495ms, render: 8.0s)
+ POST / 200 in 1133ms (compile: 396ms, proxy.ts: 633ms, render: 104ms)
+○ Compiling /api/currency/rates ...
+ GET /api/currency/rates 200 in 25.3s (compile: 24.6s, proxy.ts: 611ms, render: 121ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ GET / 200 in 6.4s (compile: 535ms, proxy.ts: 90ms, render: 5.8s)
+ GET / 200 in 8.1s (compile: 16ms, proxy.ts: 41ms, render: 8.0s)
+ GET /api/currency/rates 200 in 108ms (compile: 38ms, proxy.ts: 45ms, render: 24ms)
+ POST / 200 in 195ms (compile: 22ms, proxy.ts: 41ms, render: 133ms)
+Clerk: Refreshing the session token resulted in an infinite redirect loop. This usually means that your Clerk instance keys do not match - make sure to copy the correct publishable and secret keys from the Clerk dashboard.
+ GET / 200 in 7.0s (compile: 9ms, proxy.ts: 34ms, render: 7.0s)
+ GET /api/currency/rates 200 in 64ms (compile: 12ms, proxy.ts: 22ms, render: 30ms)
+ POST / 200 in 67ms (compile: 6ms, proxy.ts: 30ms, render: 31ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.6s (compile: 78ms, proxy.ts: 594ms, render: 5.9s)
+ GET /admin 200 in 4.0s (compile: 50ms, proxy.ts: 29ms, render: 4.0s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET / 200 in 13.1s (compile: 1649ms, proxy.ts: 1043ms, render: 10.4s)
+ GET / 200 in 4.3s (compile: 25ms, proxy.ts: 28ms, render: 4.2s)
+ GET /?codexHeaderSettings=1 200 in 6.2s (compile: 126ms, proxy.ts: 131ms, render: 6.0s)
+○ Compiling /api/currency/rates ...
+ GET /api/currency/rates 200 in 35.4s (compile: 35.3s, proxy.ts: 38ms, render: 77ms)
+ POST /?codexHeaderSettings=1 200 in 1569ms (compile: 371ms, proxy.ts: 1011ms, render: 187ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /?codexHeaderSettings=1 200 in 4.8s (compile: 26ms, proxy.ts: 30ms, render: 4.7s)
+ GET /?codexHeaderSettings=1 200 in 5.9s (compile: 88ms, proxy.ts: 1341ms, render: 4.4s)
+ GET /?codexHeaderSettings=1 200 in 3.9s (compile: 177ms, proxy.ts: 113ms, render: 3.6s)
+ GET /?codexHeaderSettings=1 200 in 4.9s (compile: 24ms, proxy.ts: 38ms, render: 4.8s)
+ GET /api/currency/rates 200 in 78ms (compile: 16ms, proxy.ts: 47ms, render: 16ms)
+ POST /?codexHeaderSettings=1 200 in 116ms (compile: 20ms, proxy.ts: 76ms, render: 20ms)
+○ Compiling /api/currency/rates ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 9.6s (compile: 9.0s, proxy.ts: 304ms, render: 257ms)
+ GET /api/currency/rates 200 in 10.7s (compile: 9.0s, proxy.ts: 1371ms, render: 292ms)
+ GET /api/currency/rates 200 in 123ms (compile: 47ms, proxy.ts: 59ms, render: 17ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 104ms (compile: 42ms, proxy.ts: 30ms, render: 32ms)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 11.7s (compile: 9.1s, proxy.ts: 1364ms, render: 1214ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 3.4s (compile: 12ms, proxy.ts: 37ms, render: 3.3s)
+ GET /?codexHeaderSettings=1 200 in 4.7s (compile: 139ms, proxy.ts: 53ms, render: 4.5s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 1487ms (compile: 40ms, proxy.ts: 40ms, render: 1406ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ GET /admin 200 in 1686ms (compile: 52ms, proxy.ts: 32ms, render: 1603ms)
+ POST /admin 200 in 61ms (compile: 15ms, proxy.ts: 24ms, render: 22ms)
+ POST /admin 200 in 69ms (compile: 17ms, proxy.ts: 26ms, render: 26ms)
+ GET /api/currency/rates 200 in 43ms (compile: 9ms, proxy.ts: 22ms, render: 11ms)
+ GET /api/currency/rates 200 in 43ms (compile: 11ms, proxy.ts: 23ms, render: 9ms)
+ GET /api/currency/rates 200 in 1067ms (compile: 7ms, proxy.ts: 1051ms, render: 9ms)
+ GET /api/currency/rates 200 in 27ms (compile: 5ms, proxy.ts: 16ms, render: 6ms)
+ GET /api/currency/rates 200 in 30ms (compile: 6ms, proxy.ts: 17ms, render: 7ms)
+ GET /api/currency/rates 200 in 728ms (compile: 5ms, proxy.ts: 715ms, render: 8ms)
+ GET /api/currency/rates 200 in 29ms (compile: 6ms, proxy.ts: 16ms, render: 6ms)
+ GET /api/currency/rates 200 in 24ms (compile: 5ms, proxy.ts: 14ms, render: 5ms)
+Clerk: Refreshing the session token resulted in an infinite redirect loop. This usually means that your Clerk instance keys do not match - make sure to copy the correct publishable and secret keys from the Clerk dashboard.
+ GET / 200 in 9.6s (compile: 24ms, proxy.ts: 323ms, render: 9.3s)
+Clerk: Refreshing the session token resulted in an infinite redirect loop. This usually means that your Clerk instance keys do not match - make sure to copy the correct publishable and secret keys from the Clerk dashboard.
+○ Compiling /cart ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ POST / 200 in 2.6s (compile: 207ms, proxy.ts: 1830ms, render: 589ms)
+○ Compiling /api/currency/rates ...
+ GET /?codexHeaderSettings=1 200 in 19.4s (compile: 182ms, proxy.ts: 1855ms, render: 17.3s)
+ GET /admin 200 in 25.4s (compile: 522ms, proxy.ts: 1866ms, render: 23.0s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ GET /api/currency/rates 200 in 38.5s (compile: 31.9s, proxy.ts: 1815ms, render: 4.8s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET / 200 in 24.1s (compile: 2.5s, proxy.ts: 6.9s, render: 14.7s)
+ GET / 200 in 13.7s (compile: 373ms, proxy.ts: 1427ms, render: 11.9s)
+ GET / 200 in 26.1s (compile: 950ms, proxy.ts: 2.1s, render: 23.1s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 72s (compile: 31.9s, proxy.ts: 1873ms, render: 38.0s)
+ GET /api/currency/rates 200 in 525ms (compile: 202ms, proxy.ts: 281ms, render: 42ms)
+ POST / 200 in 647ms (compile: 120ms, proxy.ts: 421ms, render: 106ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /products/health-and-care-veterinary-instruments-restraining-equipment-animal-restraining-tools-1 200 in 8.0s (compile: 170ms, proxy.ts: 397ms, render: 7.5s)
+ GET /api/currency/rates 200 in 461ms (compile: 181ms, proxy.ts: 264ms, render: 15ms)
+ POST /products/health-and-care-veterinary-instruments-restraining-equipment-animal-restraining-tools-1 200 in 976ms (compile: 462ms, proxy.ts: 279ms, render: 235ms)
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ GET /api/catalog/products?slugs=health-and-care-veterinary-instruments-restraining-equipment-animal-restraining-tools-2%2Chealth-and-care-veterinary-instruments-restraining-equipment-animal-restraining-tools-3&exclude=health-and-care-veterinary-instruments-restraining-equipment-animal-restraining-tools-1&limit=2 200 in 47s (compile: 41s, proxy.ts: 260ms, render: 5.3s)
+ GET /?codexHeaderSettings=1 200 in 5.8s (compile: 80ms, proxy.ts: 1441ms, render: 4.3s)
+ GET /products/health-and-care-veterinary-instruments-restraining-equipment-animal-restraining-tools-1 200 in 6.3s (compile: 377ms, proxy.ts: 214ms, render: 5.7s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /api/currency/rates 200 in 810ms (compile: 715ms, proxy.ts: 35ms, render: 60ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 89ms (compile: 31ms, proxy.ts: 34ms, render: 23ms)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 3.0s (compile: 699ms, proxy.ts: 33ms, render: 2.3s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ GET /?codexHeaderSettings=1 200 in 6.5s (compile: 16ms, proxy.ts: 48ms, render: 6.5s)
+ GET /products/health-and-care-veterinary-instruments-restraining-equipment-animal-restraining-tools-1 200 in 7.0s (compile: 38ms, proxy.ts: 29ms, render: 7.0s)
+ GET /api/currency/rates 200 in 64ms (compile: 22ms, proxy.ts: 33ms, render: 10ms)
+ POST /?codexHeaderSettings=1 200 in 100ms (compile: 19ms, proxy.ts: 58ms, render: 23ms)
+ GET /api/currency/rates 200 in 62ms (compile: 22ms, proxy.ts: 31ms, render: 9ms)
+ POST /products/health-and-care-veterinary-instruments-restraining-equipment-animal-restraining-tools-1 200 in 86ms (compile: 39ms, proxy.ts: 26ms, render: 22ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /api/catalog/products?slugs=health-and-care-veterinary-instruments-restraining-equipment-animal-restraining-tools-2%2Chealth-and-care-veterinary-instruments-restraining-equipment-animal-restraining-tools-3&exclude=health-and-care-veterinary-instruments-restraining-equipment-animal-restraining-tools-1&limit=2 200 in 3.9s (compile: 15ms, proxy.ts: 26ms, render: 3.9s)
+ GET /products?category=Health+%26+Care 200 in 6.5s (compile: 69ms, proxy.ts: 850ms, render: 5.6s)
+ GET / 200 in 15.7s (compile: 4.9s, proxy.ts: 1029ms, render: 9.8s)
+ GET /products?category=Pet&path=Pet+%3E+Dog+Products 200 in 3.8s (compile: 19ms, proxy.ts: 443ms, render: 3.4s)
+ GET /products?category=Pet&path=Pet+%3E+Dog+Products+%3E+Dog+Coats+%26+Jackets 200 in 3.2s (compile: 28ms, proxy.ts: 31ms, render: 3.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /?codexHeaderSettings=1 200 in 5.5s (compile: 628ms, proxy.ts: 248ms, render: 4.6s)
+ GET /products?category=Pet&path=Pet+%3E+Dog+Products+%3E+Dog+Coats+%26+Jackets 200 in 6.0s (compile: 1388ms, proxy.ts: 253ms, render: 4.4s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.1s (compile: 407ms, proxy.ts: 162ms, render: 4.5s)
+ GET /admin 200 in 6.9s (compile: 48ms, proxy.ts: 71ms, render: 6.7s)
+ GET /products?category=Horse&path=Horse+%3E+Bits+%26+Tack+%3E+CNC+Bits 200 in 8.5s (compile: 810ms, proxy.ts: 371ms, render: 7.3s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+○ Compiling /api/r2-images/[...key] ...
+ GET /?codexHeaderSettings=1 200 in 10.3s (compile: 407ms, proxy.ts: 137ms, render: 9.7s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ GET /api/r2-images/eqm-/equinemates-cnc-monogram-junior-cow-horse-bit-triple-joint-dogbone-with-copper-roller-precision-cut-stainless-steel-western-riding-bit-classic-western-bit/2026-05-23/3a478686-sts_1571-copyf.jpg 200 in 21.9s (compile: 17.2s, proxy.ts: 73ms, render: 4.6s)
+ GET /api/r2-images/eqm-/images/4c89f229eacfdc8ff2531d18881b9080897da588e8a0d14f3eb13198803f9cf8.png 200 in 22.8s (compile: 17.2s, proxy.ts: 80ms, render: 5.5s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /products?category=Horse&path=Horse+%3E+Bits+%26+Tack+%3E+CNC+Bits 200 in 24.3s (compile: 425ms, proxy.ts: 17.5s, render: 6.4s)
+ GET /products?category=Horse&path=Horse+%3E+Bits+%26+Tack+%3E+CNC+Bits 200 in 10.2s (compile: 232ms, proxy.ts: 1242ms, render: 8.8s)
+ GET /?codexHeaderSettings=1 200 in 12.5s (compile: 681ms, proxy.ts: 1210ms, render: 10.6s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 18.8s (compile: 350ms, proxy.ts: 2.1s, render: 16.3s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.2s (compile: 208ms, proxy.ts: 91ms, render: 5.9s)
+○ Compiling /api/catalog/products ...
+ GET /api/r2-images/eqm-/images/d0a3db7207114d75c300256be471adc1d3128a60554bf63cf8f1b96c68572b00.png 200 in 7.5s (compile: 529ms, proxy.ts: 219ms, render: 6.7s)
+ GET /api/r2-images/eqm-/images/274097a70a085e767ae0c40d1885ed87c100693ebec60b6441307c3da9c6e524.png 200 in 7.8s (compile: 548ms, proxy.ts: 200ms, render: 7.1s)
+ GET /api/r2-images/eqm-/images/ac715693fd9a07bb992d0f18472ec72d866817e60fcfbb121e1d48014cc282cf.png 200 in 8.2s (compile: 535ms, proxy.ts: 213ms, render: 7.5s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 37.8s (compile: 26.3s, proxy.ts: 216ms, render: 11.3s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /?codexHeaderSettings=1 200 in 49s (compile: 24.7s, proxy.ts: 277ms, render: 23.6s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 49s (compile: 24.1s, proxy.ts: 1078ms, render: 23.8s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 49s (compile: 24.1s, proxy.ts: 897ms, render: 23.9s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /?codexHeaderSettings=1 200 in 41s (compile: 179ms, proxy.ts: 30.2s, render: 10.2s)
+ GET /?codexHeaderSettings=1 200 in 9.8s (compile: 276ms, proxy.ts: 187ms, render: 9.3s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 41s (compile: 590ms, proxy.ts: 28.8s, render: 11.5s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 10.6s (compile: 137ms, proxy.ts: 650ms, render: 9.8s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.2s (compile: 16ms, proxy.ts: 488ms, render: 5.7s)
+ GET /?codexHeaderSettings=1 200 in 8.2s (compile: 133ms, proxy.ts: 46ms, render: 8.0s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 8.6s (compile: 15ms, proxy.ts: 1868ms, render: 6.7s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 15.5s (compile: 561ms, proxy.ts: 25ms, render: 14.9s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 13.7s (compile: 27ms, proxy.ts: 365ms, render: 13.3s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 13.2s (compile: 46ms, proxy.ts: 26ms, render: 13.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 14.8s (compile: 1334ms, proxy.ts: 81ms, render: 13.4s)
+ GET /?codexHeaderSettings=1 200 in 15.5s (compile: 629ms, proxy.ts: 68ms, render: 14.8s)
+ GET /?codexHeaderSettings=1 200 in 16.7s (compile: 12ms, proxy.ts: 25ms, render: 16.7s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 16.7s (compile: 120ms, proxy.ts: 32ms, render: 16.6s)
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ GET /api/currency/rates 200 in 24.8s (compile: 23.2s, proxy.ts: 929ms, render: 696ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.0s (compile: 1447ms, proxy.ts: 3.0s, render: 545ms)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 33.3s (compile: 23.3s, proxy.ts: 932ms, render: 9.1s)
+ GET /?codexHeaderSettings=1 200 in 12.0s (compile: 1005ms, proxy.ts: 4.6s, render: 6.3s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 9.8s (compile: 221ms, proxy.ts: 24ms, render: 9.6s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /?codexHeaderSettings=1 200 in 7.1s (compile: 358ms, proxy.ts: 127ms, render: 6.6s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /?codexHeaderSettings=1 200 in 14.1s (compile: 428ms, proxy.ts: 36ms, render: 13.6s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 25.9s (compile: 2.1s, proxy.ts: 481ms, render: 23.3s)
+○ Compiling /api/currency/rates ...
+ GET /api/currency/rates 200 in 17.7s (compile: 17.6s, proxy.ts: 25ms, render: 82ms)
+ POST /?codexHeaderSettings=1 200 in 1891ms (compile: 436ms, proxy.ts: 1184ms, render: 271ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /?codexHeaderSettings=1 200 in 10.2s (compile: 22ms, proxy.ts: 33ms, render: 10.2s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+ GET /?codexHeaderSettings=1 200 in 18.2s (compile: 750ms, proxy.ts: 164ms, render: 17.3s)
+ GET /?codexHeaderSettings=1 200 in 5.8s (compile: 512ms, proxy.ts: 2.1s, render: 3.3s)
+ GET /?codexHeaderSettings=1 200 in 4.0s (compile: 62ms, proxy.ts: 145ms, render: 3.8s)
+ GET /?codexHeaderSettings=1 200 in 9.5s (compile: 208ms, proxy.ts: 494ms, render: 8.8s)
+ GET /api/currency/rates 200 in 78ms (compile: 12ms, proxy.ts: 37ms, render: 29ms)
+ POST /?codexHeaderSettings=1 200 in 135ms (compile: 17ms, proxy.ts: 22ms, render: 97ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 20.2s (compile: 18ms, proxy.ts: 924ms, render: 19.3s)
+ GET /admin 200 in 22.0s (compile: 67ms, proxy.ts: 516ms, render: 21.4s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 21.0s (compile: 70ms, proxy.ts: 487ms, render: 20.5s)
+ GET /?codexSidebarControls=1 200 in 4.9s (compile: 33ms, proxy.ts: 54ms, render: 4.8s)
+ GET /api/currency/rates 200 in 200ms (compile: 18ms, proxy.ts: 151ms, render: 31ms)
+ POST /?codexSidebarControls=1 200 in 116ms (compile: 7ms, proxy.ts: 73ms, render: 36ms)
+ GET /api/currency/rates 200 in 214ms (compile: 104ms, proxy.ts: 80ms, render: 31ms)
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 23.5s (compile: 23.2s, proxy.ts: 85ms, render: 241ms)
+ GET /api/currency/rates 200 in 964ms (compile: 51ms, proxy.ts: 878ms, render: 35ms)
+ POST /admin 200 in 1093ms (compile: 133ms, proxy.ts: 896ms, render: 64ms)
+Clerk: Refreshing the session token resulted in an infinite redirect loop. This usually means that your Clerk instance keys do not match - make sure to copy the correct publishable and secret keys from the Clerk dashboard.
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 31.7s (compile: 23.3s, proxy.ts: 54ms, render: 8.3s)
+ GET /admin 200 in 7.5s (compile: 70ms, proxy.ts: 54ms, render: 7.4s)
+ GET /?codexSidebarControls=1 200 in 9.2s (compile: 204ms, proxy.ts: 101ms, render: 8.9s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 8.0s (compile: 21ms, proxy.ts: 46ms, render: 8.0s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 8.1s (compile: 33ms, proxy.ts: 17ms, render: 8.1s)
+ GET /api/currency/rates 200 in 259ms (compile: 69ms, proxy.ts: 42ms, render: 148ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 100ms (compile: 33ms, proxy.ts: 42ms, render: 25ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 4.5s (compile: 37ms, proxy.ts: 23ms, render: 4.4s)
+ GET /?codexSidebarControls=1 200 in 19.1s (compile: 30ms, proxy.ts: 30ms, render: 19.0s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 18.8s (compile: 27ms, proxy.ts: 18ms, render: 18.7s)
+ GET /admin 200 in 19.1s (compile: 116ms, proxy.ts: 41ms, render: 18.9s)
+ GET /api/currency/rates 200 in 874ms (compile: 351ms, proxy.ts: 456ms, render: 67ms)
+ POST /?codexSidebarControls=1 200 in 965ms (compile: 104ms, proxy.ts: 730ms, render: 132ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+○ Compiling /api/currency/rates ...
+ GET /?codexSidebarControls=1 200 in 10.8s (compile: 784ms, proxy.ts: 623ms, render: 9.4s)
+ GET /api/currency/rates 200 in 14.7s (compile: 14.5s, proxy.ts: 118ms, render: 102ms)
+ POST /admin 200 in 2.5s (compile: 804ms, proxy.ts: 1281ms, render: 376ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET /?codexSidebarControls=1 200 in 12.1s (compile: 1066ms, proxy.ts: 279ms, render: 10.7s)
+ GET /admin 200 in 9.9s (compile: 55ms, proxy.ts: 168ms, render: 9.6s)
+ GET /admin 200 in 9.3s (compile: 918ms, proxy.ts: 1975ms, render: 6.4s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /?codexSidebarControls=1 200 in 6.8s (compile: 909ms, proxy.ts: 370ms, render: 5.5s)
+ GET /admin 200 in 1902ms (compile: 95ms, proxy.ts: 25ms, render: 1781ms)
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+○ Compiling /api/currency/rates ...
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 26.2s (compile: 21.2s, proxy.ts: 21ms, render: 4.9s)
+ GET /api/currency/rates 200 in 32.3s (compile: 10.7s, proxy.ts: 21.5s, render: 148ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+ GET /admin 200 in 16.5s (compile: 221ms, proxy.ts: 10.6s, render: 5.7s)
+ GET /?codexSidebarControls=1 200 in 5.9s (compile: 386ms, proxy.ts: 128ms, render: 5.4s)
+ GET /?codexSidebarControls=1 200 in 18.2s (compile: 1374ms, proxy.ts: 10.6s, render: 6.2s)
+ GET /admin 200 in 6.8s (compile: 79ms, proxy.ts: 118ms, render: 6.6s)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 198ms (compile: 101ms, proxy.ts: 27ms, render: 70ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.3s (compile: 26ms, proxy.ts: 21ms, render: 5.3s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.6s (compile: 13ms, proxy.ts: 17ms, render: 5.6s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.2s (compile: 15ms, proxy.ts: 33ms, render: 6.2s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 7.0s (compile: 16ms, proxy.ts: 25ms, render: 6.9s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 12.7s (compile: 94ms, proxy.ts: 38ms, render: 12.6s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET /products/alpine-guard-turnout-blanket?codexMobileGallery=1 404 in 6.2s (compile: 46ms, proxy.ts: 42ms, render: 6.1s)
+ GET /api/currency/rates 200 in 628ms (compile: 227ms, proxy.ts: 348ms, render: 53ms)
+ POST /products/alpine-guard-turnout-blanket?codexMobileGallery=1 200 in 2.6s (compile: 1986ms, proxy.ts: 356ms, render: 228ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /admin 200 in 9.0s (compile: 23ms, proxy.ts: 38ms, render: 9.0s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 9.2s (compile: 239ms, proxy.ts: 112ms, render: 8.9s)
+ GET /api/currency/rates 200 in 112ms (compile: 20ms, proxy.ts: 70ms, render: 21ms)
+○ Compiling /api/search ...
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 7.3s (compile: 20ms, proxy.ts: 28ms, render: 7.2s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /api/search?q=a 200 in 15.0s (compile: 12.6s, proxy.ts: 17ms, render: 2.4s)
+ GET /api/search?q=bit 200 in 3.0s (compile: 28ms, proxy.ts: 498ms, render: 2.5s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ GET /products/alpine-guard-turnout-blanket?codexMobileGallery=1 200 in 8.4s (compile: 395ms, proxy.ts: 73ms, render: 8.0s)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 77ms (compile: 30ms, proxy.ts: 25ms, render: 22ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 3.0s (compile: 33ms, proxy.ts: 23ms, render: 2.9s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /?codexFindProduct=1 200 in 9.3s (compile: 45ms, proxy.ts: 32ms, render: 9.2s)
+ GET /api/currency/rates 200 in 127ms (compile: 16ms, proxy.ts: 27ms, render: 84ms)
+ POST /?codexFindProduct=1 200 in 2.0s (compile: 1608ms, proxy.ts: 99ms, render: 342ms)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.0s (compile: 129ms, proxy.ts: 41ms, render: 4.8s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /admin 200 in 4.5s (compile: 21ms, proxy.ts: 102ms, render: 4.4s)
+ GET /admin 200 in 5.9s (compile: 89ms, proxy.ts: 25ms, render: 5.7s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /products/horse-trail-and-outdoor-gear-all-purpose-saddles-1?codexMobileGallery=1 200 in 10.9s (compile: 27ms, proxy.ts: 327ms, render: 10.5s)
+ GET /api/currency/rates 200 in 211ms (compile: 72ms, proxy.ts: 97ms, render: 42ms)
+ POST /products/horse-trail-and-outdoor-gear-all-purpose-saddles-1?codexMobileGallery=1 200 in 129ms (compile: 70ms, proxy.ts: 33ms, render: 26ms)
+ GET /api/catalog/products?slugs=horse-trail-and-outdoor-gear-all-purpose-saddles-2%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-3&exclude=horse-trail-and-outdoor-gear-all-purpose-saddles-1&limit=2 200 in 1648ms (compile: 36ms, proxy.ts: 93ms, render: 1519ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ POST /admin 200 in 47ms (compile: 8ms, proxy.ts: 20ms, render: 19ms)
+ GET /api/currency/rates 200 in 64ms (compile: 10ms, proxy.ts: 43ms, render: 11ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 64ms (compile: 25ms, proxy.ts: 18ms, render: 20ms)
+ GET /api/currency/rates 200 in 756ms (compile: 6ms, proxy.ts: 738ms, render: 12ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 2.8s (compile: 9ms, proxy.ts: 21ms, render: 2.8s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /products/horse-trail-and-outdoor-gear-all-purpose-saddles-1?codexMobileGallery=1 200 in 6.6s (compile: 991ms, proxy.ts: 238ms, render: 5.4s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /admin 200 in 3.3s (compile: 56ms, proxy.ts: 27ms, render: 3.2s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 3.7s (compile: 46ms, proxy.ts: 84ms, render: 3.6s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /products/horse-trail-and-outdoor-gear-all-purpose-saddles-1?codexMobileGallery=1 200 in 6.3s (compile: 694ms, proxy.ts: 230ms, render: 5.3s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /admin 200 in 6.4s (compile: 128ms, proxy.ts: 3.0s, render: 3.3s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 4.0s (compile: 38ms, proxy.ts: 18ms, render: 4.0s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+ GET /admin 200 in 7.6s (compile: 197ms, proxy.ts: 75ms, render: 7.3s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 8.7s (compile: 1031ms, proxy.ts: 40ms, render: 7.6s)
+ GET /products/horse-trail-and-outdoor-gear-all-purpose-saddles-1?codexMobileGallery=1 200 in 20.9s (compile: 599ms, proxy.ts: 1239ms, render: 19.0s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (17) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+  Reload env: .env.local
+  Reload env: .env.local
+  Reload env: .env.local
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+○ Compiling /_error ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /admin 200 in 25.4s (compile: 6.3s, proxy.ts: 1592ms, render: 17.5s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 500 in 55s (compile: 48s, proxy.ts: 1591ms, render: 5.1s)
+ GET /products/horse-trail-and-outdoor-gear-all-purpose-saddles-1?codexMobileGallery=1 500 in 55s (compile: 48s, proxy.ts: 1586ms, render: 5.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /products/horse-trail-and-outdoor-gear-all-purpose-saddles-1?codexMobileGallery=1 200 in 16.8s (compile: 492ms, proxy.ts: 465ms, render: 15.8s)
+ GET /products/horse-trail-and-outdoor-gear-all-purpose-saddles-1?codexMobileGallery=1 200 in 12.9s (compile: 262ms, proxy.ts: 4.5s, render: 8.1s)
+ GET /products/horse-trail-and-outdoor-gear-all-purpose-saddles-1?codexMobileGallery=1 200 in 14.8s (compile: 544ms, proxy.ts: 1005ms, render: 13.2s)
+ GET /products/horse-trail-and-outdoor-gear-all-purpose-saddles-1?codexMobileGallery=1 200 in 7.7s (compile: 346ms, proxy.ts: 530ms, render: 6.8s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /admin?codexAdminBg=1 200 in 34.6s (compile: 7.3s, proxy.ts: 6.6s, render: 20.6s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 48s (compile: 733ms, proxy.ts: 2.1s, render: 45s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 37.0s (compile: 141ms, proxy.ts: 1058ms, render: 35.8s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 39.7s (compile: 349ms, proxy.ts: 1281ms, render: 38.1s)
+○ Compiling /_not-found ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ POST /admin?codexAdminBg=1 200 in 4.2s (compile: 240ms, proxy.ts: 3.5s, render: 451ms)
+○ Compiling /api/currency/rates ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 404 in 118s (compile: 96s, proxy.ts: 4.3s, render: 17.6s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 22.2s (compile: 794ms, proxy.ts: 3.5s, render: 17.9s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 22.2s (compile: 797ms, proxy.ts: 3.5s, render: 17.9s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 22.3s (compile: 709ms, proxy.ts: 3.6s, render: 18.0s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 22.3s (compile: 815ms, proxy.ts: 3.5s, render: 18.0s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 22.3s (compile: 744ms, proxy.ts: 3.6s, render: 18.0s)
+ GET /admin?codexAdminBg=2 200 in 24.4s (compile: 222ms, proxy.ts: 3.5s, render: 20.7s)
+Clerk: Refreshing the session token resulted in an infinite redirect loop. This usually means that your Clerk instance keys do not match - make sure to copy the correct publishable and secret keys from the Clerk dashboard.
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.7s (compile: 225ms, proxy.ts: 20ms, render: 5.5s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /admin 200 in 34.5s (compile: 16.0s, proxy.ts: 569ms, render: 17.9s)
+ GET /admin 200 in 13.8s (compile: 2.9s, proxy.ts: 5.0s, render: 5.8s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 46s (compile: 53ms, proxy.ts: 30ms, render: 45s)
+ GET /admin 200 in 24.3s (compile: 3.7s, proxy.ts: 3.0s, render: 17.7s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET /admin?codexAdminBg=2 200 in 7.9s (compile: 203ms, proxy.ts: 1231ms, render: 6.5s)
+○ Compiling /api/currency/rates ...
+ GET /api/currency/rates 200 in 7.2s (compile: 7.1s, proxy.ts: 20ms, render: 66ms)
+ POST /admin?codexAdminBg=2 200 in 2.4s (compile: 278ms, proxy.ts: 1086ms, render: 1054ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ GET /admin?codexAdminBg=2 200 in 6.7s (compile: 10ms, proxy.ts: 785ms, render: 5.9s)
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /admin?codexAdminBg=2 200 in 8.0s (compile: 8ms, proxy.ts: 29ms, render: 7.9s)
+ GET /api/currency/rates 200 in 6.4s (compile: 39ms, proxy.ts: 6.3s, render: 44ms)
+ GET /api/currency/rates 200 in 416ms (compile: 286ms, proxy.ts: 108ms, render: 22ms)
+ GET /api/currency/rates 200 in 417ms (compile: 281ms, proxy.ts: 114ms, render: 22ms)
+ POST /admin 200 in 655ms (compile: 226ms, proxy.ts: 312ms, render: 118ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 806ms (compile: 398ms, proxy.ts: 308ms, render: 100ms)
+ POST /admin 200 in 190ms (compile: 81ms, proxy.ts: 35ms, render: 74ms)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 10.3s (compile: 6.3s, proxy.ts: 20ms, render: 4.0s)
+ GET /api/currency/rates 200 in 42ms (compile: 11ms, proxy.ts: 22ms, render: 10ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ POST /admin?codexAdminBg=2 200 in 50ms (compile: 10ms, proxy.ts: 22ms, render: 17ms)
+ GET /admin 200 in 4.1s (compile: 59ms, proxy.ts: 501ms, render: 3.6s)
+ GET /admin 200 in 5.4s (compile: 18ms, proxy.ts: 29ms, render: 5.3s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.3s (compile: 51ms, proxy.ts: 38ms, render: 5.2s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.4s (compile: 71ms, proxy.ts: 28ms, render: 5.3s)
+ GET /api/currency/rates 200 in 53ms (compile: 7ms, proxy.ts: 34ms, render: 11ms)
+ GET /api/currency/rates 200 in 48ms (compile: 5ms, proxy.ts: 32ms, render: 11ms)
+ POST /admin 200 in 47ms (compile: 7ms, proxy.ts: 20ms, render: 19ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 93ms (compile: 49ms, proxy.ts: 25ms, render: 19ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 5.0s (compile: 5ms, proxy.ts: 20ms, render: 5.0s)
+ GET /admin?codexCategoryLabel=1 200 in 4.5s (compile: 7ms, proxy.ts: 27ms, render: 4.5s)
+ GET /api/currency/rates 200 in 41ms (compile: 7ms, proxy.ts: 25ms, render: 10ms)
+ POST /admin?codexCategoryLabel=1 200 in 72ms (compile: 12ms, proxy.ts: 43ms, render: 17ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /admin?codexCategoryLabel=1 200 in 6.0s (compile: 231ms, proxy.ts: 995ms, render: 4.7s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ GET /admin 200 in 6.3s (compile: 17ms, proxy.ts: 514ms, render: 5.7s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 11.0s (compile: 56ms, proxy.ts: 406ms, render: 10.5s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET /admin?codexCategoryLabel=1 200 in 5.0s (compile: 556ms, proxy.ts: 22ms, render: 4.5s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 2.1s (compile: 88ms, proxy.ts: 22ms, render: 1963ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET /admin 200 in 3.3s (compile: 168ms, proxy.ts: 40ms, render: 3.1s)
+ GET /admin?codexTextCleanup=1 200 in 3.9s (compile: 6ms, proxy.ts: 27ms, render: 3.9s)
+○ Compiling /api/currency/rates ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 11.8s (compile: 46ms, proxy.ts: 32ms, render: 11.7s)
+ GET /api/currency/rates 200 in 15.7s (compile: 15.5s, proxy.ts: 35ms, render: 196ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+ POST /admin?codexTextCleanup=1 200 in 4.0s (compile: 262ms, proxy.ts: 2.2s, render: 1546ms)
+ GET /admin?codexTextCleanup=1 200 in 6.3s (compile: 10ms, proxy.ts: 35ms, render: 6.3s)
+ GET /admin 200 in 10.9s (compile: 256ms, proxy.ts: 2.2s, render: 8.4s)
+○ Compiling /api/catalog/products ...
+ GET /admin?codexTextCleanup=1 200 in 17.0s (compile: 8ms, proxy.ts: 33ms, render: 16.9s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /api/currency/rates 200 in 20.0s (compile: 19.8s, proxy.ts: 39ms, render: 158ms)
+ GET /api/currency/rates 200 in 534ms (compile: -10889µs, proxy.ts: 534ms, render: 11ms)
+ POST /admin 200 in 108ms (compile: 40ms, proxy.ts: 21ms, render: 47ms)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 24.7s (compile: 19.9s, proxy.ts: 24ms, render: 4.8s)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 672ms (compile: 190ms, proxy.ts: 46ms, render: 436ms)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 1117ms (compile: 335ms, proxy.ts: 368ms, render: 415ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET / 200 in 8.8s (compile: 131ms, proxy.ts: 531ms, render: 8.2s)
+ GET /admin 200 in 6.4s (compile: 25ms, proxy.ts: 48ms, render: 6.4s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.3s (compile: 179ms, proxy.ts: 57ms, render: 5.1s)
+ GET /admin 200 in 10.5s (compile: 15ms, proxy.ts: 32ms, render: 10.4s)
+ GET /api/currency/rates 200 in 85ms (compile: 7ms, proxy.ts: 40ms, render: 38ms)
+ POST / 200 in 53ms (compile: 11ms, proxy.ts: 24ms, render: 19ms)
+ GET /api/currency/rates 200 in 71ms (compile: 6ms, proxy.ts: 53ms, render: 11ms)
+ GET /api/currency/rates 200 in 42ms (compile: 6ms, proxy.ts: 24ms, render: 12ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 83ms (compile: 33ms, proxy.ts: 20ms, render: 30ms)
+ POST /admin 200 in 57ms (compile: 8ms, proxy.ts: 32ms, render: 18ms)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 3.1s (compile: 24ms, proxy.ts: 25ms, render: 3.0s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET /admin 200 in 5.5s (compile: 39ms, proxy.ts: 600ms, render: 4.9s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.7s (compile: 55ms, proxy.ts: 372ms, render: 5.3s)
+ GET / 200 in 13.9s (compile: 376ms, proxy.ts: 1655ms, render: 11.9s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ GET / 200 in 4.8s (compile: 359ms, proxy.ts: 24ms, render: 4.5s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 3.3s (compile: 79ms, proxy.ts: 29ms, render: 3.2s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /admin 200 in 1524ms (compile: 37ms, proxy.ts: 16ms, render: 1471ms)
+ GET /?codexClerkContrast=2 200 in 5.4s (compile: 10ms, proxy.ts: 41ms, render: 5.3s)
+○ Compiling /api/currency/rates ...
+ GET /api/currency/rates 200 in 15.4s (compile: 15.2s, proxy.ts: 27ms, render: 137ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ POST /?codexClerkContrast=2 200 in 2.7s (compile: 1004ms, proxy.ts: 1396ms, render: 304ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+○ Compiling /wishlist ...
+ GET /?codexClerkContrast=2 200 in 10.7s (compile: 25ms, proxy.ts: 94ms, render: 10.6s)
+ GET /admin 200 in 23.3s (compile: 251ms, proxy.ts: 1386ms, render: 21.7s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 26.6s (compile: 1133ms, proxy.ts: 1390ms, render: 24.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /wishlist 200 in 38.2s (compile: 36.3s, proxy.ts: 501ms, render: 1419ms)
+ GET /wishlist 200 in 4.4s (compile: 17ms, proxy.ts: 87ms, render: 4.3s)
+ GET /wishlist 200 in 4.9s (compile: 14ms, proxy.ts: 38ms, render: 4.8s)
+ GET /api/currency/rates 200 in 70ms (compile: 17ms, proxy.ts: 24ms, render: 29ms)
+ POST /wishlist 200 in 48ms (compile: 7ms, proxy.ts: 22ms, render: 19ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /wishlist 200 in 5.0s (compile: 345ms, proxy.ts: 1381ms, render: 3.3s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /wishlist 200 in 4.8s (compile: 386ms, proxy.ts: 166ms, render: 4.2s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /admin 200 in 9.5s (compile: 59ms, proxy.ts: 716ms, render: 8.7s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 10.6s (compile: 545ms, proxy.ts: 731ms, render: 9.3s)
+○ Compiling /api/currency/rates ...
+ GET /wishlist 200 in 5.6s (compile: 9ms, proxy.ts: 32ms, render: 5.5s)
+ GET /api/currency/rates 200 in 6.4s (compile: 6.3s, proxy.ts: 27ms, render: 61ms)
+ GET /api/currency/rates 200 in 1649ms (compile: 148ms, proxy.ts: 1490ms, render: 11ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ POST /admin 200 in 2.5s (compile: 373ms, proxy.ts: 1487ms, render: 672ms)
+○ Compiling /api/catalog/products ...
+ GET /wishlist?codexWishlistButtonSpacing=1 200 in 14.8s (compile: 475ms, proxy.ts: 1533ms, render: 12.8s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 21.3s (compile: 19.7s, proxy.ts: 1495ms, render: 129ms)
+ POST /wishlist?codexWishlistButtonSpacing=1 200 in 189ms (compile: 111ms, proxy.ts: 37ms, render: 41ms)
+ GET /api/currency/rates 200 in 615ms (compile: 6ms, proxy.ts: 597ms, render: 12ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 33.1s (compile: 19.7s, proxy.ts: 1469ms, render: 11.9s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 10.6s (compile: 58ms, proxy.ts: 38ms, render: 10.5s)
+ GET /admin 200 in 11.8s (compile: 46ms, proxy.ts: 53ms, render: 11.7s)
+ GET /admin 200 in 17.1s (compile: 187ms, proxy.ts: 709ms, render: 16.2s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 14.9s (compile: 15ms, proxy.ts: 49ms, render: 14.9s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 15.0s (compile: 45ms, proxy.ts: 28ms, render: 15.0s)
+ GET /admin 200 in 11.6s (compile: 9ms, proxy.ts: 28ms, render: 11.6s)
+ GET /api/currency/rates 200 in 36ms (compile: 6ms, proxy.ts: 18ms, render: 12ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 74ms (compile: 25ms, proxy.ts: 26ms, render: 23ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 3.5s (compile: 6ms, proxy.ts: 36ms, render: 3.5s)
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /api/currency/rates 200 in 51ms (compile: 7ms, proxy.ts: 31ms, render: 13ms)
+ POST /admin 200 in 47ms (compile: 7ms, proxy.ts: 21ms, render: 19ms)
+ GET /wishlist?codexWishlistButtonSpacing=1 200 in 2.2s (compile: 8ms, proxy.ts: 17ms, render: 2.2s)
+ GET /api/currency/rates 200 in 92ms (compile: 10ms, proxy.ts: 31ms, render: 50ms)
+ POST /wishlist?codexWishlistButtonSpacing=1 200 in 46ms (compile: 7ms, proxy.ts: 16ms, render: 23ms)
+ GET /products?codexWishlistButtonSpacing=1 200 in 3.9s (compile: 71ms, proxy.ts: 41ms, render: 3.8s)
+ GET /api/currency/rates 200 in 418ms (compile: 167ms, proxy.ts: 208ms, render: 43ms)
+ POST /products?codexWishlistButtonSpacing=1 200 in 284ms (compile: 7ms, proxy.ts: 236ms, render: 42ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET /products?codexWishlistButtonSpacing=1 200 in 12.9s (compile: 325ms, proxy.ts: 2.1s, render: 10.5s)
+ GET /admin 200 in 3.8s (compile: 53ms, proxy.ts: 22ms, render: 3.7s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 4.6s (compile: 75ms, proxy.ts: 453ms, render: 4.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+  Reload env: .env.local
+ GET /products?codexWishlistButtonSpacing=2 200 in 49s (compile: 8ms, proxy.ts: 28ms, render: 49s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET /products?codexWishlistButtonSpacing=2 200 in 9.9s (compile: 659ms, proxy.ts: 679ms, render: 8.5s)
+ GET /products?codexWishlistButtonSpacing=2 200 in 107s (compile: 85ms, proxy.ts: 97s, render: 9.5s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 10.2s (compile: 245ms, proxy.ts: 34ms, render: 9.9s)
+ GET /admin 200 in 8.5s (compile: 276ms, proxy.ts: 27ms, render: 8.2s)
+○ Compiling /api/currency/rates ...
+ GET /api/currency/rates 200 in 5.0s (compile: 4.9s, proxy.ts: 21ms, render: 42ms)
+ POST /products?codexWishlistButtonSpacing=2 200 in 1108ms (compile: 190ms, proxy.ts: 765ms, render: 152ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+ GET /products?codexWishlistButtonSpacing=2 200 in 5.3s (compile: 8ms, proxy.ts: 29ms, render: 5.3s)
+ GET /products?codexWishlistButtonSpacing=2 200 in 4.9s (compile: 19ms, proxy.ts: 42ms, render: 4.9s)
+ GET /api/currency/rates 200 in 70ms (compile: 7ms, proxy.ts: 44ms, render: 20ms)
+ POST /products?codexWishlistButtonSpacing=2 200 in 117ms (compile: 7ms, proxy.ts: 34ms, render: 75ms)
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET /api/currency/rates 200 in 9.7s (compile: 9.6s, proxy.ts: 30ms, render: 117ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 1241ms (compile: 1139ms, proxy.ts: 76ms, render: 26ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 13.8s (compile: 9.6s, proxy.ts: 24ms, render: 4.2s)
+ GET /admin 200 in 4.2s (compile: 834ms, proxy.ts: 79ms, render: 3.3s)
+ GET /products?codexWishlistButtonSpacing=2 200 in 4.6s (compile: 243ms, proxy.ts: 72ms, render: 4.3s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 2.1s (compile: 39ms, proxy.ts: 22ms, render: 2.0s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /admin 200 in 5.5s (compile: 7ms, proxy.ts: 553ms, render: 5.0s)
+ GET /api/currency/rates 200 in 123ms (compile: 31ms, proxy.ts: 67ms, render: 25ms)
+ POST /admin 200 in 159ms (compile: 53ms, proxy.ts: 77ms, render: 30ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /products?codexWishlistButtonSpacing=2 200 in 3.0s (compile: 20ms, proxy.ts: 37ms, render: 2.9s)
+ GET /api/currency/rates 200 in 685ms (compile: 134ms, proxy.ts: 538ms, render: 13ms)
+ POST /products?codexWishlistButtonSpacing=2 200 in 465ms (compile: 58ms, proxy.ts: 359ms, render: 48ms)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.4s (compile: 85ms, proxy.ts: 159ms, render: 6.1s)
+ GET /api/currency/rates 200 in 60ms (compile: 20ms, proxy.ts: 29ms, render: 12ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 81ms (compile: 28ms, proxy.ts: 33ms, render: 20ms)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 1391ms (compile: 15ms, proxy.ts: 22ms, render: 1354ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ GET /products?codexWishlistButtonSpacing=2 200 in 3.9s (compile: 58ms, proxy.ts: 107ms, render: 3.7s)
+ GET /products?codexWishlistButtonSpacing=2 200 in 10.6s (compile: 795ms, proxy.ts: 4.5s, render: 5.2s)
+ GET /admin 200 in 2.4s (compile: 395ms, proxy.ts: 35ms, render: 1943ms)
+ GET /admin 200 in 4.3s (compile: 270ms, proxy.ts: 221ms, render: 3.8s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 2.4s (compile: 207ms, proxy.ts: 36ms, render: 2.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 2.0s (compile: 25ms, proxy.ts: 22ms, render: 1995ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /admin?codexAdminFlatBg=1 200 in 11.8s (compile: 7ms, proxy.ts: 21ms, render: 11.8s)
+ POST /admin?codexAdminFlatBg=1 200 in 484ms (compile: 121ms, proxy.ts: 217ms, render: 147ms)
+○ Compiling /api/currency/rates ...
+ GET /api/currency/rates 200 in 48s (compile: 48s, proxy.ts: 137ms, render: 227ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /admin?codexAdminFlatBg=1 200 in 7.2s (compile: 415ms, proxy.ts: 816ms, render: 6.0s)
+ GET /admin 200 in 9.8s (compile: 110ms, proxy.ts: 3.3s, render: 6.4s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 14.5s (compile: 382ms, proxy.ts: 3.3s, render: 10.9s)
+ GET /admin?codexAdminFlatBg=1 200 in 3.1s (compile: 8ms, proxy.ts: 44ms, render: 3.1s)
+ GET /api/currency/rates 200 in 111ms (compile: 9ms, proxy.ts: 35ms, render: 67ms)
+ POST /admin?codexAdminFlatBg=1 200 in 403ms (compile: 236ms, proxy.ts: 120ms, render: 47ms)
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 1507ms (compile: 265ms, proxy.ts: 399ms, render: 843ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /api/currency/rates 200 in 200ms (compile: 83ms, proxy.ts: 71ms, render: 46ms)
+ GET /api/currency/rates 200 in 201ms (compile: 47ms, proxy.ts: 108ms, render: 46ms)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 14.5s (compile: 5.6s, proxy.ts: 25ms, render: 8.8s)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 75ms (compile: 31ms, proxy.ts: 22ms, render: 21ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ GET /admin?codexAdminFlatBg=1 200 in 13.1s (compile: 441ms, proxy.ts: 77ms, render: 12.6s)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 5.3s (compile: 100ms, proxy.ts: 105ms, render: 5.1s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 7.7s (compile: 23ms, proxy.ts: 37ms, render: 7.6s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 4.7s (compile: 33ms, proxy.ts: 65ms, render: 4.6s)
+ GET /admin?codexAdminFlatBg=1 200 in 5.7s (compile: 30ms, proxy.ts: 33ms, render: 5.6s)
+ GET /api/currency/rates 200 in 50ms (compile: 8ms, proxy.ts: 25ms, render: 17ms)
+ GET /api/currency/rates 200 in 63ms (compile: 7ms, proxy.ts: 35ms, render: 20ms)
+ POST /admin?codexAdminFlatBg=1 200 in 70ms (compile: 9ms, proxy.ts: 27ms, render: 34ms)
+ POST /admin 200 in 51ms (compile: 8ms, proxy.ts: 26ms, render: 16ms)
+ GET /api/currency/rates 200 in 58ms (compile: 6ms, proxy.ts: 39ms, render: 13ms)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 60ms (compile: 27ms, proxy.ts: 16ms, render: 17ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 8.7s (compile: 11ms, proxy.ts: 22ms, render: 8.6s)
+○ Compiling / ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET / 200 in 5.3s (compile: 9ms, proxy.ts: 659ms, render: 4.6s)
+ GET / 200 in 41s (compile: 32.7s, proxy.ts: 754ms, render: 7.2s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 6.3s (compile: 76ms, proxy.ts: 823ms, render: 5.4s)
+ GET /admin 200 in 8.4s (compile: 53ms, proxy.ts: 517ms, render: 7.8s)
+ GET /products?category=Health+%26+Care&path=Health+%26+Care+%3E+Grooming+%26+Bathing 200 in 5.4s (compile: 24ms, proxy.ts: 765ms, render: 4.6s)
+○ Compiling /api/currency/rates ...
+ GET /api/currency/rates 200 in 30.7s (compile: 25.8s, proxy.ts: 4.3s, render: 647ms)
+ GET /api/currency/rates 200 in 1453ms (compile: 50ms, proxy.ts: 1381ms, render: 23ms)
+ GET /api/currency/rates 200 in 1455ms (compile: 41ms, proxy.ts: 1389ms, render: 25ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /products?category=Health%20%26%20Care&path=Health%20%26%20Care%20%3E%20Grooming%20%26%20Bathing 500 in 37.4s (compile: 15ms, proxy.ts: 2.0s, render: 35.4s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /admin 200 in 14.4s (compile: 161ms, proxy.ts: 28ms, render: 14.2s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 14.1s (compile: 284ms, proxy.ts: 42ms, render: 13.8s)
+ GET /api/currency/rates 200 in 1449ms (compile: 460ms, proxy.ts: 938ms, render: 51ms)
+ POST /products?category=Health%20%26%20Care&path=Health%20%26%20Care%20%3E%20Grooming%20%26%20Bathing 200 in 2.0s (compile: 661ms, proxy.ts: 941ms, render: 418ms)
+ GET /api/currency/rates 200 in 262ms (compile: 139ms, proxy.ts: 81ms, render: 42ms)
+○ Compiling /api/catalog/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 11.0s (compile: 99ms, proxy.ts: 182ms, render: 10.8s)
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 15.7s (compile: 2.6s, proxy.ts: 1807ms, render: 11.2s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 45s (compile: 8.9s, proxy.ts: 57ms, render: 35.9s)
+ GET / 200 in 17.9s (compile: 1049ms, proxy.ts: 10.5s, render: 6.4s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 17.9s (compile: 1972ms, proxy.ts: 10.6s, render: 5.4s)
+ GET /products?category=Health+%26+Care&path=Health+%26+Care+%3E+Grooming+%26+Bathing 200 in 45s (compile: 4.8s, proxy.ts: 1257ms, render: 38.5s)
+ GET /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 8.4s (compile: 199ms, proxy.ts: 110ms, render: 8.1s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ POST /products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 5.5s (compile: 2.3s, proxy.ts: 3.2s, render: 31ms)
+ GET /api/currency/rates 200 in 6.2s (compile: 82ms, proxy.ts: 5.9s, render: 245ms)
+ GET /api/catalog/products?slugs=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-classic-western-bit%2Chorse-trail-and-outdoor-gear-all-purpose-saddles-1%2Chorse-saddles-and-pads-bareback-pads-1%2Chorse-horse-boots-and-leg-protection-bell-boots-1&exclude=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl&limit=2 200 in 10.5s (compile: -114103µs, proxy.ts: 6.3s, render: 4.3s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET /api/currency/rates 200 in 38ms (compile: 6ms, proxy.ts: 20ms, render: 12ms)
+ POST /admin 200 in 169ms (compile: 92ms, proxy.ts: 33ms, render: 44ms)
+ GET / 200 in 3.9s (compile: 58ms, proxy.ts: 20ms, render: 3.8s)
+ GET / 200 in 5.8s (compile: 10ms, proxy.ts: 21ms, render: 5.7s)
+ GET /api/currency/rates 200 in 51ms (compile: 6ms, proxy.ts: 22ms, render: 23ms)
+ POST / 200 in 71ms (compile: 9ms, proxy.ts: 37ms, render: 24ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET / 200 in 17.2s (compile: 424ms, proxy.ts: 1032ms, render: 15.8s)
+ GET /admin 200 in 12.6s (compile: 173ms, proxy.ts: 215ms, render: 12.2s)
+ GET / 200 in 27.8s (compile: 63ms, proxy.ts: 267ms, render: 27.5s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+ GET /admin 200 in 4.7s (compile: 57ms, proxy.ts: 23ms, render: 4.6s)
+ GET / 200 in 19.2s (compile: 68ms, proxy.ts: 162ms, render: 19.0s)
+ GET / 200 in 29.7s (compile: 299ms, proxy.ts: 1684ms, render: 27.7s)
+○ Compiling /api/admin/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /api/admin/products?slug=equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl 200 in 30.2s (compile: 24.2s, proxy.ts: 54ms, render: 6.0s)
+ GET /admin 200 in 6.2s (compile: 228ms, proxy.ts: 1082ms, render: 4.9s)
+ GET / 200 in 4.3s (compile: 72ms, proxy.ts: 31ms, render: 4.2s)
+ GET / 200 in 4.0s (compile: 7ms, proxy.ts: 36ms, render: 3.9s)
+[?25h

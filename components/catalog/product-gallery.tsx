@@ -1,6 +1,14 @@
 "use client";
 
-import { PointerEvent, TouchEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  PointerEvent,
+  TouchEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { ProductMedia } from "@/components/ui/product-media";
 import { getProductImageSrc } from "@/lib/image-utils";
@@ -18,6 +26,17 @@ type PanDragState = {
   startY: number;
 };
 
+type PinchState = {
+  startDistance: number;
+  startZoom: number;
+};
+
+type GalleryTouchList = TouchEvent<HTMLDivElement>["touches"];
+
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 2.6;
+const ZOOM_STEP = 0.25;
+
 export function ProductGallery({
   images,
   name,
@@ -25,9 +44,6 @@ export function ProductGallery({
   images: string[];
   name: string;
 }) {
-  const MIN_ZOOM = 1;
-  const MAX_ZOOM = 2.6;
-  const ZOOM_STEP = 0.25;
   const safeImages = useMemo(
     () => (images.length > 0 ? images.map(getProductImageSrc) : ["/place holder/1.webp"]),
     [images],
@@ -38,10 +54,12 @@ export function ProductGallery({
   const [panOffset, setPanOffset] = useState<PanOffset>({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const lightboxStageRef = useRef<HTMLDivElement>(null);
+  const lightboxThumbRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const panDragRef = useRef<PanDragState | null>(null);
+  const pinchStateRef = useRef<PinchState | null>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
-  const clampPanOffset = (offset: PanOffset, scale = zoomLevel): PanOffset => {
+  const clampPanOffset = useCallback((offset: PanOffset, scale = zoomLevel): PanOffset => {
     const stage = lightboxStageRef.current;
 
     if (!stage || scale <= MIN_ZOOM) {
@@ -56,7 +74,7 @@ export function ProductGallery({
       x: Math.min(maxX, Math.max(-maxX, offset.x)),
       y: Math.min(maxY, Math.max(-maxY, offset.y)),
     };
-  };
+  }, [zoomLevel]);
 
   const prevImage = () => {
     setActiveIndex((current) =>
@@ -70,7 +88,49 @@ export function ProductGallery({
     );
   };
 
+  const resetZoom = useCallback(() => {
+    setZoomLevel(MIN_ZOOM);
+    setPanOffset({ x: 0, y: 0 });
+    panDragRef.current = null;
+    pinchStateRef.current = null;
+    setIsPanning(false);
+  }, []);
+
+  const getTouchDistance = (touches: GalleryTouchList) => {
+    const firstTouch = touches.item(0);
+    const secondTouch = touches.item(1);
+
+    if (!firstTouch || !secondTouch) {
+      return 0;
+    }
+
+    return Math.hypot(
+      firstTouch.clientX - secondTouch.clientX,
+      firstTouch.clientY - secondTouch.clientY,
+    );
+  };
+
+  const selectImage = (index: number) => {
+    resetZoom();
+    setActiveIndex(index);
+  };
+
   const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+    if (lightboxOpen && event.touches.length >= 2) {
+      const startDistance = getTouchDistance(event.touches);
+
+      if (startDistance > 0) {
+        event.preventDefault();
+        touchStartRef.current = null;
+        pinchStateRef.current = {
+          startDistance,
+          startZoom: zoomLevel,
+        };
+        setIsPanning(true);
+      }
+      return;
+    }
+
     if (lightboxOpen && zoomLevel > MIN_ZOOM) {
       touchStartRef.current = null;
       return;
@@ -83,7 +143,36 @@ export function ProductGallery({
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   };
 
+  const handleTouchMove = (event: TouchEvent<HTMLDivElement>) => {
+    if (!lightboxOpen || event.touches.length < 2) {
+      return;
+    }
+
+    const pinchState = pinchStateRef.current;
+    const nextDistance = getTouchDistance(event.touches);
+
+    if (!pinchState || nextDistance <= 0) {
+      return;
+    }
+
+    event.preventDefault();
+    const nextZoom = Math.min(
+      MAX_ZOOM,
+      Math.max(MIN_ZOOM, pinchState.startZoom * (nextDistance / pinchState.startDistance)),
+    );
+
+    setZoomLevel(nextZoom);
+    setPanOffset((current) => clampPanOffset(current, nextZoom));
+  };
+
   const handleTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
+    if (pinchStateRef.current) {
+      event.preventDefault();
+      resetZoom();
+      touchStartRef.current = null;
+      return;
+    }
+
     if (lightboxOpen && zoomLevel > MIN_ZOOM) {
       touchStartRef.current = null;
       return;
@@ -113,6 +202,11 @@ export function ProductGallery({
     }
   };
 
+  const handleTouchCancel = () => {
+    resetZoom();
+    touchStartRef.current = null;
+  };
+
   useEffect(() => {
     if (!lightboxOpen) {
       return;
@@ -135,11 +229,20 @@ export function ProductGallery({
   }, [lightboxOpen]);
 
   useEffect(() => {
-    setZoomLevel(MIN_ZOOM);
-    setPanOffset({ x: 0, y: 0 });
-    panDragRef.current = null;
-    setIsPanning(false);
-  }, [activeIndex]);
+    resetZoom();
+  }, [activeIndex, resetZoom]);
+
+  useEffect(() => {
+    if (!lightboxOpen) {
+      return;
+    }
+
+    lightboxThumbRefs.current[activeIndex]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [activeIndex, lightboxOpen]);
 
   useEffect(() => {
     if (zoomLevel <= MIN_ZOOM) {
@@ -150,7 +253,7 @@ export function ProductGallery({
     }
 
     setPanOffset((current) => clampPanOffset(current, zoomLevel));
-  }, [zoomLevel]);
+  }, [clampPanOffset, zoomLevel]);
 
   const zoomIn = () => {
     setZoomLevel((current) => Math.min(MAX_ZOOM, current + ZOOM_STEP));
@@ -161,10 +264,7 @@ export function ProductGallery({
   };
 
   const closeLightbox = () => {
-    setZoomLevel(MIN_ZOOM);
-    setPanOffset({ x: 0, y: 0 });
-    panDragRef.current = null;
-    setIsPanning(false);
+    resetZoom();
     setLightboxOpen(false);
   };
 
@@ -273,7 +373,7 @@ export function ProductGallery({
                 ? "gallery-thumb-btn gallery-thumb-active"
                 : "gallery-thumb-btn"
             }
-            onClick={() => setActiveIndex(index)}
+            onClick={() => selectImage(index)}
             aria-label={`Show image ${index + 1}`}
           >
             <ProductMedia
@@ -294,6 +394,8 @@ export function ProductGallery({
             className="product-gallery-lightbox-content"
             onClick={(event) => event.stopPropagation()}
             onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchCancel}
+            onTouchMove={handleTouchMove}
             onTouchStart={handleTouchStart}
           >
             <div className="product-gallery-lightbox-toolbar">
@@ -353,6 +455,38 @@ export function ProductGallery({
                   transform: `translate3d(${panOffset.x}px, ${panOffset.y}px, 0) scale(${zoomLevel})`,
                 }}
               />
+            </div>
+            <div
+              aria-label="Product image thumbnails"
+              className="product-gallery-lightbox-thumbs"
+            >
+              {safeImages.map((img, index) => (
+                <button
+                  aria-current={index === activeIndex ? "true" : undefined}
+                  aria-label={`Show full screen image ${index + 1} of ${
+                    safeImages.length
+                  }`}
+                  className={
+                    index === activeIndex
+                      ? "product-gallery-lightbox-thumb product-gallery-lightbox-thumb-active"
+                      : "product-gallery-lightbox-thumb"
+                  }
+                  key={`lightbox-${img}-${index}`}
+                  onClick={() => selectImage(index)}
+                  ref={(element) => {
+                    lightboxThumbRefs.current[index] = element;
+                  }}
+                  type="button"
+                >
+                  <ProductMedia
+                    alt={`${name} image ${index + 1}`}
+                    className="product-gallery-lightbox-thumb-image"
+                    height={52}
+                    src={img}
+                    width={52}
+                  />
+                </button>
+              ))}
             </div>
             <button
               aria-label="Next image"

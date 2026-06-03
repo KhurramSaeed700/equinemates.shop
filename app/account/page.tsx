@@ -37,7 +37,7 @@ export default function AccountPage() {
         <SignIn routing="hash" />
       </SignedOut>
       <SignedIn>
-        <UserProfile />
+        <UserProfile routing="hash" />
       </SignedIn>
     </section>
   );

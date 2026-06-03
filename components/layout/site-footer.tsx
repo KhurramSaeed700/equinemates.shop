@@ -7,6 +7,7 @@ import {
   WhatsAppIcon,
   YouTubeIcon,
 } from "@/components/ui/icons";
+import { NewsletterSignupForm } from "@/components/marketing/newsletter-signup-form";
 import { getAdminAccess } from "@/lib/server/admin-auth";
 
 const socialLinks = [
@@ -93,12 +94,7 @@ export async function SiteFooter() {
           <p>
             Sign up for product launches, promotions, and stable supply updates.
           </p>
-          <form className="newsletter-form">
-            <input placeholder="Email address" type="email" />
-            <button className="btn-primary" type="button">
-              Join
-            </button>
-          </form>
+          <NewsletterSignupForm />
           {/* social icons moved to prominent location */}
         </section>
 

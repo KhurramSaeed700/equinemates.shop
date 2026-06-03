@@ -1,0 +1,130 @@
+$ next dev --webpack "-p" "3000"
+(node:18848) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Could not load stored categories from Neon. Error [DriverAdapterError]: Authentication timed out
+    at async getStoredCategoryRows (lib\server\catalog-products.ts:677:12)
+    at async getCategoryTree (lib\server\catalog-products.ts:823:22)
+    at async getFeaturedCategorySummary (lib\server\catalog-products.ts:841:11)
+    at async Home (app\page.tsx:23:63)
+  675 | async function getStoredCategoryRows(): Promise<StoredCategoryRow[]> {
+  676 |   try {
+> 677 |     return await prisma.category.findMany({
+      |            ^
+  678 |       select: {
+  679 |         id: true,
+  680 |         name: true, {
+  clientVersion: '7.4.2',
+  [cause]: [Object]
+}
+Could not ensure Product.isActive column exists. Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.$executeRaw()` invocation:
+
+
+Raw query failed. Code: `08P01`. Message: `Authentication timed out`
+    at async ensureProductIsActiveColumn (lib\server\catalog-products.ts:144:5)
+    at async getPersistedProductRows (lib\server\catalog-products.ts:206:29)
+    at async getCatalogProductsOrEmpty (lib\server\catalog-products.ts:696:18)
+    at async getNewArrivals (lib\server\catalog-products.ts:957:20)
+    at async Home (app\page.tsx:23:63)
+  142 |
+  143 |   try {
+> 144 |     await prisma.$executeRaw`
+      |     ^
+  145 |       ALTER TABLE "Product"
+  146 |       ADD COLUMN IF NOT EXISTS "isActive" BOOLEAN NOT NULL DEFAULT true
+  147 |     `; {
+  code: 'P2010',
+  meta: [Object],
+  clientVersion: '7.4.2'
+}
+Could not ensure Product.isActive column exists. Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.$executeRaw()` invocation:
+
+
+Raw query failed. Code: `08P01`. Message: `Authentication timed out`
+    at async ensureProductIsActiveColumn (lib\server\catalog-products.ts:144:5)
+    at async getPersistedProductRows (lib\server\catalog-products.ts:206:29)
+    at async getCatalogProductsOrEmpty (lib\server\catalog-products.ts:696:18)
+    at async getBestSellers (lib\server\catalog-products.ts:952:20)
+    at async Home (app\page.tsx:23:63)
+  142 |
+  143 |   try {
+> 144 |     await prisma.$executeRaw`
+      |     ^
+  145 |       ALTER TABLE "Product"
+  146 |       ADD COLUMN IF NOT EXISTS "isActive" BOOLEAN NOT NULL DEFAULT true
+  147 |     `; {
+  code: 'P2010',
+  meta: [Object],
+  clientVersion: '7.4.2'
+}
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ TypeError: __webpack_modules__[moduleId] is not a function
+    at ignore-listed frames {
+  digest: '3358672061'
+}
+⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Cross origin request detected from 192.168.1.29 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>) {
+  page: '/products/equinemates-cnc-monogram-junior-cow-horse-bit-with-copper-roller-cow-girl'
+}
+⨯ SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>) {
+  page: '/products/horse-trail-and-outdoor-gear-all-purpose-saddles-1'
+}
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[admin-auth] Clerk currentUser() failed. {
+  name: 'ClerkAPIResponseError',
+  message: 'Bad Gateway',
+  status: 502,
+  clerkTraceId: 'a058e65c3b02a813-KHI'
+}
+[admin-auth] Clerk currentUser() failed. {
+  name: 'ClerkAPIResponseError',
+  message: 'fetch failed',
+  status: undefined,
+  clerkTraceId: ''
+}
+⨯ TypeError: __webpack_modules__[moduleId] is not a function
+    at ignore-listed frames {
+  digest: '856666475'
+}
+Could not ensure Product.isActive column exists. Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.$executeRaw()` invocation:
+
+
+Raw query failed. Code: `N/A`. Message: `Server has closed the connection.`
+    at async ensureProductIsActiveColumn (lib\server\catalog-products.ts:144:5)
+    at async getPersistedProductRows (lib\server\catalog-products.ts:206:29)
+    at async getCatalogProductsOrEmpty (lib\server\catalog-products.ts:696:18)
+    at async GET (app\api\catalog\products\route.ts:62:20)
+  142 |
+  143 |   try {
+> 144 |     await prisma.$executeRaw`
+      |     ^
+  145 |       ALTER TABLE "Product"
+  146 |       ADD COLUMN IF NOT EXISTS "isActive" BOOLEAN NOT NULL DEFAULT true
+  147 |     `; {
+  code: 'P2010',
+  meta: [Object],
+  clientVersion: '7.4.2'
+}
+⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload

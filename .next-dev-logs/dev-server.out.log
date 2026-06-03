@@ -1,0 +1,56 @@
+▲ Next.js 16.1.6 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://172.30.209.216:3000
+- Environments: .env.local, .env
+
+✓ Starting...
+✓ Ready in 31.9s
+○ Compiling /api/admin/products ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+ GET /api/admin/products?sku=EQM-1002 200 in 56s (compile: 50s, proxy.ts: 1338ms, render: 4.4s)
+ POST /api/admin/uploads 200 in 56s (compile: 50s, proxy.ts: 1326ms, render: 5.1s)
+ POST /api/admin/uploads 200 in 1275ms (compile: 89ms, proxy.ts: 91ms, render: 1095ms)
+ GET / 200 in 19.8s (compile: 13ms, proxy.ts: 12.3s, render: 7.6s)
+ GET / 200 in 61s (compile: 50s, proxy.ts: 938ms, render: 9.7s)
+○ Compiling /api/r2-images/[...key] ...
+ GET /admin 200 in 61s (compile: 50s, proxy.ts: 943ms, render: 9.9s)
+ GET /api/currency/rates 200 in 2.6s (compile: 2.5s, proxy.ts: 49ms, render: 91ms)
+ GET /api/currency/rates 200 in 426ms (compile: 22ms, proxy.ts: 394ms, render: 11ms)
+○ Compiling / ...
+ POST / 200 in 5.2s (compile: 4.1s, proxy.ts: 728ms, render: 344ms)
+○ Compiling /admin ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ POST / 200 in 427ms (compile: 134ms, proxy.ts: 44ms, render: 249ms)
+ GET / 200 in 5.3s (compile: 107ms, proxy.ts: 55ms, render: 5.2s)
+ GET / 200 in 4.8s (compile: 13ms, proxy.ts: 56ms, render: 4.7s)
+ GET /admin 200 in 5.4s (compile: 403ms, proxy.ts: 59ms, render: 5.0s)
+ GET / 200 in 4.6s (compile: 8ms, proxy.ts: 28ms, render: 4.6s)
+ GET / 200 in 4.7s (compile: 9ms, proxy.ts: 23ms, render: 4.7s)
+ GET /admin 200 in 11.3s (compile: 3.7s, proxy.ts: 960ms, render: 6.7s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+ GET / 200 in 5.5s (compile: 47ms, proxy.ts: 59ms, render: 5.4s)
+ GET / 200 in 5.5s (compile: 9ms, proxy.ts: 36ms, render: 5.5s)
+ GET /admin 200 in 8.8s (compile: 722ms, proxy.ts: 147ms, render: 7.9s)
+○ Compiling /api/currency/rates ...
+ GET /api/currency/rates 200 in 6.4s (compile: 6.3s, proxy.ts: 32ms, render: 115ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (19) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+ POST /admin 200 in 2.6s (compile: 377ms, proxy.ts: 768ms, render: 1422ms)
+ GET /admin 200 in 7.8s (compile: 61ms, proxy.ts: 114ms, render: 7.6s)
+ GET / 200 in 13.8s (compile: 717ms, proxy.ts: 780ms, render: 12.3s)
+ GET / 200 in 5.6s (compile: 588ms, proxy.ts: 484ms, render: 4.5s)
+ GET /admin 200 in 6.0s (compile: 12ms, proxy.ts: 40ms, render: 6.0s)
+ GET /admin?codexAdminPlaceholders=1 200 in 4.1s (compile: 14ms, proxy.ts: 378ms, render: 3.7s)
+ GET /api/currency/rates 200 in 489ms (compile: 182ms, proxy.ts: 227ms, render: 80ms)
+ POST /admin 200 in 574ms (compile: 18ms, proxy.ts: 404ms, render: 151ms)
+ GET /api/currency/rates 200 in 75ms (compile: 5ms, proxy.ts: 23ms, render: 48ms)
+ POST /admin?codexAdminPlaceholders=1 200 in 212ms (compile: 63ms, proxy.ts: 27ms, render: 123ms)
+ GET /api/currency/rates 200 in 41ms (compile: 5ms, proxy.ts: 24ms, render: 12ms)
+ POST / 200 in 50ms (compile: 8ms, proxy.ts: 19ms, render: 23ms)
+ GET /api/currency/rates 200 in 47ms (compile: 5ms, proxy.ts: 31ms, render: 11ms)
+ POST / 200 in 60ms (compile: 7ms, proxy.ts: 33ms, render: 20ms)
+[?25h
+[ELIFECYCLE] Command failed with exit code 1.

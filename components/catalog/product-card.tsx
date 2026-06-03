@@ -93,11 +93,16 @@ export function ProductCard({ product }: { product: Product }) {
             >
               <span className="inline-flex items-center gap-1">
                 {isInCart ? (
-                  <FiCheck className="h-3.5 w-3.5 text-white" />
+                  <FiCheck className="h-3.5 w-3.5" />
                 ) : (
                   <CartIcon className="h-3.5 w-3.5" />
                 )}
-                <span>{isInCart ? "Added" : "Add to Cart"}</span>
+                <span className="product-card-action-label-full">
+                  {isInCart ? "Added" : "Add to Cart"}
+                </span>
+                <span className="product-card-action-label-compact">
+                  {isInCart ? "Added" : "Cart"}
+                </span>
               </span>
             </button>
           ) : null}

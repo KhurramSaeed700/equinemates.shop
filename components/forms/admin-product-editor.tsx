@@ -46,6 +46,8 @@ type ProductDraft = {
   slug: string;
   name: string;
   sku: string;
+  skuPrefix: string;
+  skuItemNumber: string;
   category: ProductCategory;
   categoryPath: string;
   shortDescription: string;
@@ -79,6 +81,17 @@ type ProductDeleteResponse = {
   deactivated?: boolean;
 };
 
+type ImageDeleteResponse = {
+  message?: string;
+  deletedKeys?: string[];
+  failed?: Array<{
+    key: string;
+    message: string;
+  }>;
+  skippedSharedKeys?: string[];
+  skippedSources?: string[];
+};
+
 type SkuAvailabilityResponse = {
   message?: string;
   sku?: string;
@@ -102,6 +115,10 @@ type CategoryPathMatch = {
   path: string[];
 };
 
+const SKU_PREFIX_OPTIONS = ["EQM", "HOR", "PET", "RID", "STA"];
+const DEFAULT_SKU_PREFIX = SKU_PREFIX_OPTIONS[0];
+const SKU_ITEM_NUMBER_MAX_LENGTH = 8;
+
 function createSlug(value: string): string {
   return value
     .trim()
@@ -116,6 +133,36 @@ function normalizeSku(value: string): string {
   return value.trim().toUpperCase();
 }
 
+function sanitizeSkuPrefix(value: string): string {
+  const normalizedPrefix = normalizeSku(value).replace(/[^A-Z0-9]/g, "");
+  return normalizedPrefix || DEFAULT_SKU_PREFIX;
+}
+
+function sanitizeSkuItemNumber(value: string): string {
+  return value.replace(/\D/g, "").slice(0, SKU_ITEM_NUMBER_MAX_LENGTH);
+}
+
+function buildSku(prefix: string, itemNumber: string): string {
+  const safePrefix = sanitizeSkuPrefix(prefix);
+  const safeItemNumber = sanitizeSkuItemNumber(itemNumber);
+
+  return safeItemNumber ? `${safePrefix}-${safeItemNumber}` : "";
+}
+
+function parseSkuParts(value: string): Pick<ProductDraft, "sku" | "skuPrefix" | "skuItemNumber"> {
+  const normalizedSku = normalizeSku(value);
+  const [prefix, ...itemParts] = normalizedSku.split("-");
+  const itemNumber = itemParts.length > 0 ? itemParts.join("-") : normalizedSku;
+  const skuPrefix = itemParts.length > 0 ? sanitizeSkuPrefix(prefix) : DEFAULT_SKU_PREFIX;
+  const skuItemNumber = sanitizeSkuItemNumber(itemNumber);
+
+  return {
+    sku: buildSku(skuPrefix, skuItemNumber),
+    skuPrefix,
+    skuItemNumber,
+  };
+}
+
 function splitCategoryPath(value: string): string[] {
   return value
     .split(">")
@@ -128,7 +175,9 @@ function normalizeDescriptionListText(value: string): string {
     .split(/\r?\n/)
     .map((line) => {
       const trimmedLine = line.trim();
-      const bulletMatch = trimmedLine.match(/^(?:[-*+•‣▪–—]|\d+[.)])\s*(.+)$/u);
+      const bulletMatch = trimmedLine.match(
+        /^(?:[-*+\u2022\u2023\u25AA\u2013\u2014]|\d+[.)])\s*(.+)$/u,
+      );
 
       return bulletMatch ? `- ${bulletMatch[1].trim()}` : trimmedLine;
     })
@@ -235,6 +284,8 @@ function createEmptyDraft(): ProductDraft {
     slug: "",
     name: "",
     sku: "",
+    skuPrefix: DEFAULT_SKU_PREFIX,
+    skuItemNumber: "",
     category: "",
     categoryPath: "",
     shortDescription: "",
@@ -250,11 +301,13 @@ function createEmptyDraft(): ProductDraft {
 }
 
 function toDraft(product: Product): ProductDraft {
+  const skuParts = parseSkuParts(product.sku);
+
   return {
     originalSlug: product.slug,
     slug: product.slug,
     name: product.name,
-    sku: product.sku,
+    ...skuParts,
     category: product.category,
     categoryPath: product.categoryPath.join(" > "),
     shortDescription: product.shortDescription,
@@ -266,6 +319,21 @@ function toDraft(product: Product): ProductDraft {
     isBestSeller: product.isBestSeller,
     isNewArrival: product.isNewArrival,
     careInstructions: product.careInstructions ?? "",
+  };
+}
+
+function toSimilarDraft(product: Product): ProductDraft {
+  const sourceDraft = toDraft(product);
+  const similarName = `${product.name} Copy`;
+
+  return {
+    ...sourceDraft,
+    originalSlug: "",
+    slug: createSlug(similarName),
+    name: similarName,
+    sku: buildSku(sourceDraft.skuPrefix, ""),
+    skuItemNumber: "",
+    images: [],
   };
 }
 
@@ -306,6 +374,7 @@ export function AdminProductEditor({
   const [isLoadingProduct, setIsLoadingProduct] = useState(false);
   const [loadingProductSlug, setLoadingProductSlug] = useState("");
   const [deletingProductSlug, setDeletingProductSlug] = useState<string | null>(null);
+  const [deletingImageUrl, setDeletingImageUrl] = useState("");
   const [productPendingDelete, setProductPendingDelete] =
     useState<ProductSummary | null>(null);
   const [productDeleteError, setProductDeleteError] = useState("");
@@ -337,12 +406,6 @@ export function AdminProductEditor({
   const categorySelectionComplete =
     selectedCategoryPath.length > 0 &&
     (selectedCategoryPath.length >= 3 || (activeCategoryNode?.children.length ?? 0) === 0);
-  const categoryStepTitle =
-    selectedCategoryPath.length === 0
-      ? "Choose Department"
-      : selectedCategoryPath.length === 1
-        ? "Choose Subcategory"
-        : "Choose Level 3";
   const normalizedProductSearch = productSearch.trim().toLowerCase();
   const filteredProducts = normalizedProductSearch
     ? products.filter((product) => {
@@ -362,6 +425,9 @@ export function AdminProductEditor({
   const skuIsKnownAvailable =
     skuAvailability.state === "available" &&
     skuAvailability.checkedSku === normalizedDraftSku;
+  const skuPrefixOptions = SKU_PREFIX_OPTIONS.includes(draft.skuPrefix)
+    ? SKU_PREFIX_OPTIONS
+    : [draft.skuPrefix, ...SKU_PREFIX_OPTIONS];
   const uploadFolder =
     draft.slug.trim() ||
     draft.name.trim() ||
@@ -384,6 +450,21 @@ export function AdminProductEditor({
       ...currentDraft,
       [field]: value,
     }));
+  };
+
+  const updateSkuParts = (nextParts: Partial<Pick<ProductDraft, "skuPrefix" | "skuItemNumber">>) => {
+    resetSkuAvailability();
+    setDraft((currentDraft) => {
+      const skuPrefix = nextParts.skuPrefix ?? currentDraft.skuPrefix;
+      const skuItemNumber = nextParts.skuItemNumber ?? currentDraft.skuItemNumber;
+
+      return {
+        ...currentDraft,
+        sku: buildSku(skuPrefix, skuItemNumber),
+        skuPrefix,
+        skuItemNumber,
+      };
+    });
   };
 
   const resetSkuAvailability = () => {
@@ -482,7 +563,10 @@ export function AdminProductEditor({
 
     if (name === "sku") {
       resetSkuAvailability();
-      updateDraft("sku", value);
+      setDraft((currentDraft) => ({
+        ...currentDraft,
+        ...parseSkuParts(value),
+      }));
       return;
     }
 
@@ -542,6 +626,38 @@ export function AdminProductEditor({
       resetSkuAvailability();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Could not load product.");
+    } finally {
+      setIsLoadingProduct(false);
+      setLoadingProductSlug("");
+    }
+  };
+
+  const loadSimilarProduct = async (slug: string) => {
+    setIsLoadingProduct(true);
+    setLoadingProductSlug(slug);
+    setStatus("");
+
+    try {
+      const response = await fetch(`/api/admin/products?slug=${encodeURIComponent(slug)}`);
+      const payload = (await response.json()) as ProductResponse;
+
+      if (!response.ok || !payload.product) {
+        throw new Error(payload.message ?? "Could not load product.");
+      }
+
+      setDraft(toSimilarDraft(payload.product));
+      setProductSearch("");
+      setCategorySearch("");
+      setIsCategoryEditing(false);
+      setUploadResetSignal((currentSignal) => currentSignal + 1);
+      resetSkuAvailability();
+      setStatus("");
+      toast.success("Duplicate draft ready", "Update the details and upload when ready.");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Could not duplicate product.";
+      setStatus(errorMessage);
+      toast.error("Could not create duplicate draft", errorMessage);
     } finally {
       setIsLoadingProduct(false);
       setLoadingProductSlug("");
@@ -622,11 +738,41 @@ export function AdminProductEditor({
     onProductSearchSelect(visibleProductResults[0].slug);
   };
 
-  const removeImage = (imageUrl: string) => {
+  const removeImage = async (imageUrl: string) => {
+    setDeletingImageUrl(imageUrl);
     setDraft((currentDraft) => ({
       ...currentDraft,
       images: currentDraft.images.filter((url) => url !== imageUrl),
     }));
+
+    try {
+      const response = await fetch("/api/admin/uploads", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          imageUrl,
+          originalSlug: draft.originalSlug || undefined,
+        }),
+      });
+      const payload = (await response.json()) as ImageDeleteResponse;
+      const message = payload.message ?? "Image removed from the draft.";
+
+      if (!response.ok) {
+        throw new Error(message);
+      }
+
+      setStatus(message);
+      toast.success("Image removed", message);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Could not delete image from R2.";
+      setStatus(`Image removed from the draft, but R2 cleanup failed: ${message}`);
+      toast.error("R2 cleanup failed", message);
+    } finally {
+      setDeletingImageUrl("");
+    }
   };
 
   const moveImage = (imageUrl: string, direction: "left" | "right") => {
@@ -810,17 +956,15 @@ export function AdminProductEditor({
         <div className="admin-product-finder">
           <div className="admin-form-toolbar">
             <div className="admin-toolbar-search">
-              <label className="admin-toolbar-label" htmlFor="admin-product-search">
-                Find Product
-              </label>
               <div className="admin-product-search-control">
                 <FiSearch aria-hidden="true" />
                 <Input
                   className="admin-product-search-input"
                   id="admin-product-search"
+                  aria-label="Search products"
                   onKeyDown={onProductSearchKeyDown}
                   onChange={(event) => setProductSearch(event.currentTarget.value)}
-                  placeholder="Search by name, SKU, or top-level category"
+                  placeholder="Search products"
                   value={productSearch}
                 />
               </div>
@@ -883,9 +1027,11 @@ export function AdminProductEditor({
                               width={120}
                             />
                           ) : (
-                            <span aria-hidden="true" className="admin-product-search-thumb-empty">
-                              No image
-                            </span>
+                            <span
+                              aria-label="Product image unavailable"
+                              className="admin-product-search-thumb-empty"
+                              role="img"
+                            />
                           )}
                         </span>
                         <span className="admin-product-search-result-copy">
@@ -902,26 +1048,33 @@ export function AdminProductEditor({
                           </span>
                         ) : null}
                       </button>
-                      <Button
-                        className="admin-product-delete-btn"
-                        disabled={isLoadingProduct || deletingProductSlug === product.slug}
-                        onClick={() => {
-                          setProductPendingDelete(product);
-                          setProductDeleteError("");
-                        }}
-                        size="compact"
-                        variant="secondary"
-                      >
-                        {deletingProductSlug === product.slug ? "Removing..." : "Remove"}
-                      </Button>
+                      <div className="admin-product-search-actions">
+                        <Button
+                          className="admin-product-similar-btn"
+                          disabled={isLoadingProduct}
+                          onClick={() => void loadSimilarProduct(product.slug)}
+                          size="compact"
+                          variant="secondary"
+                        >
+                          Duplicate
+                        </Button>
+                        <Button
+                          className="admin-product-delete-btn"
+                          disabled={isLoadingProduct || deletingProductSlug === product.slug}
+                          onClick={() => {
+                            setProductPendingDelete(product);
+                            setProductDeleteError("");
+                          }}
+                          size="compact"
+                          variant="secondary"
+                        >
+                          {deletingProductSlug === product.slug ? "Removing..." : "Remove"}
+                        </Button>
+                      </div>
                     </article>
                   );
                 })
-              ) : (
-                <p className="tiny admin-product-search-empty">
-                  No products match that search yet.
-                </p>
-              )}
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -931,12 +1084,15 @@ export function AdminProductEditor({
         <section className="admin-editor-panel">
           <div className="form-grid">
             <Field className="admin-field-name full-width">
-              <FieldLabel htmlFor="admin-product-name">Product Name</FieldLabel>
+              <FieldLabel className="sr-only" htmlFor="admin-product-name">
+                Product Name
+              </FieldLabel>
               <AutosizeTextarea
                 className="admin-product-name-textarea"
                 id="admin-product-name"
                 name="name"
                 onChange={onTextChange}
+                placeholder="Product Name"
                 rows={2}
                 value={draft.name}
               />
@@ -945,17 +1101,53 @@ export function AdminProductEditor({
               className="admin-sku-field"
               dataInvalid={skuIsKnownDuplicate}
             >
-              <FieldLabel htmlFor="admin-product-sku">SKU</FieldLabel>
-              <Input
-                aria-describedby="admin-sku-availability"
-                aria-invalid={skuIsKnownDuplicate}
-                className={skuIsKnownDuplicate ? "is-invalid" : undefined}
-                id="admin-product-sku"
-                name="sku"
-                onBlur={() => void checkSkuAvailability()}
-                onChange={onTextChange}
-                value={draft.sku}
-              />
+              <div className="admin-sku-heading">
+                <FieldLabel className="sr-only" htmlFor="admin-product-sku-item">
+                  SKU
+                </FieldLabel>
+                <FieldDescription className="admin-sku-preview" id="admin-sku-preview">
+                  SKU Preview: <strong>{draft.sku || "--"}</strong>
+                </FieldDescription>
+              </div>
+              <div className="admin-sku-builder">
+                <label className="admin-sku-part">
+                  <span className="sr-only">Prefix</span>
+                  <select
+                    aria-label="SKU prefix"
+                    className={skuIsKnownDuplicate ? "is-invalid" : undefined}
+                    name="skuPrefix"
+                    onBlur={() => void checkSkuAvailability()}
+                    onChange={(event) =>
+                      updateSkuParts({ skuPrefix: event.currentTarget.value })
+                    }
+                    value={draft.skuPrefix}
+                  >
+                    {skuPrefixOptions.map((prefix) => (
+                      <option key={prefix} value={prefix}>
+                        {prefix}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="admin-sku-part">
+                  <span className="sr-only">Item number</span>
+                  <Input
+                    aria-describedby="admin-sku-preview admin-sku-availability"
+                    aria-invalid={skuIsKnownDuplicate}
+                    className={skuIsKnownDuplicate ? "is-invalid" : undefined}
+                    id="admin-product-sku-item"
+                    inputMode="numeric"
+                    maxLength={SKU_ITEM_NUMBER_MAX_LENGTH}
+                    name="skuItemNumber"
+                    onBlur={() => void checkSkuAvailability()}
+                    onChange={(event) =>
+                      updateSkuParts({ skuItemNumber: event.currentTarget.value })
+                    }
+                    placeholder="Item number"
+                    value={draft.skuItemNumber}
+                  />
+                </label>
+              </div>
               {skuAvailability.message ? (
                 skuAvailability.state === "duplicate" ||
                 skuAvailability.state === "error" ? (
@@ -976,22 +1168,28 @@ export function AdminProductEditor({
               ) : null}
             </Field>
             <Field className="admin-field-price">
-              <FieldLabel htmlFor="admin-product-price">Base Price USD</FieldLabel>
+              <FieldLabel className="sr-only" htmlFor="admin-product-price">
+                Base Price USD
+              </FieldLabel>
               <Input
                 id="admin-product-price"
                 inputMode="decimal"
                 name="basePriceUsd"
                 onChange={onTextChange}
+                placeholder="Base Price USD"
                 value={draft.basePriceUsd}
               />
             </Field>
             <Field className="admin-field-stock">
-              <FieldLabel htmlFor="admin-product-stock">Stock</FieldLabel>
+              <FieldLabel className="sr-only" htmlFor="admin-product-stock">
+                Stock
+              </FieldLabel>
               <Input
                 id="admin-product-stock"
                 inputMode="numeric"
                 name="stock"
                 onChange={onTextChange}
+                placeholder="Stock"
                 value={draft.stock}
               />
             </Field>
@@ -1030,35 +1228,40 @@ export function AdminProductEditor({
               </div>
             </div>
             <Field className="full-width">
-              <FieldLabel htmlFor="admin-product-short-description">
+              <FieldLabel className="sr-only" htmlFor="admin-product-short-description">
                 Short Description
               </FieldLabel>
               <AutosizeTextarea
                 id="admin-product-short-description"
                 name="shortDescription"
                 onChange={onTextChange}
+                placeholder="Short Description"
                 rows={3}
                 value={draft.shortDescription}
               />
             </Field>
             <Field className="full-width">
-              <FieldLabel htmlFor="admin-product-long-description">
+              <FieldLabel className="sr-only" htmlFor="admin-product-long-description">
                 Long Description
               </FieldLabel>
               <AutosizeTextarea
                 id="admin-product-long-description"
                 name="longDescription"
                 onChange={onTextChange}
+                placeholder="Long Description"
                 rows={5}
                 value={draft.longDescription}
               />
             </Field>
             <Field className="full-width">
-              <FieldLabel htmlFor="admin-product-care">Care Instructions</FieldLabel>
+              <FieldLabel className="sr-only" htmlFor="admin-product-care">
+                Care Instructions
+              </FieldLabel>
               <AutosizeTextarea
                 id="admin-product-care"
                 name="careInstructions"
                 onChange={onTextChange}
+                placeholder="Care Instructions"
                 rows={3}
                 value={draft.careInstructions}
               />
@@ -1069,10 +1272,11 @@ export function AdminProductEditor({
         <section className="admin-editor-panel admin-taxonomy-panel">
           <div className="admin-taxonomy-card">
             <label className="admin-search-field">
-              Category Search
+              <span className="sr-only">Category Search</span>
               <Input
+                aria-label="Category Search"
                 onChange={(event) => setCategorySearch(event.currentTarget.value)}
-                placeholder="Search blankets, bridles, cat collars, farrier tools..."
+                placeholder="Category Search"
                 value={categorySearch}
               />
             </label>
@@ -1117,9 +1321,6 @@ export function AdminProductEditor({
             ) : (
               <div className="admin-taxonomy-stepper">
                 <div className="admin-taxonomy-step-card">
-                  <div className="admin-taxonomy-column-head">
-                    <strong>{categoryStepTitle}</strong>
-                  </div>
                   {activeCategoryOptions.length > 0 ? (
                     <div className="admin-taxonomy-options">
                       {activeCategoryOptions.map((node) => {
@@ -1148,9 +1349,7 @@ export function AdminProductEditor({
                         );
                       })}
                     </div>
-                  ) : (
-                    <p className="tiny">No categories available at this level.</p>
-                  )}
+                  ) : null}
                 </div>
               </div>
             )}
@@ -1161,8 +1360,7 @@ export function AdminProductEditor({
       <section className="admin-editor-panel admin-image-manager">
         <div className="admin-panel-header">
           <div>
-            <p className="section-eyebrow">Media</p>
-            <h3>Upload and order product images</h3>
+            <h3>Upload product images</h3>
           </div>
         </div>
 
@@ -1170,6 +1368,7 @@ export function AdminProductEditor({
           <div className="admin-upload-card">
             <R2ImageUploadForm
               ref={uploadFormRef}
+              autoUpload
               hideFolderField
               initialFolder={uploadFolder}
               multiple
@@ -1244,18 +1443,19 @@ export function AdminProductEditor({
                 </Button>
                 <Button
                   className="admin-image-meta-btn"
-                  onClick={() => removeImage(imageUrl)}
+                  disabled={deletingImageUrl === imageUrl}
+                  onClick={() => void removeImage(imageUrl)}
                   size="compact"
                   variant="secondary"
                 >
                   <FiTrash2 />
-                  <span>Remove</span>
+                  <span>{deletingImageUrl === imageUrl ? "Removing..." : "Remove"}</span>
                 </Button>
               </div>
             </article>
           ))}
           {!draft.images.length ? (
-            <p className="empty-state">No product images attached yet.</p>
+            <div aria-label="No product images attached" className="empty-state" />
           ) : null}
         </div>
       </section>

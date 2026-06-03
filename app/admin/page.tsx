@@ -43,11 +43,7 @@ export default async function AdminPage() {
     return (
       <section className="panel">
         <h2>Admin Access Required</h2>
-        <p>You are not authorized to visit this page.</p>
-        <p className="tiny">
-          {adminAccess.reason ||
-            "Sign in with the admin account to access the admin panel."}
-        </p>
+        <p>Sign in with an admin account to continue.</p>
       </section>
     );
   }
@@ -84,7 +80,6 @@ export default async function AdminPage() {
       <div className="admin-page-layout">
         <aside className="admin-side-rail">
           <section className="panel admin-rail-panel">
-            <h2>Modules</h2>
             <div aria-label="Admin modules" className="admin-module-list" role="list">
               {adminModules.map(({ icon: Icon, label }) => (
                 <article

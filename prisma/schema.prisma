@@ -195,6 +195,21 @@ model OrderItem {
   @@index([productId])
 }
 
+model NewsletterSubscriber {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  status       String    @default("SUBSCRIBED")
+  source       String?
+  subscribedAt DateTime  @default(now())
+  lastSignupAt DateTime  @default(now())
+  unsubscribedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([status])
+  @@index([subscribedAt])
+}
+
 model CatalogRequest {
   id                 String           @id @default(cuid())
   name               String

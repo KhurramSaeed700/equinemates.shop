@@ -38,6 +38,47 @@ const themeInitScript = `
   })();
 `;
 
+const clerkAppearance = {
+  variables: {
+    borderRadius: "0.85rem",
+    colorBackground: "var(--surface)",
+    colorDanger: "#b42318",
+    colorInputBackground: "var(--bg-elevated)",
+    colorInputText: "var(--ink)",
+    colorNeutral: "var(--line)",
+    colorPrimary: "var(--accent)",
+    colorText: "var(--ink)",
+    colorTextSecondary: "var(--ink-soft)",
+    fontFamily: "var(--font-plex-sans), Segoe UI, sans-serif",
+  },
+  elements: {
+    cardBox:
+      "border border-[var(--line)] bg-[var(--surface)] shadow-[var(--shadow)]",
+    card: "bg-[var(--surface)] text-[var(--ink)]",
+    headerTitle: "text-[var(--ink)]",
+    headerSubtitle: "text-[var(--ink-soft)]",
+    socialButtonsBlockButton:
+      "border-[var(--line)] bg-[var(--bg-elevated)] text-[var(--ink)] hover:bg-[color-mix(in_oklab,var(--surface),var(--accent)_7%)]",
+    socialButtonsBlockButtonText: "text-[var(--ink)]",
+    dividerLine: "bg-[var(--line)]",
+    dividerText: "text-[var(--ink-soft)]",
+    formFieldLabel: "text-[var(--ink)]",
+    formFieldInput:
+      "border-[var(--line)] bg-[var(--bg-elevated)] text-[var(--ink)] placeholder:text-[var(--ink-soft)]",
+    formButtonPrimary:
+      "bg-[var(--accent)] text-[var(--surface)] shadow-none hover:bg-[var(--accent-strong)]",
+    footer: "border-t border-[var(--line)] bg-[var(--bg-elevated)]",
+    footerAction: "text-[var(--ink-soft)]",
+    footerActionText: "text-[var(--ink-soft)]",
+    footerActionLink: "text-[var(--accent-strong)]",
+    footerPagesLink: "text-[var(--ink-soft)]",
+    identityPreviewText: "text-[var(--ink)]",
+    identityPreviewEditButton: "text-[var(--accent-strong)]",
+    formResendCodeLink: "text-[var(--accent-strong)]",
+    footerPoweredBy: "text-[var(--ink-soft)]",
+  },
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://equinemates.example"),
   title: {
@@ -95,7 +136,10 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className={`${sora.variable} ${plexSans.variable}`}>
-        <ClerkProvider publishableKey={clerkPublishableKey}>
+        <ClerkProvider
+          appearance={clerkAppearance}
+          publishableKey={clerkPublishableKey}
+        >
           <AppProviders>
             <div className="site-shell">
               <SiteHeader
