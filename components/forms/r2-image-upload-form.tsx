@@ -36,6 +36,8 @@ export type R2ImageUploadFormHandle = {
 
 interface R2ImageUploadFormProps {
   autoUpload?: boolean;
+  disabled?: boolean;
+  disabledMessage?: string;
   hideFolderField?: boolean;
   initialFolder?: string;
   multiple?: boolean;
@@ -69,6 +71,8 @@ export const R2ImageUploadForm = forwardRef<
 >(function R2ImageUploadForm(
   {
     autoUpload = false,
+    disabled = false,
+    disabledMessage = "Complete the product details before uploading images.",
     hideFolderField = false,
     initialFolder,
     multiple = false,
@@ -146,6 +150,12 @@ export const R2ImageUploadForm = forwardRef<
   const uploadPendingImages = useCallback(async (
     imagesOverride?: SelectedImage[],
   ): Promise<UploadResponse[]> => {
+    if (disabled) {
+      setStatus(disabledMessage);
+      toast.error("Image upload unavailable", disabledMessage);
+      throw new Error(disabledMessage);
+    }
+
     if (!imagesOverride && activeUploadPromiseRef.current) {
       return activeUploadPromiseRef.current;
     }
@@ -259,9 +269,15 @@ export const R2ImageUploadForm = forwardRef<
         activeUploadPromiseRef.current = null;
       }
     }
-  }, [clearSelectedImages, initialFolder, onUploaded, toast]);
+  }, [clearSelectedImages, disabled, disabledMessage, initialFolder, onUploaded, toast]);
 
   const addFiles = (files: FileList | File[]) => {
+    if (disabled) {
+      setStatus(disabledMessage);
+      toast.error("Image upload unavailable", disabledMessage);
+      return;
+    }
+
     const allFiles = Array.from(files);
     const nextFiles = allFiles.filter((file) => ALLOWED_IMAGE_TYPES.has(file.type));
 
@@ -321,10 +337,19 @@ export const R2ImageUploadForm = forwardRef<
   const onDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(false);
+    if (disabled) {
+      setStatus(disabledMessage);
+      toast.error("Image upload unavailable", disabledMessage);
+      return;
+    }
     addFiles(event.dataTransfer.files);
   };
 
   const onDropzoneKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (disabled) {
+      return;
+    }
+
     if (event.key !== "Enter" && event.key !== " ") {
       return;
     }
@@ -384,7 +409,12 @@ export const R2ImageUploadForm = forwardRef<
         )}
         <div
           className={`r2-dropzone${isDragging ? " is-dragging" : ""}`}
-          onClick={() => inputRef.current?.click()}
+          aria-disabled={disabled}
+          onClick={() => {
+            if (!disabled) {
+              inputRef.current?.click();
+            }
+          }}
           onDragEnter={(event) => {
             event.preventDefault();
             setIsDragging(true);
@@ -397,11 +427,12 @@ export const R2ImageUploadForm = forwardRef<
           onDrop={onDrop}
           onKeyDown={onDropzoneKeyDown}
           role="button"
-          tabIndex={0}
+          tabIndex={disabled ? -1 : 0}
         >
           <input
             accept="image/jpeg,image/png,.jpg,.jpeg,.png"
             className="r2-file-input"
+            disabled={disabled}
             multiple={multiple}
             name="image"
             onChange={(event) => {

@@ -31,7 +31,7 @@ export async function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="container footer-grid">
-        <section className="social-prominent">
+        <section className="social-prominent footer-social-section">
           <h3>Follow Equinemates</h3>
           <div className="social-links prominent">
             {socialLinks.map(({ href, label, Icon }) => (
@@ -48,7 +48,7 @@ export async function SiteFooter() {
           </div>
         </section>
 
-        <section>
+        <section className="footer-link-section footer-customer-care">
           <h3>Customer Care</h3>
           <ul>
             <li>
@@ -69,7 +69,7 @@ export async function SiteFooter() {
           </ul>
         </section>
 
-        <section>
+        <section className="footer-link-section footer-about-section">
           <h3>About Equinemates</h3>
           <ul>
             <li>
@@ -83,13 +83,18 @@ export async function SiteFooter() {
                 <Link href="/admin">Admin Panel</Link>
               </li>
             ) : null}
+            {adminAccess.isSuperAdmin ? (
+              <li>
+                <Link href="/super-admin">Super Admin</Link>
+              </li>
+            ) : null}
             <li>
               <Link href="/wholesale/dashboard">Wholesale Dashboard</Link>
             </li>
           </ul>
         </section>
 
-        <section>
+        <section className="footer-newsletter-section">
           <h3>Newsletter Signup</h3>
           <p>
             Sign up for product launches, promotions, and stable supply updates.

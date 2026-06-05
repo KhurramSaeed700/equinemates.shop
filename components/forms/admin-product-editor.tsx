@@ -23,7 +23,12 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ProductMedia } from "@/components/ui/product-media";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { getProductImageSrc } from "@/lib/image-utils";
+import {
+  getRichTextPlainText,
+  normalizeRichTextForStorage,
+} from "@/lib/rich-text";
 import { useToast } from "@/lib/use-toast";
 import { CurrencyCode, Product, ProductCategory } from "@/lib/types";
 
@@ -110,6 +115,17 @@ type SkuAvailabilityState = {
   message: string;
 };
 
+type AdminValidationField =
+  | "name"
+  | "sku"
+  | "basePriceUsd"
+  | "stock"
+  | "category"
+  | "shortDescription"
+  | "longDescription"
+  | "careInstructions"
+  | "images";
+
 type CategoryPathMatch = {
   key: string;
   path: string[];
@@ -170,19 +186,17 @@ function splitCategoryPath(value: string): string[] {
     .filter(Boolean);
 }
 
-function normalizeDescriptionListText(value: string): string {
-  return value
-    .split(/\r?\n/)
-    .map((line) => {
-      const trimmedLine = line.trim();
-      const bulletMatch = trimmedLine.match(
-        /^(?:[-*+\u2022\u2023\u25AA\u2013\u2014]|\d+[.)])\s*(.+)$/u,
-      );
+function buildUploadFolder(categoryPath: string[], itemNumber: string): string {
+  const safeCategoryPath = categoryPath
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  const safeItemNumber = sanitizeSkuItemNumber(itemNumber);
 
-      return bulletMatch ? `- ${bulletMatch[1].trim()}` : trimmedLine;
-    })
-    .filter(Boolean)
-    .join("\n");
+  if (!safeCategoryPath.length || !safeItemNumber) {
+    return "";
+  }
+
+  return ["Products", ...safeCategoryPath, safeItemNumber].join("/");
 }
 
 function flattenCategoryPaths(
@@ -370,6 +384,9 @@ export function AdminProductEditor({
     () => !(initialProduct?.categoryPath.length),
   );
   const [status, setStatus] = useState("");
+  const [validationFields, setValidationFields] = useState<
+    Set<AdminValidationField>
+  >(() => new Set());
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingProduct, setIsLoadingProduct] = useState(false);
   const [loadingProductSlug, setLoadingProductSlug] = useState("");
@@ -428,11 +445,15 @@ export function AdminProductEditor({
   const skuPrefixOptions = SKU_PREFIX_OPTIONS.includes(draft.skuPrefix)
     ? SKU_PREFIX_OPTIONS
     : [draft.skuPrefix, ...SKU_PREFIX_OPTIONS];
-  const uploadFolder =
-    draft.slug.trim() ||
-    draft.name.trim() ||
-    draft.categoryPath.split(" > ").at(-1) ||
-    "products";
+  const uploadFolder = buildUploadFolder(
+    selectedCategoryPath,
+    draft.skuItemNumber,
+  );
+  const uploadDisabledMessage = !selectedCategoryPath.length
+    ? "Select the product category path before uploading images."
+    : !draft.skuItemNumber.trim()
+      ? "Enter the product item number before uploading images."
+      : "";
   const isEditingProduct = Boolean(draft.originalSlug);
   const saveButtonLabel = isSaving
     ? isEditingProduct
@@ -441,6 +462,36 @@ export function AdminProductEditor({
     : isEditingProduct
       ? "Update Product"
       : "Upload Product";
+  const basePriceIsValid = parseDecimalInput(draft.basePriceUsd) !== null;
+  const stockNumber = Number(draft.stock);
+  const stockIsValid =
+    draft.stock.trim().length > 0 &&
+    Number.isFinite(stockNumber) &&
+    stockNumber >= 0;
+  const hasImagesReady =
+    draft.images.length > 0 || Boolean(uploadFormRef.current?.hasPendingImages());
+  const missingName =
+    validationFields.has("name") && !draft.name.trim();
+  const missingSku =
+    validationFields.has("sku") &&
+    (!draft.sku.trim() || !draft.skuItemNumber.trim());
+  const missingBasePrice =
+    validationFields.has("basePriceUsd") && !basePriceIsValid;
+  const missingStock =
+    validationFields.has("stock") && !stockIsValid;
+  const missingCategory =
+    validationFields.has("category") && !categorySelectionComplete;
+  const missingShortDescription =
+    validationFields.has("shortDescription") &&
+    !getRichTextPlainText(draft.shortDescription);
+  const missingLongDescription =
+    validationFields.has("longDescription") &&
+    !getRichTextPlainText(draft.longDescription);
+  const missingCareInstructions =
+    validationFields.has("careInstructions") &&
+    !getRichTextPlainText(draft.careInstructions);
+  const missingImages =
+    validationFields.has("images") && !hasImagesReady;
 
   const updateDraft = (
     field: keyof ProductDraft,
@@ -623,6 +674,7 @@ export function AdminProductEditor({
       setCategorySearch("");
       setIsCategoryEditing(false);
       setUploadResetSignal((currentSignal) => currentSignal + 1);
+      setValidationFields(new Set());
       resetSkuAvailability();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Could not load product.");
@@ -650,6 +702,7 @@ export function AdminProductEditor({
       setCategorySearch("");
       setIsCategoryEditing(false);
       setUploadResetSignal((currentSignal) => currentSignal + 1);
+      setValidationFields(new Set());
       resetSkuAvailability();
       setStatus("");
       toast.success("Duplicate draft ready", "Update the details and upload when ready.");
@@ -670,6 +723,7 @@ export function AdminProductEditor({
     setCategorySearch("");
     setIsCategoryEditing(true);
     setUploadResetSignal((currentSignal) => currentSignal + 1);
+    setValidationFields(new Set());
     resetSkuAvailability();
     setStatus("Creating a new product draft.");
   };
@@ -697,6 +751,7 @@ export function AdminProductEditor({
       setCategorySearch("");
       setIsCategoryEditing(true);
       setUploadResetSignal((currentSignal) => currentSignal + 1);
+      setValidationFields(new Set());
       resetSkuAvailability();
     }
 
@@ -817,6 +872,44 @@ export function AdminProductEditor({
   const onSave = async () => {
     setStatus("");
 
+    const missingRequiredFields: AdminValidationField[] = [];
+    if (!draft.name.trim()) {
+      missingRequiredFields.push("name");
+    }
+    if (!draft.sku.trim() || !draft.skuItemNumber.trim()) {
+      missingRequiredFields.push("sku");
+    }
+    if (!basePriceIsValid) {
+      missingRequiredFields.push("basePriceUsd");
+    }
+    if (!stockIsValid) {
+      missingRequiredFields.push("stock");
+    }
+    if (!categorySelectionComplete) {
+      missingRequiredFields.push("category");
+    }
+    if (!getRichTextPlainText(draft.shortDescription)) {
+      missingRequiredFields.push("shortDescription");
+    }
+    if (!getRichTextPlainText(draft.longDescription)) {
+      missingRequiredFields.push("longDescription");
+    }
+    if (!getRichTextPlainText(draft.careInstructions)) {
+      missingRequiredFields.push("careInstructions");
+    }
+    if (!hasImagesReady) {
+      missingRequiredFields.push("images");
+    }
+
+    setValidationFields(new Set(missingRequiredFields));
+
+    if (missingRequiredFields.length > 0) {
+      const message = "Complete the highlighted required fields before saving.";
+      setStatus(message);
+      toast.error("Missing required fields", message);
+      return;
+    }
+
     if (skuIsKnownDuplicate) {
       setStatus(skuAvailability.message);
       return;
@@ -857,8 +950,8 @@ export function AdminProductEditor({
           sku: draft.sku,
           category: draft.category,
           categoryPath: splitCategoryPath(draft.categoryPath),
-          shortDescription: normalizeDescriptionListText(draft.shortDescription),
-          longDescription: normalizeDescriptionListText(draft.longDescription),
+          shortDescription: normalizeRichTextForStorage(draft.shortDescription),
+          longDescription: normalizeRichTextForStorage(draft.longDescription),
           basePriceUsd: Number(draft.basePriceUsd),
           basePricePkr: basePricePkrPreview !== null ? Math.round(basePricePkrPreview) : NaN,
           compareAtPricePkr: null,
@@ -870,7 +963,7 @@ export function AdminProductEditor({
           images: imagesForSave,
           isBestSeller: draft.isBestSeller,
           isNewArrival: draft.isNewArrival,
-          careInstructions: normalizeDescriptionListText(draft.careInstructions),
+          careInstructions: normalizeRichTextForStorage(draft.careInstructions),
         }),
       });
 
@@ -894,6 +987,7 @@ export function AdminProductEditor({
       setCategorySearch("");
       setIsCategoryEditing(true);
       setUploadResetSignal((currentSignal) => currentSignal + 1);
+      setValidationFields(new Set());
       resetSkuAvailability();
       const successMessage = payload.message ?? "Product saved.";
       setStatus(successMessage);
@@ -983,16 +1077,6 @@ export function AdminProductEditor({
             >
               Search
             </Button>
-            {draft.slug ? (
-              <a
-                className="btn-secondary admin-toolbar-action admin-open-product-link"
-                href={`/products/${encodeURIComponent(draft.slug)}`}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Open Product
-              </a>
-            ) : null}
           </div>
 
           {normalizedProductSearch ? (
@@ -1083,12 +1167,24 @@ export function AdminProductEditor({
       <div className="admin-editor-layout">
         <section className="admin-editor-panel">
           <div className="form-grid">
-            <Field className="admin-field-name full-width">
+            <Field
+              className={
+                missingName
+                  ? "admin-field-name full-width admin-required-missing"
+                  : "admin-field-name full-width"
+              }
+              dataInvalid={missingName}
+            >
               <FieldLabel className="sr-only" htmlFor="admin-product-name">
                 Product Name
               </FieldLabel>
               <AutosizeTextarea
-                className="admin-product-name-textarea"
+                aria-invalid={missingName}
+                className={
+                  missingName
+                    ? "admin-product-name-textarea is-invalid"
+                    : "admin-product-name-textarea"
+                }
                 id="admin-product-name"
                 name="name"
                 onChange={onTextChange}
@@ -1098,23 +1194,22 @@ export function AdminProductEditor({
               />
             </Field>
             <Field
-              className="admin-sku-field"
-              dataInvalid={skuIsKnownDuplicate}
+              className={
+                missingSku
+                  ? "admin-sku-field admin-required-missing"
+                  : "admin-sku-field"
+              }
+              dataInvalid={skuIsKnownDuplicate || missingSku}
             >
-              <div className="admin-sku-heading">
-                <FieldLabel className="sr-only" htmlFor="admin-product-sku-item">
-                  SKU
-                </FieldLabel>
-                <FieldDescription className="admin-sku-preview" id="admin-sku-preview">
-                  SKU Preview: <strong>{draft.sku || "--"}</strong>
-                </FieldDescription>
-              </div>
               <div className="admin-sku-builder">
                 <label className="admin-sku-part">
                   <span className="sr-only">Prefix</span>
                   <select
                     aria-label="SKU prefix"
-                    className={skuIsKnownDuplicate ? "is-invalid" : undefined}
+                    aria-invalid={skuIsKnownDuplicate || missingSku}
+                    className={
+                      skuIsKnownDuplicate || missingSku ? "is-invalid" : undefined
+                    }
                     name="skuPrefix"
                     onBlur={() => void checkSkuAvailability()}
                     onChange={(event) =>
@@ -1133,8 +1228,10 @@ export function AdminProductEditor({
                   <span className="sr-only">Item number</span>
                   <Input
                     aria-describedby="admin-sku-preview admin-sku-availability"
-                    aria-invalid={skuIsKnownDuplicate}
-                    className={skuIsKnownDuplicate ? "is-invalid" : undefined}
+                    aria-invalid={skuIsKnownDuplicate || missingSku}
+                    className={
+                      skuIsKnownDuplicate || missingSku ? "is-invalid" : undefined
+                    }
                     id="admin-product-sku-item"
                     inputMode="numeric"
                     maxLength={SKU_ITEM_NUMBER_MAX_LENGTH}
@@ -1147,6 +1244,14 @@ export function AdminProductEditor({
                     value={draft.skuItemNumber}
                   />
                 </label>
+              </div>
+              <div className="admin-sku-heading">
+                <FieldLabel className="sr-only" htmlFor="admin-product-sku-item">
+                  SKU
+                </FieldLabel>
+                <FieldDescription className="admin-sku-preview" id="admin-sku-preview">
+                  SKU Preview: <strong>{draft.sku || "--"}</strong>
+                </FieldDescription>
               </div>
               {skuAvailability.message ? (
                 skuAvailability.state === "duplicate" ||
@@ -1167,11 +1272,20 @@ export function AdminProductEditor({
                 )
               ) : null}
             </Field>
-            <Field className="admin-field-price">
+            <Field
+              className={
+                missingBasePrice
+                  ? "admin-field-price admin-required-missing"
+                  : "admin-field-price"
+              }
+              dataInvalid={missingBasePrice}
+            >
               <FieldLabel className="sr-only" htmlFor="admin-product-price">
                 Base Price USD
               </FieldLabel>
               <Input
+                aria-invalid={missingBasePrice}
+                className={missingBasePrice ? "is-invalid" : undefined}
                 id="admin-product-price"
                 inputMode="decimal"
                 name="basePriceUsd"
@@ -1180,11 +1294,20 @@ export function AdminProductEditor({
                 value={draft.basePriceUsd}
               />
             </Field>
-            <Field className="admin-field-stock">
+            <Field
+              className={
+                missingStock
+                  ? "admin-field-stock admin-required-missing"
+                  : "admin-field-stock"
+              }
+              dataInvalid={missingStock}
+            >
               <FieldLabel className="sr-only" htmlFor="admin-product-stock">
                 Stock
               </FieldLabel>
               <Input
+                aria-invalid={missingStock}
+                className={missingStock ? "is-invalid" : undefined}
                 id="admin-product-stock"
                 inputMode="numeric"
                 name="stock"
@@ -1227,42 +1350,68 @@ export function AdminProductEditor({
                 </label>
               </div>
             </div>
-            <Field className="full-width">
+            <Field
+              className={
+                missingShortDescription
+                  ? "full-width admin-required-missing"
+                  : "full-width"
+              }
+              dataInvalid={missingShortDescription}
+            >
               <FieldLabel className="sr-only" htmlFor="admin-product-short-description">
                 Short Description
               </FieldLabel>
-              <AutosizeTextarea
+              <RichTextEditor
+                ariaInvalid={missingShortDescription}
                 id="admin-product-short-description"
-                name="shortDescription"
-                onChange={onTextChange}
+                onChange={(value) => updateDraft("shortDescription", value)}
                 placeholder="Short Description"
-                rows={3}
+                size="short"
+                toolbarLabel="Short description tools"
                 value={draft.shortDescription}
               />
             </Field>
-            <Field className="full-width">
+            <Field
+              className={
+                missingLongDescription
+                  ? "admin-long-description-field full-width admin-required-missing"
+                  : "admin-long-description-field full-width"
+              }
+              dataInvalid={missingLongDescription}
+            >
               <FieldLabel className="sr-only" htmlFor="admin-product-long-description">
                 Long Description
               </FieldLabel>
-              <AutosizeTextarea
+              <RichTextEditor
+                allowLists
+                ariaInvalid={missingLongDescription}
                 id="admin-product-long-description"
-                name="longDescription"
-                onChange={onTextChange}
+                onChange={(value) => updateDraft("longDescription", value)}
                 placeholder="Long Description"
-                rows={5}
+                size="long"
+                toolbarLabel="Long description tools"
                 value={draft.longDescription}
               />
             </Field>
-            <Field className="full-width">
+            <Field
+              className={
+                missingCareInstructions
+                  ? "full-width admin-required-missing"
+                  : "full-width"
+              }
+              dataInvalid={missingCareInstructions}
+            >
               <FieldLabel className="sr-only" htmlFor="admin-product-care">
                 Care Instructions
               </FieldLabel>
-              <AutosizeTextarea
+              <RichTextEditor
+                allowLists
+                ariaInvalid={missingCareInstructions}
                 id="admin-product-care"
-                name="careInstructions"
-                onChange={onTextChange}
+                onChange={(value) => updateDraft("careInstructions", value)}
                 placeholder="Care Instructions"
-                rows={3}
+                size="medium"
+                toolbarLabel="Care instruction tools"
                 value={draft.careInstructions}
               />
             </Field>
@@ -1270,7 +1419,14 @@ export function AdminProductEditor({
         </section>
 
         <section className="admin-editor-panel admin-taxonomy-panel">
-          <div className="admin-taxonomy-card">
+          <div
+            aria-invalid={missingCategory}
+            className={
+              missingCategory
+                ? "admin-taxonomy-card admin-required-missing"
+                : "admin-taxonomy-card"
+            }
+          >
             <label className="admin-search-field">
               <span className="sr-only">Category Search</span>
               <Input
@@ -1365,10 +1521,19 @@ export function AdminProductEditor({
         </div>
 
         <div className="admin-image-tools">
-          <div className="admin-upload-card">
+          <div
+            aria-invalid={missingImages}
+            className={
+              missingImages
+                ? "admin-upload-card admin-required-missing"
+                : "admin-upload-card"
+            }
+          >
             <R2ImageUploadForm
               ref={uploadFormRef}
               autoUpload
+              disabled={!uploadFolder}
+              disabledMessage={uploadDisabledMessage}
               hideFolderField
               initialFolder={uploadFolder}
               multiple

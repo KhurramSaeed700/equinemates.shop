@@ -1,14 +1,8 @@
-import { cn } from "@/lib/utils";
+import parse from "html-react-parser";
+import sanitizeHtml from "sanitize-html";
 
-type DescriptionBlock =
-  | {
-      type: "paragraph";
-      text: string;
-    }
-  | {
-      type: "list";
-      items: string[];
-    };
+import { cn } from "@/lib/utils";
+import { normalizeRichTextInput } from "@/lib/rich-text";
 
 type FormattedDescriptionProps = {
   className?: string;
@@ -16,55 +10,36 @@ type FormattedDescriptionProps = {
   text: string;
 };
 
-const bulletPrefixPattern = /^(?:[-*+\u2022\u2023\u25AA\u2013\u2014]|\d+[.)])\s*(.+)$/u;
-
-function shouldTreatLinesAsList(lines: string[]): boolean {
-  if (lines.length < 2) {
-    return false;
-  }
-
-  return lines.every((line) => line.length <= 160);
-}
-
-function parseDescription(text: string): DescriptionBlock[] {
-  const lines = text
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-  const hasExplicitBullets = lines.some((line) => bulletPrefixPattern.test(line));
-  const blocks: DescriptionBlock[] = [];
-
-  if (!hasExplicitBullets && shouldTreatLinesAsList(lines)) {
-    return [{ type: "list", items: lines }];
-  }
-
-  for (const line of lines) {
-    const bulletMatch = line.match(bulletPrefixPattern);
-
-    if (bulletMatch) {
-      const lastBlock = blocks[blocks.length - 1];
-      if (lastBlock?.type === "list") {
-        lastBlock.items.push(bulletMatch[1].trim());
-      } else {
-        blocks.push({ type: "list", items: [bulletMatch[1].trim()] });
-      }
-      continue;
-    }
-
-    blocks.push({ type: "paragraph", text: line });
-  }
-
-  return blocks;
-}
+const allowedRichTextTags = [
+  "p",
+  "br",
+  "strong",
+  "b",
+  "em",
+  "i",
+  "u",
+  "ul",
+  "ol",
+  "li",
+];
 
 export function FormattedDescription({
   className,
   compact = false,
   text,
 }: FormattedDescriptionProps) {
-  const blocks = parseDescription(text);
+  const html = normalizeRichTextInput(text);
 
-  if (!blocks.length) {
+  if (!html) {
+    return null;
+  }
+
+  const sanitizedHtml = sanitizeHtml(html, {
+    allowedAttributes: {},
+    allowedTags: allowedRichTextTags,
+  });
+
+  if (!sanitizedHtml.trim()) {
     return null;
   }
 
@@ -76,22 +51,7 @@ export function FormattedDescription({
         className,
       )}
     >
-      {blocks.map((block, index) =>
-        block.type === "list" ? (
-          <ul key={`list-${index}`}>
-            {block.items.map((item, itemIndex) => (
-              <li key={`${item}-${itemIndex}`}>
-                <span aria-hidden="true" className="formatted-description-bullet">
-                  {"\u2022"}
-                </span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p key={`paragraph-${index}`}>{block.text}</p>
-        ),
-      )}
+      {parse(sanitizedHtml)}
     </div>
   );
 }

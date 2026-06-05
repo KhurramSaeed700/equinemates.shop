@@ -63,11 +63,48 @@ function getFileExtension(contentType: string): string {
   }
 }
 
-function buildObjectKey(uploadPrefix: string, contentHash: string, file: File): string {
-  const extension = getFileExtension(file.type);
-  const objectName = `${contentHash}.${extension}`;
+function sanitizeFolderSegment(value: string): string {
+  return value
+    .trim()
+    .replace(/[\u0000-\u001f\u007f]/g, "")
+    .replace(/[\\<>:"|?*#%{}[\]^`]+/g, "-")
+    .replace(/\s+/g, " ")
+    .replace(/^-+|-+$/g, "");
+}
 
-  return [uploadPrefix, "images", objectName]
+function sanitizeFileName(value: string): string {
+  const baseName = value.replace(/\.[^.]+$/, "");
+  const safeName = baseName
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return safeName || "image";
+}
+
+function toFolderSegments(folder: string): string[] {
+  return folder
+    .split("/")
+    .map(sanitizeFolderSegment)
+    .filter((segment) => segment && segment !== "." && segment !== "..");
+}
+
+function buildObjectKey(
+  uploadPrefix: string,
+  folder: string | undefined,
+  contentHash: string,
+  file: File,
+): string {
+  const extension = getFileExtension(file.type);
+  const objectName = `${contentHash.slice(0, 12)}-${sanitizeFileName(file.name)}.${extension}`;
+  const folderSegments = toFolderSegments(folder ?? "");
+  const baseSegments = folderSegments.length
+    ? folderSegments
+    : [...toFolderSegments(uploadPrefix), "images"];
+
+  return [...baseSegments, objectName]
     .filter(Boolean)
     .join("/");
 }
@@ -225,6 +262,7 @@ function assertUploadableImage(file: File, maxUploadBytes: number) {
 
 export async function uploadImageToR2({
   file,
+  folder,
 }: R2UploadInput): Promise<R2UploadResult> {
   const config = getR2Config();
 
@@ -232,7 +270,7 @@ export async function uploadImageToR2({
 
   const body = Buffer.from(await file.arrayBuffer());
   const contentHash = createHash("sha256").update(body).digest("hex");
-  const key = buildObjectKey(config.uploadPrefix, contentHash, file);
+  const key = buildObjectKey(config.uploadPrefix, folder, contentHash, file);
   const client = getS3Client(config);
   const exists = await r2ObjectExists({
     bucketName: config.bucketName,

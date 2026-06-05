@@ -70,10 +70,6 @@ export default async function AdminPage() {
             <span>Products</span>
             <strong>{productSummaries.length}</strong>
           </article>
-          <article className="admin-page-stat">
-            <span>Top Categories</span>
-            <strong>{categoryOptions.length}</strong>
-          </article>
         </div>
       </section>
 

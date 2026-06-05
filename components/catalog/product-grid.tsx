@@ -8,7 +8,7 @@ import { Product } from "@/lib/types";
 
 export function ProductGrid({
   products,
-  emptyLabel = "No products found for this filter.",
+  emptyLabel = "No products found in this category",
   showAuthHint = false,
 }: {
   products: Product[];

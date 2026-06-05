@@ -1,12 +1,19 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 
 import { isClerkEnabledFromKey } from "@/lib/clerk";
+import {
+  getAdminAccountForEmails,
+  getFallbackAdminAccessForEmails,
+  type AdminRole,
+} from "@/lib/server/admin-directory";
 
 type AdminAccessResult = {
   isAuthorized: boolean;
   isAuthenticated: boolean;
+  isSuperAdmin: boolean;
   reason: string;
   primaryEmail: string | null;
+  role: AdminRole | null;
 };
 
 function getErrorMessage(error: unknown): string {
@@ -54,13 +61,6 @@ function logClerkAuthError(context: string, error: unknown) {
   });
 }
 
-function getConfiguredAdminEmails(): string[] {
-  return (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean);
-}
-
 function collectEmailsFromClaims(claims: unknown): string[] {
   if (!claims || typeof claims !== "object") {
     return [];
@@ -79,30 +79,53 @@ function collectEmailsFromClaims(claims: unknown): string[] {
     .filter(Boolean);
 }
 
-function getAccessForEmails(emails: string[]): AdminAccessResult {
+async function getAccessForEmails(emails: string[]): Promise<AdminAccessResult> {
   const uniqueEmails = Array.from(new Set(emails));
   const primaryEmail = uniqueEmails[0] ?? null;
-  const adminEmails = getConfiguredAdminEmails();
 
-  if (!adminEmails.length) {
+  if (!uniqueEmails.length) {
     return {
       isAuthorized: false,
       isAuthenticated: true,
-      reason:
-        "ADMIN_EMAILS is not configured. Add a comma-separated admin allowlist to enable uploads.",
+      isSuperAdmin: false,
+      reason: "Clerk could not find an email address for this account.",
       primaryEmail,
+      role: null,
     };
   }
 
-  const isAuthorized = uniqueEmails.some((email) => adminEmails.includes(email));
+  try {
+    const adminAccount = await getAdminAccountForEmails(uniqueEmails);
+
+    if (adminAccount) {
+      return {
+        isAuthorized: true,
+        isAuthenticated: true,
+        isSuperAdmin: adminAccount.role === "SUPER_ADMIN",
+        reason: "",
+        primaryEmail,
+        role: adminAccount.role,
+      };
+    }
+  } catch (error) {
+    console.error("[admin-auth] Admin directory lookup failed.", {
+      primaryEmail,
+      errorName: error instanceof Error ? error.name : "UnknownError",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+
+  const fallback = getFallbackAdminAccessForEmails(uniqueEmails);
 
   return {
-    isAuthorized,
+    isAuthorized: fallback.isAuthorized,
     isAuthenticated: true,
-    reason: isAuthorized
+    isSuperAdmin: fallback.role === "SUPER_ADMIN",
+    reason: fallback.isAuthorized
       ? ""
-      : "The signed-in Clerk user is not included in ADMIN_EMAILS.",
+      : "The signed-in Clerk user is not included in the admin directory.",
     primaryEmail,
+    role: fallback.role,
   };
 }
 
@@ -115,9 +138,11 @@ export async function getAdminAccess(): Promise<AdminAccessResult> {
     return {
       isAuthorized: false,
       isAuthenticated: false,
+      isSuperAdmin: false,
       reason:
         "Admin access requires Clerk to be configured before R2 uploads can be used.",
       primaryEmail: null,
+      role: null,
     };
   }
 
@@ -131,9 +156,11 @@ export async function getAdminAccess(): Promise<AdminAccessResult> {
     return {
       isAuthorized: false,
       isAuthenticated: false,
+      isSuperAdmin: false,
       reason:
         "Clerk authentication failed. Check the Clerk keys in .env.local, restart the dev server, and sign in again.",
       primaryEmail: null,
+      role: null,
     };
   }
 
@@ -143,8 +170,10 @@ export async function getAdminAccess(): Promise<AdminAccessResult> {
     return {
       isAuthorized: false,
       isAuthenticated: false,
+      isSuperAdmin: false,
       reason: "Sign in with a Clerk account that is allowed to access the admin panel.",
       primaryEmail: null,
+      role: null,
     };
   }
 
@@ -158,15 +187,17 @@ export async function getAdminAccess(): Promise<AdminAccessResult> {
     const claimEmails = collectEmailsFromClaims(sessionClaims);
 
     if (claimEmails.length) {
-      return getAccessForEmails(claimEmails);
+      return await getAccessForEmails(claimEmails);
     }
 
     return {
       isAuthorized: false,
       isAuthenticated: true,
+      isSuperAdmin: false,
       reason:
         "Clerk could not verify the signed-in user's email. Check CLERK_SECRET_KEY in .env.local, restart the dev server, and sign in again.",
       primaryEmail: null,
+      role: null,
     };
   }
 
@@ -174,5 +205,5 @@ export async function getAdminAccess(): Promise<AdminAccessResult> {
     user?.emailAddresses.map((entry) => entry.emailAddress.toLowerCase()) ?? [];
   const primaryEmail = user?.primaryEmailAddress?.emailAddress.toLowerCase();
 
-  return getAccessForEmails(primaryEmail ? [primaryEmail, ...emails] : emails);
+  return await getAccessForEmails(primaryEmail ? [primaryEmail, ...emails] : emails);
 }

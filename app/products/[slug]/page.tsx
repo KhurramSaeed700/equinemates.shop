@@ -9,6 +9,7 @@ import { FormattedDescription } from "@/components/ui/formatted-description";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { buildCategoryPathHref } from "@/lib/catalog";
+import { getRichTextPlainText } from "@/lib/rich-text";
 import {
   getProductBySlug,
   getRelatedProducts,
@@ -34,7 +35,7 @@ export async function generateMetadata({
 
   return {
     title: product.name,
-    description: product.longDescription,
+    description: getRichTextPlainText(product.longDescription),
   };
 }
 
@@ -121,7 +122,11 @@ export default async function ProductDetailPage({
           <FormattedDescription text={product.longDescription} />
         </CollapsibleSection>
         <CollapsibleSection title="Care Instructions">
-          <p>{product.careInstructions ?? "Care instructions will be provided soon."}</p>
+          {product.careInstructions ? (
+            <FormattedDescription text={product.careInstructions} />
+          ) : (
+            <p>Care instructions will be provided soon.</p>
+          )}
         </CollapsibleSection>
       </section>
 

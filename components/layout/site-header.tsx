@@ -9,11 +9,14 @@ import { CurrencySwitcher } from "@/components/layout/currency-switcher";
 import { SiteHeaderDesktopNav } from "@/components/layout/site-header-desktop-nav";
 import { SiteHeaderMobileDrawer } from "@/components/layout/site-header-mobile-drawer";
 import { SiteSearch } from "@/components/layout/site-search";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useCart } from "@/components/providers/cart-provider";
+import { useWishlist } from "@/components/providers/wishlist-provider";
 import type { NavMenu } from "@/lib/catalog";
 import {
   CartIcon,
   CloseIcon,
+  HeartIcon,
   MenuIcon,
 } from "@/components/ui/icons";
 
@@ -28,6 +31,7 @@ export function SiteHeader({
 }) {
   const TOUCH_NAV_QUERY = "(max-width: 680px)";
   const { itemCount } = useCart();
+  const { productSlugs } = useWishlist();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
@@ -141,10 +145,19 @@ export function SiteHeader({
 
         <div className="header-utility-right">
           <CurrencySwitcher />
+          <Link
+            aria-label="Wishlist"
+            className="icon-link header-wishlist-link"
+            href="/wishlist"
+          >
+            <HeartIcon height={17} width={17} />
+            <span className="counter-dot">{productSlugs.length}</span>
+          </Link>
           <Link aria-label="Cart" className="icon-link" href="/cart">
             <CartIcon height={17} width={17} />
             <span className="counter-dot">{itemCount}</span>
           </Link>
+          <ThemeToggle />
           <button
             aria-controls="mobile-site-nav"
             aria-expanded={mobileNavOpen}

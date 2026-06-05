@@ -13,9 +13,15 @@ import {
 import { createPortal } from "react-dom";
 import { FiMoon, FiSun } from "react-icons/fi";
 
+import { useCart } from "@/components/providers/cart-provider";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useWishlist } from "@/components/providers/wishlist-provider";
-import { ChevronDownIcon, CloseIcon, HeartIcon } from "@/components/ui/icons";
+import {
+  CartIcon,
+  ChevronDownIcon,
+  CloseIcon,
+  HeartIcon,
+} from "@/components/ui/icons";
 import type { NavMenu } from "@/lib/catalog";
 
 interface SiteHeaderMobileDrawerProps {
@@ -45,6 +51,7 @@ export function SiteHeaderMobileDrawer({
     () => false,
   );
   const { isDark, toggleTheme } = useTheme();
+  const { itemCount } = useCart();
   const { productSlugs } = useWishlist();
   const [themeMounted, setThemeMounted] = useState(false);
 
@@ -90,7 +97,6 @@ export function SiteHeaderMobileDrawer({
                 <SignedIn>
                   <UserButton />
                 </SignedIn>
-                <span className="mobile-nav-account-text">Account</span>
               </div>
             ) : (
               <Link
@@ -101,7 +107,6 @@ export function SiteHeaderMobileDrawer({
                 Sign in
               </Link>
             )}
-            <p>Browse categories</p>
           </div>
           <button
             aria-label="Close navigation menu"
@@ -131,6 +136,25 @@ export function SiteHeaderMobileDrawer({
                 className="mobile-nav-quick-action-count"
               >
                 {productSlugs.length}
+              </span>
+            </Link>
+            <Link
+              className="mobile-nav-quick-action"
+              href="/cart"
+              onClick={() => {
+                setMobileNavOpen(false);
+                setOpenMenu(null);
+              }}
+            >
+              <span className="mobile-nav-quick-action-icon">
+                <CartIcon aria-hidden="true" height={16} width={16} />
+              </span>
+              <span className="mobile-nav-quick-action-label">Cart</span>
+              <span
+                aria-label={`${itemCount} cart items`}
+                className="mobile-nav-quick-action-count"
+              >
+                {itemCount}
               </span>
             </Link>
             <button
