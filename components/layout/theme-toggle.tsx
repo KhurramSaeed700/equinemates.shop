@@ -1,17 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { FiMoon, FiSun } from "react-icons/fi";
 
+import { useMounted } from "@/components/hooks/useMounted";
 import { useTheme } from "@/components/providers/theme-provider";
 
 export function ThemeToggle() {
   const { isDark, toggleTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useMounted();
 
   const label = mounted
     ? isDark

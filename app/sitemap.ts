@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 import { getCatalogProducts } from "@/lib/server/catalog-products";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://equinemates.example";
+  const baseUrl = "https://equinemates.com";
   const staticRoutes = [
     "",
     "/about",

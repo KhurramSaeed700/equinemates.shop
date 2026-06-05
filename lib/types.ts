@@ -60,7 +60,7 @@ export interface Address {
 export interface OrderSummary {
   id: string;
   date: string;
-  status: "pending" | "processing" | "shipped" | "delivered";
+  status: "pending" | "processing" | "shipped" | "delivered" | "canceled";
   totalPkr: number;
   itemCount: number;
 }

@@ -80,7 +80,7 @@ const clerkAppearance = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://equinemates.example"),
+  metadataBase: new URL("https://equinemates.com"),
   title: {
     default: "Equinemates | Shop Horse, Rider & Pet Products",
     template: "%s | Equinemates",
@@ -105,7 +105,7 @@ export const metadata: Metadata = {
     title: "Equinemates",
     description:
       "Modern ecommerce for pet, horse, and rider products with wholesale and admin architecture.",
-    url: "https://equinemates.example",
+    url: "https://equinemates.com",
     siteName: "Equinemates",
     locale: "en_US",
     type: "website",

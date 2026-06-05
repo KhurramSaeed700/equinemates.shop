@@ -40,9 +40,11 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isLoaded) return;
 
+    let cancelled = false;
+    let slugsToLoad: string[] = [];
+
     if (isSignedIn && userId) {
       const key = `${WISHLIST_STORAGE_KEY}_${userId}`;
-      let slugsToLoad: string[] = [];
 
       const storedUser = window.localStorage.getItem(key);
       if (storedUser) {
@@ -65,10 +67,17 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
           window.localStorage.removeItem(WISHLIST_STORAGE_KEY);
         }
       }
-      setProductSlugs(slugsToLoad);
-    } else {
-      setProductSlugs([]);
     }
+
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setProductSlugs(slugsToLoad);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [isLoaded, isSignedIn, userId]);
 
   useEffect(() => {

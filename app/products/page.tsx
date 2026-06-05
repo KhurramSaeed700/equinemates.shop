@@ -66,7 +66,10 @@ function getSubcategoryItems({
   const activePath = categoryNodes.length ? categoryNodes : category ? [category] : [];
 
   if (!activePath.length) {
-    return [];
+    return tree.map((node) => ({
+      href: buildCategoryPathHref(node.path),
+      label: node.name,
+    }));
   }
 
   const activeNode = findCategoryNode(tree, activePath);
@@ -96,6 +99,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     categoryNodes,
     tree: categoryTree,
   });
+  const categoryStripLabel = categoryPath || category
+    ? `Browse ${categoryPath ?? category} subcategories`
+    : "Browse catalog categories";
   const perPage = parsePerPageParam(params.perPage);
   const totalPages = Math.max(1, Math.ceil(products.length / perPage));
   const currentPage = clampPage(parsePageParam(params.page), totalPages);
@@ -124,7 +130,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         title={categoryPath ? categoryPath.split(" > ").at(-1) ?? categoryPath : category ? `${category}` : "All Products"}
       />
       <CategoryStrip
-        ariaLabel={`Browse ${categoryPath ?? category ?? "catalog"} subcategories`}
+        ariaLabel={categoryStripLabel}
         items={subcategoryItems}
       />
       <section className="section-spacing products-grid-mobile-two">

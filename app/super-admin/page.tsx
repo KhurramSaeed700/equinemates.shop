@@ -52,7 +52,6 @@ export default async function SuperAdminPage() {
     <div className="admin-page-shell super-admin-page-shell">
       <section className="admin-page-header super-admin-header">
         <div className="admin-page-header-copy">
-          <p className="section-eyebrow">Access Control</p>
           <h1>Super Admin Dashboard</h1>
         </div>
         <div className="super-admin-header-actions">

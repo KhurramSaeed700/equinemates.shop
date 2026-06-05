@@ -115,10 +115,13 @@ public/
 
 ```bash
 pnpm install
+cp .env.example .env.local
 pnpm dev
 ```
 
-Open `http://localhost:3000`.
+Fill the placeholder values in `.env.local`, then open `http://localhost:3000`.
+Keep real secrets in `.env.local` locally or in Vercel environment variables for
+deployed environments.
 
 ## Cloudflare R2 Image Uploads
 
@@ -131,26 +134,16 @@ changes through `POST /api/admin/products`.
 3. Make the bucket publicly readable through either:
    - a custom domain, or
    - Cloudflare's `r2.dev` public URL.
-4. Add these environment variables:
-
-```bash
-ADMIN_EMAILS="admin@example.com"
-R2_ACCOUNT_ID="your_cloudflare_account_id"
-R2_ACCESS_KEY_ID="your_r2_access_key_id"
-R2_SECRET_ACCESS_KEY="your_r2_secret_access_key"
-R2_BUCKET_NAME="equinemates-products"
-R2_PUBLIC_BASE_URL="https://pub-your-public-bucket-id.r2.dev"
-R2_UPLOAD_PREFIX="products"
-R2_MAX_UPLOAD_MB="4"
-```
-
-5. Sign in with a Clerk user whose email is included in `ADMIN_EMAILS`.
+4. Fill the Cloudflare R2 variables in `.env.local`; `.env.example` contains the
+   full placeholder list.
+5. Sign in with the Clerk user listed in `SUPER_ADMIN_EMAILS`, then use
+   `/super-admin` to add regular admins to the database.
 6. Open `/admin`, select an existing product or create a new draft, upload an
    image, and save the product.
 
 Notes:
 
-- The upload route accepts `AVIF`, `GIF`, `JPG`, `PNG`, and `WebP`.
+- The upload route accepts `JPG` and `PNG`.
 - `next/image` remote access is derived from `R2_PUBLIC_BASE_URL`, so restart the
   dev server after changing that env var.
 - This implementation relays uploads through the Next.js server. Keep file sizes

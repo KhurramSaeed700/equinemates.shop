@@ -158,6 +158,7 @@ model WishlistItem {
 model Order {
   id                String      @id @default(cuid())
   orderNumber       String      @unique
+  invoiceId         String?     @unique
   userId            String
   status            OrderStatus @default(PENDING)
   currency          String      @default("PKR")
@@ -165,6 +166,15 @@ model Order {
   shippingPkr       Int         @default(0)
   discountPkr       Int         @default(0)
   totalPkr          Int
+  paymentMethod     String?
+  paymentStatus     String?
+  exchangeRateFromPkr Float?
+  exchangeRateUpdatedAt DateTime?
+  exchangeRateStale Boolean     @default(false)
+  subtotalInCurrency Float?
+  totalInCurrency   Float?
+  shippingCity      String?
+  checkoutShippingAddress String?
   shippingAddressId String?
   billingAddressId  String?
   notes             String?

@@ -46,9 +46,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isLoaded) return;
 
+    let cancelled = false;
+    let itemsToLoad: CartItem[] = [];
+
     if (isSignedIn && userId) {
       const key = `${CART_STORAGE_KEY}_${userId}`;
-      let itemsToLoad: CartItem[] = [];
 
       // prefer a previously saved user-specific cart
       const storedUser = window.localStorage.getItem(key);
@@ -73,11 +75,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
           window.localStorage.removeItem(CART_STORAGE_KEY);
         }
       }
-      setItems(itemsToLoad);
-    } else {
-      // clear when not signed in
-      setItems([]);
     }
+
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setItems(itemsToLoad);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [isLoaded, isSignedIn, userId]);
 
   // persist items for the signed‑in user only

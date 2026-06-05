@@ -77,12 +77,14 @@ export function ProductGallery({
   }, [zoomLevel]);
 
   const prevImage = () => {
+    resetZoom();
     setActiveIndex((current) =>
       current === 0 ? safeImages.length - 1 : current - 1,
     );
   };
 
   const nextImage = () => {
+    resetZoom();
     setActiveIndex((current) =>
       current === safeImages.length - 1 ? 0 : current + 1,
     );
@@ -162,7 +164,13 @@ export function ProductGallery({
     );
 
     setZoomLevel(nextZoom);
-    setPanOffset((current) => clampPanOffset(current, nextZoom));
+    if (nextZoom <= MIN_ZOOM) {
+      setPanOffset({ x: 0, y: 0 });
+      panDragRef.current = null;
+      setIsPanning(false);
+    } else {
+      setPanOffset((current) => clampPanOffset(current, nextZoom));
+    }
   };
 
   const handleTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
@@ -229,10 +237,6 @@ export function ProductGallery({
   }, [lightboxOpen]);
 
   useEffect(() => {
-    resetZoom();
-  }, [activeIndex, resetZoom]);
-
-  useEffect(() => {
     if (!lightboxOpen) {
       return;
     }
@@ -244,23 +248,24 @@ export function ProductGallery({
     });
   }, [activeIndex, lightboxOpen]);
 
-  useEffect(() => {
-    if (zoomLevel <= MIN_ZOOM) {
+  const zoomIn = () => {
+    const nextZoom = Math.min(MAX_ZOOM, zoomLevel + ZOOM_STEP);
+    setZoomLevel(nextZoom);
+    setPanOffset((current) => clampPanOffset(current, nextZoom));
+  };
+
+  const zoomOut = () => {
+    const nextZoom = Math.max(MIN_ZOOM, zoomLevel - ZOOM_STEP);
+    setZoomLevel(nextZoom);
+
+    if (nextZoom <= MIN_ZOOM) {
       setPanOffset({ x: 0, y: 0 });
       panDragRef.current = null;
       setIsPanning(false);
       return;
     }
 
-    setPanOffset((current) => clampPanOffset(current, zoomLevel));
-  }, [clampPanOffset, zoomLevel]);
-
-  const zoomIn = () => {
-    setZoomLevel((current) => Math.min(MAX_ZOOM, current + ZOOM_STEP));
-  };
-
-  const zoomOut = () => {
-    setZoomLevel((current) => Math.max(MIN_ZOOM, current - ZOOM_STEP));
+    setPanOffset((current) => clampPanOffset(current, nextZoom));
   };
 
   const closeLightbox = () => {

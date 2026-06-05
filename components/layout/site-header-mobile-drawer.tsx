@@ -6,8 +6,6 @@ import {
   Dispatch,
   RefObject,
   SetStateAction,
-  useEffect,
-  useState,
   useSyncExternalStore,
 } from "react";
 import { createPortal } from "react-dom";
@@ -53,26 +51,13 @@ export function SiteHeaderMobileDrawer({
   const { isDark, toggleTheme } = useTheme();
   const { itemCount } = useCart();
   const { productSlugs } = useWishlist();
-  const [themeMounted, setThemeMounted] = useState(false);
-
-  useEffect(() => {
-    setThemeMounted(true);
-  }, []);
 
   if (!isMounted) {
     return null;
   }
 
-  const themeLabel = themeMounted
-    ? isDark
-      ? "Switch to light mode"
-      : "Switch to dark mode"
-    : "Toggle color mode";
-  const themeActionText = themeMounted
-    ? isDark
-      ? "Light mode"
-      : "Dark mode"
-    : "Color mode";
+  const themeLabel = isDark ? "Switch to light mode" : "Switch to dark mode";
+  const themeActionText = isDark ? "Light mode" : "Dark mode";
 
   return createPortal(
     <div
@@ -164,7 +149,7 @@ export function SiteHeaderMobileDrawer({
               type="button"
             >
               <span className="mobile-nav-quick-action-icon">
-                {themeMounted && isDark ? (
+                {isDark ? (
                   <FiSun aria-hidden="true" height={16} width={16} />
                 ) : (
                   <FiMoon aria-hidden="true" height={16} width={16} />
@@ -184,33 +169,38 @@ export function SiteHeaderMobileDrawer({
               }
               key={`mobile-${menu.label}`}
             >
-              <div className="mobile-nav-item-row">
+              <button
+                aria-expanded={openMenu === menu.label}
+                aria-haspopup="true"
+                className="mobile-nav-item-row mobile-nav-item-trigger"
+                onClick={() =>
+                  setOpenMenu((current) =>
+                    current === menu.label ? null : menu.label,
+                  )
+                }
+                type="button"
+              >
+                <span className="mobile-nav-link">
+                  {menu.label}
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="mobile-nav-item-toggle"
+                >
+                  <ChevronDownIcon height={14} width={14} />
+                </span>
+              </button>
+              <div className="mobile-submenu">
                 <Link
-                  className="mobile-nav-link"
+                  className="mobile-submenu-heading mobile-submenu-shop-all"
                   href={menu.href}
                   onClick={() => {
                     setMobileNavOpen(false);
                     setOpenMenu(null);
                   }}
                 >
-                  {menu.label}
+                  Shop All {menu.label}
                 </Link>
-                <button
-                  aria-expanded={openMenu === menu.label}
-                  aria-haspopup="true"
-                  aria-label={`Toggle ${menu.label} links`}
-                  className="mobile-nav-item-toggle"
-                  onClick={() =>
-                    setOpenMenu((current) =>
-                      current === menu.label ? null : menu.label,
-                    )
-                  }
-                  type="button"
-                >
-                  <ChevronDownIcon height={14} width={14} />
-                </button>
-              </div>
-              <div className="mobile-submenu">
                 {menu.columns.map((column) => (
                   <div
                     className="mobile-submenu-group"

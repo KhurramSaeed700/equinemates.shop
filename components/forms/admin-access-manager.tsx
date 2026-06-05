@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import { FiMail, FiShield, FiTrash2 } from "react-icons/fi";
+import { FormEvent, useState } from "react";
+import { FiPlus, FiShield, FiTrash2 } from "react-icons/fi";
 import { toast } from "sonner";
 
 import type { AdminAccountRow } from "@/lib/server/admin-directory";
@@ -64,14 +64,6 @@ export function AdminAccessManager({
   const [pendingRemovalEmail, setPendingRemovalEmail] = useState<string | null>(null);
   const [removingEmail, setRemovingEmail] = useState<string | null>(null);
   const [manualInviteUrl, setManualInviteUrl] = useState<string | null>(null);
-
-  const adminCounts = useMemo(
-    () => ({
-      admins: admins.filter((admin) => admin.role === "ADMIN").length,
-      superAdmins: admins.filter((admin) => admin.role === "SUPER_ADMIN").length,
-    }),
-    [admins],
-  );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -154,31 +146,19 @@ export function AdminAccessManager({
 
   return (
     <div className="super-admin-manager">
-      <section className="super-admin-overview" aria-label="Admin access summary">
-        <article>
-          <span>Super admins</span>
-          <strong>{adminCounts.superAdmins}</strong>
-        </article>
-        <article>
-          <span>Admins</span>
-          <strong>{adminCounts.admins}</strong>
-        </article>
-      </section>
-
       <section className="super-admin-invite-panel">
         <div className="super-admin-section-heading">
           <span aria-hidden="true">
-            <FiMail />
+            <FiPlus />
           </span>
           <div>
-            <h2>Add admin access</h2>
-            <p>Invite an email address that should be allowed into the admin panel.</p>
+            <h2>Add Admin</h2>
           </div>
         </div>
 
         <form className="super-admin-invite-form" onSubmit={handleSubmit}>
           <label className="field">
-            <span className="field-label">Admin email</span>
+            <span className="field-label sr-only">Admin email</span>
             <input
               className="ui-input"
               inputMode="email"
@@ -207,15 +187,14 @@ export function AdminAccessManager({
             <FiShield />
           </span>
           <div>
-            <h2>Admin directory</h2>
-            <p>Current email addresses with admin access.</p>
+            <h2>Admins</h2>
           </div>
         </div>
 
         <div className="super-admin-list" role="list">
           {admins.map((admin) => {
             const isCurrentUser = currentEmail === admin.email;
-            const canRemove = admin.role !== "SUPER_ADMIN" && !admin.isSystem;
+            const canRemove = admin.role !== "SUPER_ADMIN";
             const isConfirming = pendingRemovalEmail === admin.email;
             const isRemoving = removingEmail === admin.email;
 
@@ -230,9 +209,11 @@ export function AdminAccessManager({
                       {admin.email}
                       {isCurrentUser ? <span> You</span> : null}
                     </strong>
-                    <small>
-                      Invited: {formatDate(admin.lastInviteSentAt)}
-                    </small>
+                    {admin.isSystem ? null : (
+                      <small>
+                        Invited: {formatDate(admin.lastInviteSentAt)}
+                      </small>
+                    )}
                   </div>
                 </div>
 
@@ -246,9 +227,6 @@ export function AdminAccessManager({
                   >
                     {formatAdminRole(admin.role)}
                   </span>
-                  {admin.isSystem ? (
-                    <span className="super-admin-protected">Protected</span>
-                  ) : null}
                 </div>
 
                 <div className="super-admin-actions">
@@ -282,9 +260,7 @@ export function AdminAccessManager({
                         Remove
                       </button>
                     )
-                  ) : (
-                    <span className="super-admin-locked">Locked</span>
-                  )}
+                  ) : null}
                 </div>
               </article>
             );

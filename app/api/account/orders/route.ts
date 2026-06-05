@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
-import { getProfileById } from "@/lib/server/profile-service";
+import { prisma } from "@/lib/prisma";
 
-export async function GET(request: Request) {
+export async function GET() {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json(
@@ -12,13 +12,38 @@ export async function GET(request: Request) {
     );
   }
 
-  const profile = getProfileById(userId);
-  if (!profile) {
-    return NextResponse.json(
-      { message: "Profile not found." },
-      { status: 404 },
-    );
-  }
+  const user = await prisma.user.findUnique({
+    where: {
+      clerkId: userId,
+    },
+    select: {
+      orders: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          createdAt: true,
+          orderNumber: true,
+          status: true,
+          totalPkr: true,
+          _count: {
+            select: {
+              items: true,
+            },
+          },
+        },
+      },
+    },
+  });
 
-  return NextResponse.json({ orders: profile.orders });
+  return NextResponse.json({
+    orders:
+      user?.orders.map((order) => ({
+        id: order.orderNumber,
+        date: order.createdAt.toISOString().slice(0, 10),
+        status: order.status.toLowerCase(),
+        totalPkr: order.totalPkr,
+        itemCount: order._count.items,
+      })) ?? [],
+  });
 }

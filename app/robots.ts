@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://equinemates.example/sitemap.xml",
+    sitemap: "https://equinemates.com/sitemap.xml",
   };
 }

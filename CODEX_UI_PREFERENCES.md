@@ -43,6 +43,7 @@ Use this file as the quick taste reference before making frontend or admin UI ch
 - Bullets and numbers in rich text fields must be visibly inside the editable area, including in dark mode and while text is selected.
 - Admin form validation should be visual and immediate after a failed save attempt: add a clear red outline to each missed required field, and outline grouped requirements such as category selection or image upload at the panel/card level.
 - For missing required fields, highlight the exact thing the user needs to fix. Do not rely only on generic status text.
+- In super admin/admin directory rows, role badges such as `Admin` and `Super Admin` should sit inline with the account identity row, aligned to the email/name baseline. Do not let role badges float in a separate vertical column that looks detached from the admin entry.
 
 ## Mobile Navigation
 

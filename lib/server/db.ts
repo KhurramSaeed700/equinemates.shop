@@ -41,18 +41,6 @@ interface InMemoryDatabase {
   catalogSubmissions: CatalogSubmissionRecord[];
   wholesaleSubmissions: WholesaleSubmissionRecord[];
   quoteHistory: QuoteSummary[];
-  checkoutOrders: Array<{
-    orderId: string;
-    invoiceId: string;
-    createdAt: string;
-    currency: "USD" | "EUR";
-    exchangeRateFromPkr: number;
-    exchangeRateUpdatedAt: string;
-    subtotalPkr: number;
-    totalPkr: number;
-    subtotalInCurrency: number;
-    totalInCurrency: number;
-  }>;
 }
 
 declare global {
@@ -178,7 +166,6 @@ function createBaseDatabase(): InMemoryDatabase {
     catalogSubmissions: [],
     wholesaleSubmissions: [],
     quoteHistory,
-    checkoutOrders: [],
   };
 }
 
