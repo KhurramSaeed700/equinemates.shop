@@ -102,6 +102,7 @@ export async function POST(request: Request) {
       isBestSeller?: boolean;
       isNewArrival?: boolean;
       careInstructions?: string;
+      shippingInfo?: string;
     };
 
     const categoryPath = normalizeStringList(body.categoryPath);
@@ -130,6 +131,7 @@ export async function POST(request: Request) {
       isBestSeller: Boolean(body.isBestSeller),
       isNewArrival: Boolean(body.isNewArrival),
       careInstructions: body.careInstructions,
+      shippingInfo: body.shippingInfo,
     });
 
     return NextResponse.json({

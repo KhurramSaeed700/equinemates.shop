@@ -3870,8 +3870,9 @@ html[data-theme="dark"] .cl-footerActionLink {
   --admin-muted: #66706c;
   --admin-soft: #fafafa;
   --admin-focus: #1d2220;
-  width: min(1500px, calc(100vw - 4rem));
-  max-width: 1500px;
+  --admin-page-max: 1500px;
+  width: min(var(--admin-page-max), calc(100vw - 4rem));
+  max-width: var(--admin-page-max);
   left: auto;
   margin: 0 auto;
   transform: none;
@@ -3946,6 +3947,7 @@ html[data-theme="dark"] .cl-footerActionLink {
 .admin-page-layout {
   grid-template-columns: 3.25rem minmax(0, 1fr);
   gap: 0.8rem;
+  justify-content: stretch;
 }
 
 .admin-side-rail {
@@ -4013,6 +4015,9 @@ html[data-theme="dark"] .cl-footerActionLink {
 
 .admin-workspace-panel {
   gap: 0.9rem;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
   padding: 1rem;
   border: 1px solid var(--admin-line);
   border-radius: 8px;
@@ -4228,13 +4233,16 @@ html[data-theme="dark"] .cl-footerActionLink {
 
 .admin-product-editor .admin-inline-flags {
   align-content: center;
-  gap: 0.6rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  grid-template-columns: minmax(0, 1fr);
+  justify-self: start;
+  width: min(100%, 18rem);
 }
 
 .admin-taxonomy-card {
   display: grid;
   gap: 0.75rem;
+  width: min(100%, 40rem);
   padding: 0.82rem;
   border: 1px solid var(--admin-line);
   border-radius: 8px;
@@ -4394,7 +4402,7 @@ html[data-theme="dark"] .cl-footerActionLink {
 
 .admin-page-header-meta {
   grid-template-columns: max-content;
-  justify-content: end;
+  justify-content: start;
 }
 
 .admin-page-stat {
@@ -4765,12 +4773,15 @@ html[data-theme="dark"] .cl-footerActionLink {
 .r2-dropzone {
   position: relative;
   display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 1.1rem;
   place-items: center;
   min-height: 11rem;
   padding: 1.4rem;
-  border: 1px dashed #bbb7af;
-  border-radius: 8px;
-  background: #fafafa;
+  border: 2px dashed #c9d5d9;
+  border-radius: 0;
+  background: #fff;
   color: var(--ink);
   text-align: center;
   cursor: pointer;
@@ -4780,20 +4791,27 @@ html[data-theme="dark"] .cl-footerActionLink {
 .r2-dropzone:hover,
 .r2-dropzone:focus,
 .r2-dropzone.is-dragging {
-  border-color: var(--ink);
+  border-color: #9eb3ba;
   background: #fff;
   outline: 0;
-  box-shadow: 0 0 0 3px rgba(29, 34, 32, 0.06);
+  box-shadow: 0 0 0 4px rgba(158, 179, 186, 0.12);
 }
 
-.r2-dropzone strong {
-  font-size: 0.96rem;
+.r2-dropzone-icon {
+  width: 4.6rem;
+  height: 4.6rem;
+  color: #9eb3ba;
+  stroke-width: 1.2;
 }
 
-.r2-dropzone span {
-  margin-top: 0.25rem;
-  color: var(--admin-muted);
-  font-size: 0.84rem;
+.r2-dropzone-copy {
+  color: #143544;
+  font-size: clamp(1rem, 1.6vw, 1.35rem);
+  line-height: 1.35;
+}
+
+.r2-dropzone-copy strong {
+  font-weight: 800;
 }
 
 .r2-file-input {
@@ -7597,9 +7615,9 @@ html[data-theme="dark"] .admin-upload-card {
 }
 
 .r2-dropzone {
-  min-height: 7.1rem;
-  border-color: color-mix(in oklab, var(--admin-line), var(--accent) 26%);
-  background: color-mix(in oklab, var(--surface), var(--bg) 32%);
+  min-height: 14.5rem;
+  border-color: #c9d5d9;
+  background: #fff;
 }
 
 .admin-image-grid {
@@ -7628,6 +7646,10 @@ html[data-theme="dark"] .admin-upload-card {
   align-items: center;
   padding-top: 0.85rem;
   border-top: 1px solid var(--admin-line);
+}
+
+.admin-product-editor .admin-form-footer {
+  border-top: 0;
 }
 
 .admin-form-footer .form-status {
@@ -8295,14 +8317,18 @@ html[data-theme="dark"] .preview-modal-actions {
 
 @media (min-width: 981px) {
   .admin-image-manager .admin-upload-card .r2-drop-upload-form {
-    grid-template-columns: minmax(18rem, 0.78fr) minmax(20rem, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
     gap: 0.75rem;
   }
 
+  .admin-image-manager .admin-upload-card .r2-drop-upload-form.has-selected-images {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .admin-image-manager .admin-upload-card .r2-dropzone {
-    min-height: 5.75rem;
-    padding: 0.95rem;
+    min-height: 14.5rem;
+    padding: 2rem;
   }
 
   .admin-image-manager .admin-upload-card .r2-selected-grid {
@@ -8314,18 +8340,6 @@ html[data-theme="dark"] .preview-modal-actions {
     border: 1px dashed var(--admin-line);
     border-radius: 8px;
     background: color-mix(in oklab, var(--surface), var(--bg) 22%);
-  }
-
-  .admin-image-manager .admin-upload-card .r2-selected-grid-empty {
-    display: grid;
-    place-items: center;
-    color: var(--admin-muted);
-    font-size: 0.82rem;
-    text-align: center;
-  }
-
-  .admin-image-manager .admin-upload-card .r2-selected-grid-empty p {
-    margin: 0;
   }
 
   .admin-image-manager .admin-upload-card .r2-selected-image {
@@ -8728,10 +8742,35 @@ html[data-theme="dark"] .mobile-nav-quick-action:focus-visible {
 /* Keep the desktop product editor canvas open instead of stacking extra slabs. */
 .admin-product-editor {
   gap: 0.45rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .admin-product-editor .admin-editor-panel {
   padding: 0;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.admin-product-editor .admin-editor-hero,
+.admin-product-editor .admin-editor-layout,
+.admin-product-editor .admin-image-manager,
+.admin-product-editor .form-grid {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.admin-product-editor .admin-image-tools,
+.admin-product-editor .admin-upload-card {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.admin-product-editor .admin-image-tools,
+.admin-product-editor .admin-image-grid {
+  width: min(100%, 1360px);
 }
 
 .admin-product-editor .admin-editor-hero,
@@ -8961,6 +9000,7 @@ html[data-theme="dark"] .admin-product-editor
   .admin-page-layout {
     grid-template-columns: 3.25rem minmax(0, 1fr);
     gap: 1rem;
+    justify-content: stretch;
   }
 
   .admin-side-rail {

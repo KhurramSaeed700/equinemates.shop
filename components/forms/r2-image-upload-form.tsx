@@ -12,7 +12,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { FiX } from "react-icons/fi";
+import { FiDownload, FiX } from "react-icons/fi";
 
 import { useToast } from "@/lib/use-toast";
 
@@ -63,6 +63,10 @@ function formatFileSize(bytes: number): string {
 
 function getUploadLimitMessage(file: File): string {
   return `${file.name} is ${formatFileSize(file.size)}, which is larger than the 4 MB upload limit.`;
+}
+
+function isOversizedImage(image: SelectedImage): boolean {
+  return image.file.size > MAX_CLIENT_UPLOAD_BYTES;
 }
 
 export const R2ImageUploadForm = forwardRef<
@@ -166,11 +170,11 @@ export const R2ImageUploadForm = forwardRef<
       return [];
     }
 
-    const oversizedImage = imagesToUpload.find(
-      (image) => image.file.size > MAX_CLIENT_UPLOAD_BYTES,
-    );
+    const uploadableImages = imagesToUpload.filter((image) => !isOversizedImage(image));
+    const oversizedImages = imagesToUpload.filter(isOversizedImage);
+    const oversizedImage = oversizedImages[0];
 
-    if (oversizedImage) {
+    if (!uploadableImages.length && oversizedImage) {
       const errorMessage = getUploadLimitMessage(oversizedImage.file);
       setErroredImageId(oversizedImage.id);
       setStatus(errorMessage);
@@ -180,18 +184,18 @@ export const R2ImageUploadForm = forwardRef<
 
     const uploadTask = (async () => {
       setIsSubmitting(true);
-      setErroredImageId("");
+      setErroredImageId(oversizedImage?.id ?? "");
       setStatus(
-        imagesToUpload.length > 1
-          ? `Uploading ${imagesToUpload.length} images...`
-          : `Uploading ${imagesToUpload[0].file.name}...`,
+        uploadableImages.length > 1
+          ? `Uploading ${uploadableImages.length} images...`
+          : `Uploading ${uploadableImages[0].file.name}...`,
       );
 
       const uploads: UploadResponse[] = [];
       const folder = initialFolder ?? "";
       const uploadedImageIds = new Set<string>();
 
-      for (const selectedImage of imagesToUpload) {
+      for (const selectedImage of uploadableImages) {
         const uploadData = new FormData();
         uploadData.set("folder", folder);
         uploadData.set("image", selectedImage.file);
@@ -216,32 +220,32 @@ export const R2ImageUploadForm = forwardRef<
       const lastUpload = uploads.at(-1) ?? null;
       setUpload(lastUpload);
       const reusedCount = uploads.filter((item) => item.reused).length;
-      const successMessage =
+      const uploadSuccessMessage =
         uploads.length > 1
           ? reusedCount > 0
             ? `${uploads.length} images ready. Reused ${reusedCount} existing R2 image${reusedCount === 1 ? "" : "s"}.`
             : `${uploads.length} images uploaded to Cloudflare R2.`
           : lastUpload?.message ?? "Image uploaded.";
+      const skippedOversizedMessage = oversizedImages.length
+        ? ` ${oversizedImages.length} oversized image${oversizedImages.length === 1 ? " was" : "s were"} left in preview.`
+        : "";
+      const successMessage = `${uploadSuccessMessage}${skippedOversizedMessage}`;
       setStatus(successMessage);
       toast.success(successMessage, "Images added to the current product draft.");
-      if (imagesOverride) {
-        setSelectedImages((currentImages) =>
-          currentImages.filter((image) => {
-            if (uploadedImageIds.has(image.id)) {
-              URL.revokeObjectURL(image.previewUrl);
-              return false;
-            }
+      setSelectedImages((currentImages) => {
+        const remainingImages = currentImages.filter((image) => {
+          if (uploadedImageIds.has(image.id)) {
+            URL.revokeObjectURL(image.previewUrl);
+            return false;
+          }
 
-            return true;
-          }),
-        );
-        setErroredImageId((currentErroredId) =>
-          uploadedImageIds.has(currentErroredId) ? "" : currentErroredId,
-        );
-      } else {
-        clearSelectedImages();
-      }
-      setErroredImageId("");
+          return true;
+        });
+        const nextOversizedImage = remainingImages.find(isOversizedImage);
+        setErroredImageId(nextOversizedImage?.id ?? "");
+
+        return remainingImages;
+      });
 
       if (inputRef.current) {
         inputRef.current.value = "";
@@ -269,7 +273,7 @@ export const R2ImageUploadForm = forwardRef<
         activeUploadPromiseRef.current = null;
       }
     }
-  }, [clearSelectedImages, disabled, disabledMessage, initialFolder, onUploaded, toast]);
+  }, [disabled, disabledMessage, initialFolder, onUploaded, toast]);
 
   const addFiles = (files: FileList | File[]) => {
     if (disabled) {
@@ -293,9 +297,7 @@ export const R2ImageUploadForm = forwardRef<
       file,
       previewUrl: URL.createObjectURL(file),
     }));
-    const oversizedImage = nextImages.find(
-      (image) => image.file.size > MAX_CLIENT_UPLOAD_BYTES,
-    );
+    const oversizedImage = nextImages.find(isOversizedImage);
 
     if (oversizedImage) {
       setErroredImageId(oversizedImage.id);
@@ -319,8 +321,11 @@ export const R2ImageUploadForm = forwardRef<
       return nextImages;
     });
 
-    if (autoUpload && !oversizedImage) {
-      void uploadPendingImages(nextImages);
+    if (autoUpload) {
+      const uploadableImages = nextImages.filter((image) => !isOversizedImage(image));
+      if (uploadableImages.length) {
+        void uploadPendingImages(nextImages);
+      }
     }
   };
 
@@ -393,7 +398,12 @@ export const R2ImageUploadForm = forwardRef<
 
   return (
     <>
-      <form className="r2-drop-upload-form" onSubmit={onSubmit}>
+      <form
+        className={`r2-drop-upload-form${
+          selectedImages.length > 0 ? " has-selected-images" : ""
+        }`}
+        onSubmit={onSubmit}
+      >
         {hideFolderField ? (
           <input name="folder" readOnly type="hidden" value={initialFolder ?? ""} />
         ) : (
@@ -444,7 +454,10 @@ export const R2ImageUploadForm = forwardRef<
             ref={inputRef}
             type="file"
           />
-          <strong>Drag images here or choose files</strong>
+          <FiDownload aria-hidden="true" className="r2-dropzone-icon" />
+          <span className="r2-dropzone-copy">
+            <strong>Choose a file</strong> or drag it here.
+          </span>
         </div>
 
         {selectedImages.length > 0 ? (
@@ -479,11 +492,6 @@ export const R2ImageUploadForm = forwardRef<
               </article>
             ))}
           </div>
-        ) : autoUpload ? (
-          <div
-            aria-label="Selected image previews"
-            className="r2-selected-grid r2-selected-grid-empty"
-          />
         ) : null}
 
         {showUploadButton ? (

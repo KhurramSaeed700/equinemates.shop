@@ -1,6 +1,13 @@
 "use client";
 
-import { ChangeEvent, KeyboardEvent, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   FiArrowLeft,
   FiArrowRight,
@@ -64,6 +71,7 @@ type ProductDraft = {
   isBestSeller: boolean;
   isNewArrival: boolean;
   careInstructions: string;
+  shippingInfo: string;
 };
 
 type AdminProductEditorProps = {
@@ -311,6 +319,7 @@ function createEmptyDraft(): ProductDraft {
     isBestSeller: false,
     isNewArrival: false,
     careInstructions: "",
+    shippingInfo: "",
   };
 }
 
@@ -333,6 +342,7 @@ function toDraft(product: Product): ProductDraft {
     isBestSeller: product.isBestSeller,
     isNewArrival: product.isNewArrival,
     careInstructions: product.careInstructions ?? "",
+    shippingInfo: product.shippingInfo ?? "",
   };
 }
 
@@ -518,18 +528,19 @@ export function AdminProductEditor({
     });
   };
 
-  const resetSkuAvailability = () => {
+  const resetSkuAvailability = useCallback(() => {
+    skuCheckRequestRef.current += 1;
     setSkuAvailability({
       state: "idle",
       checkedSku: "",
       message: "",
     });
-  };
+  }, []);
 
-  const checkSkuAvailability = async (): Promise<boolean> => {
+  const checkSkuAvailability = useCallback(async (): Promise<boolean> => {
     const sku = normalizeSku(draft.sku);
 
-    if (!sku) {
+    if (!sku || !draft.skuItemNumber.trim()) {
       setSkuAvailability({
         state: "idle",
         checkedSku: "",
@@ -596,7 +607,20 @@ export function AdminProductEditor({
       });
       return false;
     }
-  };
+  }, [draft.originalSlug, draft.sku, draft.skuItemNumber]);
+
+  useEffect(() => {
+    if (!draft.skuItemNumber.trim()) {
+      resetSkuAvailability();
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void checkSkuAvailability();
+    }, 350);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [checkSkuAvailability, draft.skuItemNumber, resetSkuAvailability]);
 
   const onTextChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -964,6 +988,7 @@ export function AdminProductEditor({
           isBestSeller: draft.isBestSeller,
           isNewArrival: draft.isNewArrival,
           careInstructions: normalizeRichTextForStorage(draft.careInstructions),
+          shippingInfo: normalizeRichTextForStorage(draft.shippingInfo),
         }),
       });
 
@@ -1211,7 +1236,6 @@ export function AdminProductEditor({
                       skuIsKnownDuplicate || missingSku ? "is-invalid" : undefined
                     }
                     name="skuPrefix"
-                    onBlur={() => void checkSkuAvailability()}
                     onChange={(event) =>
                       updateSkuParts({ skuPrefix: event.currentTarget.value })
                     }
@@ -1236,7 +1260,6 @@ export function AdminProductEditor({
                     inputMode="numeric"
                     maxLength={SKU_ITEM_NUMBER_MAX_LENGTH}
                     name="skuItemNumber"
-                    onBlur={() => void checkSkuAvailability()}
                     onChange={(event) =>
                       updateSkuParts({ skuItemNumber: event.currentTarget.value })
                     }
@@ -1415,6 +1438,20 @@ export function AdminProductEditor({
                 value={draft.careInstructions}
               />
             </Field>
+            <Field className="full-width">
+              <FieldLabel className="sr-only" htmlFor="admin-product-shipping-info">
+                Shipping Info
+              </FieldLabel>
+              <RichTextEditor
+                allowLists
+                id="admin-product-shipping-info"
+                onChange={(value) => updateDraft("shippingInfo", value)}
+                placeholder="Shipping Info"
+                size="medium"
+                toolbarLabel="Shipping info tools"
+                value={draft.shippingInfo}
+              />
+            </Field>
           </div>
         </section>
 
@@ -1557,72 +1594,71 @@ export function AdminProductEditor({
           </div>
         </div>
 
-        <div className="admin-image-grid">
-          {draft.images.map((imageUrl, index) => (
-            <article className="admin-image-card" key={imageUrl}>
-              <div className="admin-image-card-head">
-                <span className={index === 0 ? "admin-image-badge admin-image-badge-primary" : "admin-image-badge"}>
-                  {index === 0 ? "Primary image" : `Image ${index + 1}`}
-                </span>
-              </div>
-              <ProductMedia
-                alt={draft.name || "Product image"}
-                className="admin-image-preview"
-                height={144}
-                sizes="96px"
-                src={getProductImageSrc(imageUrl)}
-                width={144}
-              />
-              <div className="admin-image-actions">
-                <div className="admin-image-order-controls">
+        {draft.images.length ? (
+          <div className="admin-image-grid">
+            {draft.images.map((imageUrl, index) => (
+              <article className="admin-image-card" key={imageUrl}>
+                <div className="admin-image-card-head">
+                  <span className={index === 0 ? "admin-image-badge admin-image-badge-primary" : "admin-image-badge"}>
+                    {index === 0 ? "Primary image" : `Image ${index + 1}`}
+                  </span>
+                </div>
+                <ProductMedia
+                  alt={draft.name || "Product image"}
+                  className="admin-image-preview"
+                  height={144}
+                  sizes="96px"
+                  src={getProductImageSrc(imageUrl)}
+                  width={144}
+                />
+                <div className="admin-image-actions">
+                  <div className="admin-image-order-controls">
+                    <Button
+                      aria-label={`Move ${draft.name || "image"} left`}
+                      className="admin-image-arrow"
+                      disabled={index === 0}
+                      onClick={() => moveImage(imageUrl, "left")}
+                      title="Move left"
+                      variant="unstyled"
+                    >
+                      <FiArrowLeft />
+                    </Button>
+                    <Button
+                      aria-label={`Move ${draft.name || "image"} right`}
+                      className="admin-image-arrow"
+                      disabled={index === draft.images.length - 1}
+                      onClick={() => moveImage(imageUrl, "right")}
+                      title="Move right"
+                      variant="unstyled"
+                    >
+                      <FiArrowRight />
+                    </Button>
+                  </div>
                   <Button
-                    aria-label={`Move ${draft.name || "image"} left`}
-                    className="admin-image-arrow"
+                    className="admin-image-meta-btn"
                     disabled={index === 0}
-                    onClick={() => moveImage(imageUrl, "left")}
-                    title="Move left"
-                    variant="unstyled"
+                    onClick={() => setPrimaryImage(imageUrl)}
+                    size="compact"
+                    variant="secondary"
                   >
-                    <FiArrowLeft />
+                    <FiStar />
+                    <span>Primary</span>
                   </Button>
                   <Button
-                    aria-label={`Move ${draft.name || "image"} right`}
-                    className="admin-image-arrow"
-                    disabled={index === draft.images.length - 1}
-                    onClick={() => moveImage(imageUrl, "right")}
-                    title="Move right"
-                    variant="unstyled"
+                    className="admin-image-meta-btn"
+                    disabled={deletingImageUrl === imageUrl}
+                    onClick={() => void removeImage(imageUrl)}
+                    size="compact"
+                    variant="secondary"
                   >
-                    <FiArrowRight />
+                    <FiTrash2 />
+                    <span>{deletingImageUrl === imageUrl ? "Removing..." : "Remove"}</span>
                   </Button>
                 </div>
-                <Button
-                  className="admin-image-meta-btn"
-                  disabled={index === 0}
-                  onClick={() => setPrimaryImage(imageUrl)}
-                  size="compact"
-                  variant="secondary"
-                >
-                  <FiStar />
-                  <span>Primary</span>
-                </Button>
-                <Button
-                  className="admin-image-meta-btn"
-                  disabled={deletingImageUrl === imageUrl}
-                  onClick={() => void removeImage(imageUrl)}
-                  size="compact"
-                  variant="secondary"
-                >
-                  <FiTrash2 />
-                  <span>{deletingImageUrl === imageUrl ? "Removing..." : "Remove"}</span>
-                </Button>
-              </div>
-            </article>
-          ))}
-          {!draft.images.length ? (
-            <div aria-label="No product images attached" className="empty-state" />
-          ) : null}
-        </div>
+              </article>
+            ))}
+          </div>
+        ) : null}
       </section>
 
       <div className="admin-form-footer">

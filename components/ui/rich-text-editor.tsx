@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState, type FocusEvent } from "react";
 import { FiBold, FiItalic, FiList, FiUnderline } from "react-icons/fi";
 import {
   EditorContent,
@@ -145,6 +145,7 @@ export function RichTextEditor({
   toolbarLabel,
   value,
 }: RichTextEditorProps) {
+  const [toolbarOpen, setToolbarOpen] = useState(false);
   const extensions = useMemo(
     () => [
       StarterKit.configure({
@@ -227,113 +228,128 @@ export function RichTextEditor({
     });
   }, [ariaInvalid, editor, id, placeholder]);
 
+  const handleBlurCapture = (event: FocusEvent<HTMLDivElement>) => {
+    const nextFocusedElement = event.relatedTarget;
+
+    if (
+      !(nextFocusedElement instanceof Node) ||
+      !event.currentTarget.contains(nextFocusedElement)
+    ) {
+      setToolbarOpen(false);
+    }
+  };
+
   return (
     <div
       className={cn("rich-text-editor", ariaInvalid && "is-invalid", className)}
       data-size={size}
+      onBlurCapture={handleBlurCapture}
+      onFocusCapture={() => setToolbarOpen(true)}
     >
-      <div
-        aria-label={toolbarLabel}
-        className="admin-description-toolbar rich-text-toolbar"
-        role="toolbar"
-      >
-        <Button
-          aria-label="Bold text"
-          aria-pressed={toolbarState.bold}
-          className={cn(
-            "admin-description-tool rich-text-toolbar-button",
-            toolbarState.bold && "is-active",
-          )}
-          disabled={!editor}
-          onClick={() =>
-            runEditorCommand(editor, (currentEditor) =>
-              currentEditor.chain().focus().toggleBold().run(),
-            )
-          }
-          title="Bold"
-          variant="ghost"
+      {toolbarOpen ? (
+        <div
+          aria-label={toolbarLabel}
+          className="admin-description-toolbar rich-text-toolbar"
+          role="toolbar"
         >
-          <FiBold aria-hidden="true" />
-        </Button>
-        <Button
-          aria-label="Italicize text"
-          aria-pressed={toolbarState.italic}
-          className={cn(
-            "admin-description-tool rich-text-toolbar-button",
-            toolbarState.italic && "is-active",
-          )}
-          disabled={!editor}
-          onClick={() =>
-            runEditorCommand(editor, (currentEditor) =>
-              currentEditor.chain().focus().toggleItalic().run(),
-            )
-          }
-          title="Italic"
-          variant="ghost"
-        >
-          <FiItalic aria-hidden="true" />
-        </Button>
-        <Button
-          aria-label="Underline text"
-          aria-pressed={toolbarState.underline}
-          className={cn(
-            "admin-description-tool rich-text-toolbar-button",
-            toolbarState.underline && "is-active",
-          )}
-          disabled={!editor}
-          onClick={() =>
-            runEditorCommand(editor, (currentEditor) =>
-              currentEditor.chain().focus().toggleUnderline().run(),
-            )
-          }
-          title="Underline"
-          variant="ghost"
-        >
-          <FiUnderline aria-hidden="true" />
-        </Button>
-        {allowLists ? (
-          <>
-            <Button
-              aria-label="Toggle numbered list"
-              aria-pressed={toolbarState.orderedList}
-              className={cn(
-                "admin-description-tool rich-text-toolbar-button",
-                toolbarState.orderedList && "is-active",
-              )}
-              disabled={!editor}
-              onClick={() =>
-                runEditorCommand(editor, (currentEditor) =>
-                  toggleListStyle(currentEditor, "orderedList"),
-                )
-              }
-              title="Toggle numbered list"
-              variant="ghost"
-            >
-              <span aria-hidden="true" className="admin-description-number-icon">
-                1.
-              </span>
-            </Button>
-            <Button
-              aria-label="Toggle bulleted list"
-              aria-pressed={toolbarState.bulletList}
-              className={cn(
-                "admin-description-tool rich-text-toolbar-button",
-                toolbarState.bulletList && "is-active",
-              )}
-              disabled={!editor}
-              onClick={() =>
-                runEditorCommand(editor, (currentEditor) =>
-                  toggleListStyle(currentEditor, "bulletList"),
-                )
-              }
-              title="Toggle bulleted list"
-              variant="ghost"
-            >
-              <FiList aria-hidden="true" />
-            </Button>
-          </>
-        ) : null}
-      </div>
+          <Button
+            aria-label="Bold text"
+            aria-pressed={toolbarState.bold}
+            className={cn(
+              "admin-description-tool rich-text-toolbar-button",
+              toolbarState.bold && "is-active",
+            )}
+            disabled={!editor}
+            onClick={() =>
+              runEditorCommand(editor, (currentEditor) =>
+                currentEditor.chain().focus().toggleBold().run(),
+              )
+            }
+            title="Bold"
+            variant="ghost"
+          >
+            <FiBold aria-hidden="true" />
+          </Button>
+          <Button
+            aria-label="Italicize text"
+            aria-pressed={toolbarState.italic}
+            className={cn(
+              "admin-description-tool rich-text-toolbar-button",
+              toolbarState.italic && "is-active",
+            )}
+            disabled={!editor}
+            onClick={() =>
+              runEditorCommand(editor, (currentEditor) =>
+                currentEditor.chain().focus().toggleItalic().run(),
+              )
+            }
+            title="Italic"
+            variant="ghost"
+          >
+            <FiItalic aria-hidden="true" />
+          </Button>
+          <Button
+            aria-label="Underline text"
+            aria-pressed={toolbarState.underline}
+            className={cn(
+              "admin-description-tool rich-text-toolbar-button",
+              toolbarState.underline && "is-active",
+            )}
+            disabled={!editor}
+            onClick={() =>
+              runEditorCommand(editor, (currentEditor) =>
+                currentEditor.chain().focus().toggleUnderline().run(),
+              )
+            }
+            title="Underline"
+            variant="ghost"
+          >
+            <FiUnderline aria-hidden="true" />
+          </Button>
+          {allowLists ? (
+            <>
+              <Button
+                aria-label="Toggle numbered list"
+                aria-pressed={toolbarState.orderedList}
+                className={cn(
+                  "admin-description-tool rich-text-toolbar-button",
+                  toolbarState.orderedList && "is-active",
+                )}
+                disabled={!editor}
+                onClick={() =>
+                  runEditorCommand(editor, (currentEditor) =>
+                    toggleListStyle(currentEditor, "orderedList"),
+                  )
+                }
+                title="Toggle numbered list"
+                variant="ghost"
+              >
+                <span aria-hidden="true" className="admin-description-number-icon">
+                  1.
+                </span>
+              </Button>
+              <Button
+                aria-label="Toggle bulleted list"
+                aria-pressed={toolbarState.bulletList}
+                className={cn(
+                  "admin-description-tool rich-text-toolbar-button",
+                  toolbarState.bulletList && "is-active",
+                )}
+                disabled={!editor}
+                onClick={() =>
+                  runEditorCommand(editor, (currentEditor) =>
+                    toggleListStyle(currentEditor, "bulletList"),
+                  )
+                }
+                title="Toggle bulleted list"
+                variant="ghost"
+              >
+                <FiList aria-hidden="true" />
+              </Button>
+            </>
+          ) : null}
+        </div>
+      ) : null}
       <EditorContent
         className="rich-text-content"
         editor={editor}
