@@ -7451,6 +7451,56 @@ html[data-theme="dark"] .admin-taxonomy-card .admin-taxonomy-match:hover {
   background: #121a16;
 }
 
+html[data-theme="dark"] .admin-module-card-active,
+html[data-theme="dark"] .admin-module-card-active:hover {
+  background: rgba(216, 178, 117, 0.14);
+}
+
+html[data-theme="dark"] .admin-module-card-active .admin-module-icon,
+html[data-theme="dark"] .admin-module-card-active:hover .admin-module-icon {
+  background: rgba(216, 178, 117, 0.16);
+}
+
+html[data-theme="dark"] .admin-category-search,
+html[data-theme="dark"] .admin-category-count-tile,
+html[data-theme="dark"] .admin-parent-picker,
+html[data-theme="dark"] .admin-parent-search,
+html[data-theme="dark"] .admin-create-parent-summary,
+html[data-theme="dark"] .admin-category-manager .ui-input,
+html[data-theme="dark"] .admin-category-manager .ui-select {
+  border-color: #2a3530;
+  background: transparent;
+  color: var(--ink);
+}
+
+html[data-theme="dark"] .admin-category-node:hover,
+html[data-theme="dark"] .admin-category-search-result:hover,
+html[data-theme="dark"] .admin-category-node-active,
+html[data-theme="dark"] .admin-parent-result:hover,
+html[data-theme="dark"] .admin-parent-result.is-selected,
+html[data-theme="dark"] .admin-parent-main-button.is-active {
+  border-color: #2f3c36;
+  background: #121a16;
+}
+
+html[data-theme="dark"] .admin-category-node-count,
+html[data-theme="dark"] .admin-category-search-result > span:last-child,
+html[data-theme="dark"] .admin-parent-result-count {
+  border-color: #2a3530;
+}
+
+html[data-theme="dark"] .admin-category-danger-button {
+  border-color: #533232;
+  color: #ffb8b8;
+}
+
+html[data-theme="dark"] .admin-category-danger-button:not(:disabled):hover,
+html[data-theme="dark"] .admin-category-danger-button.is-confirming {
+  border-color: #8f4141;
+  background: rgba(255, 107, 107, 0.08);
+  color: #ffd2d2;
+}
+
 .admin-image-manager {
   gap: 0.7rem;
 }
@@ -8996,6 +9046,527 @@ html[data-theme="dark"] .admin-product-editor
   background: transparent;
 }
 
+.admin-module-card {
+  text-decoration: none;
+}
+
+.admin-module-card-active,
+.admin-module-card-active:hover {
+  border-color: color-mix(in oklab, var(--admin-line), var(--accent) 34%);
+  background: color-mix(in oklab, var(--surface), var(--accent) 9%);
+  color: var(--ink);
+}
+
+.admin-module-card-active .admin-module-icon,
+.admin-module-card-active:hover .admin-module-icon {
+  background: color-mix(in oklab, var(--surface), var(--accent) 13%);
+  color: var(--ink);
+}
+
+.admin-category-manager {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.86fr) minmax(22rem, 1.2fr) minmax(18rem, 0.82fr);
+  gap: 0.85rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.admin-category-manager .admin-editor-panel {
+  min-width: 0;
+  padding: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.admin-category-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-category-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.admin-category-icon-button,
+.admin-category-manager .btn-primary,
+.admin-category-manager .btn-secondary,
+.admin-category-manager .ui-button-icon {
+  min-height: 2.4rem;
+  border-radius: 6px;
+  box-shadow: none;
+  font-size: 0.84rem;
+}
+
+.admin-category-icon-button svg,
+.admin-category-manager .btn-primary svg,
+.admin-category-manager .btn-secondary svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.admin-category-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 6px;
+  background: #fff;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-category-search svg {
+  width: 0.92rem;
+  height: 0.92rem;
+  color: var(--admin-muted);
+}
+
+.admin-category-search .admin-category-search-input.ui-input,
+.admin-category-search .admin-category-search-input.ui-input:focus,
+.admin-category-search .admin-category-search-input.ui-input:focus-visible {
+  min-height: 2.3rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent;
+  outline: 0 !important;
+  box-shadow: none !important;
+  color: var(--ink);
+}
+
+.admin-category-search:focus-within {
+  border-color: var(--admin-focus);
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--admin-focus), transparent 78%);
+}
+
+.admin-category-tree {
+  display: grid;
+  gap: 0.28rem;
+  max-height: min(68vh, 46rem);
+  overflow: auto;
+  padding-right: 0.15rem;
+}
+
+.admin-category-node,
+.admin-category-search-result {
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr) minmax(2.35rem, auto);
+  align-items: center;
+  gap: 0.52rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding-block: 0.42rem;
+  padding-right: 0.58rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-category-search-result {
+  grid-template-columns: minmax(0, 1fr) minmax(2.35rem, auto);
+  padding-left: 0.58rem;
+}
+
+.admin-category-node:hover,
+.admin-category-search-result:hover,
+.admin-category-node-active {
+  border-color: var(--admin-line);
+  background: color-mix(in oklab, var(--surface), var(--accent) 7%);
+}
+
+.admin-category-node-disclosure {
+  display: inline-grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  color: var(--admin-muted);
+}
+
+.admin-category-node-disclosure svg {
+  width: 0.78rem;
+  height: 0.78rem;
+  transition: transform 160ms ease;
+}
+
+.admin-category-node-disclosure.is-expanded svg {
+  transform: rotate(90deg);
+}
+
+.admin-category-node-copy,
+.admin-category-search-result span:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 0.1rem;
+}
+
+.admin-category-node-copy strong,
+.admin-category-search-result strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-category-node-copy small,
+.admin-category-search-result small {
+  overflow: hidden;
+  color: var(--admin-muted);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-category-node-count,
+.admin-category-search-result > span:last-child {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.1rem;
+  min-height: 1.6rem;
+  padding: 0.15rem 0.38rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.admin-category-empty {
+  padding: 0.4rem 0.2rem;
+  color: var(--admin-muted);
+}
+
+.admin-category-count-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.admin-category-count-tile {
+  display: grid;
+  gap: 0.2rem;
+  min-height: 4.2rem;
+  padding: 0.72rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 6px;
+  background: var(--admin-soft);
+}
+
+.admin-category-count-tile span {
+  color: var(--admin-muted);
+  font-size: 0.67rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.admin-category-count-tile strong {
+  color: var(--ink);
+  font-size: 1.24rem;
+  line-height: 1;
+}
+
+.admin-category-form-grid {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.admin-category-manager .field {
+  gap: 0.32rem;
+}
+
+.admin-category-manager .field-label {
+  color: var(--admin-muted);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.admin-category-manager .ui-input,
+.admin-category-manager .ui-select {
+  min-height: 2.55rem;
+  border-color: var(--admin-line);
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: none;
+  font-size: 0.9rem;
+}
+
+.admin-category-manager .ui-input:focus,
+.admin-category-manager .ui-select:focus {
+  border-color: var(--admin-focus);
+  outline: 1px solid var(--admin-focus);
+  outline-offset: 0;
+  box-shadow: none;
+}
+
+.admin-parent-picker {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.62rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 6px;
+  background: color-mix(in oklab, #fff, var(--admin-soft) 34%);
+}
+
+.admin-parent-current {
+  display: grid;
+  min-width: 0;
+  gap: 0.14rem;
+}
+
+.admin-parent-current span {
+  color: var(--admin-muted);
+  font-size: 0.66rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.admin-parent-current strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.86rem;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-parent-main-button {
+  width: fit-content;
+  min-height: 2.1rem;
+  padding-inline: 0.72rem;
+}
+
+.admin-parent-main-button.is-active {
+  border-color: var(--admin-focus);
+  background: color-mix(in oklab, var(--surface), var(--accent) 9%);
+  color: var(--ink);
+}
+
+.admin-parent-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 6px;
+  background: #fff;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-parent-search svg {
+  width: 0.88rem;
+  height: 0.88rem;
+  color: var(--admin-muted);
+}
+
+.admin-parent-search .admin-parent-search-input.ui-input,
+.admin-parent-search .admin-parent-search-input.ui-input:focus,
+.admin-parent-search .admin-parent-search-input.ui-input:focus-visible {
+  min-height: 2.3rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent;
+  outline: 0 !important;
+  box-shadow: none !important;
+  color: var(--ink);
+}
+
+.admin-parent-search:focus-within {
+  border-color: var(--admin-focus);
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--admin-focus), transparent 78%);
+}
+
+.admin-parent-results {
+  display: grid;
+  gap: 0.28rem;
+  max-height: 14rem;
+  overflow: auto;
+  padding-right: 0.12rem;
+}
+
+.admin-parent-result {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(2.1rem, auto);
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 2.65rem;
+  padding: 0.42rem 0.54rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-parent-result:hover,
+.admin-parent-result.is-selected {
+  border-color: var(--admin-line);
+  background: color-mix(in oklab, var(--surface), var(--accent) 7%);
+}
+
+.admin-parent-result-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.08rem;
+}
+
+.admin-parent-result-copy strong,
+.admin-parent-result-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-parent-result-copy strong {
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 750;
+  line-height: 1.15;
+}
+
+.admin-parent-result-copy small {
+  color: var(--admin-muted);
+  font-size: 0.71rem;
+  line-height: 1.2;
+}
+
+.admin-parent-result-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2rem;
+  min-height: 1.48rem;
+  padding: 0.14rem 0.34rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.admin-parent-empty {
+  margin: 0;
+  padding: 0.25rem 0.1rem;
+  color: var(--admin-muted);
+}
+
+.admin-category-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.admin-category-inline-action {
+  flex: 0 0 auto;
+}
+
+.admin-category-danger-button {
+  border-color: color-mix(in oklab, var(--admin-line), #b74141 30%);
+  color: #8b2828;
+}
+
+.admin-category-danger-button:not(:disabled):hover,
+.admin-category-danger-button.is-confirming {
+  border-color: #b74141;
+  background: color-mix(in oklab, #fff, #b74141 8%);
+  color: #7e2020;
+}
+
+.admin-category-delete-note {
+  margin: 0;
+  color: var(--admin-muted);
+  font-size: 0.78rem;
+}
+
+.admin-category-create-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.admin-category-create-choice .btn-primary,
+.admin-category-create-choice .btn-secondary {
+  min-width: 8.6rem;
+  justify-content: center;
+}
+
+.admin-create-parent-summary {
+  display: grid;
+  min-width: 0;
+  gap: 0.18rem;
+  padding: 0.72rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 6px;
+  background: var(--admin-soft);
+}
+
+.admin-create-parent-summary span {
+  color: var(--admin-muted);
+  font-size: 0.66rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.admin-create-parent-summary strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.88rem;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-category-create-panel .btn-primary {
+  width: fit-content;
+}
+
+.admin-page-shell .admin-page-header-meta {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+.admin-page-shell .admin-page-stat {
+  min-width: 6.25rem;
+}
+
 @media (min-width: 981px) {
   .admin-page-layout {
     grid-template-columns: 3.25rem minmax(0, 1fr);
@@ -9084,6 +9655,57 @@ html[data-theme="dark"] .admin-product-editor
   html[data-theme="dark"] .admin-product-search-input.ui-input:focus {
     border-color: var(--admin-focus);
     outline-color: var(--admin-focus);
+  }
+}
+
+@media (max-width: 1180px) {
+  .admin-category-manager {
+    grid-template-columns: minmax(18rem, 0.9fr) minmax(20rem, 1.1fr);
+  }
+
+  .admin-category-create-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 980px) {
+  .admin-category-manager {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-category-tree {
+    max-height: 24rem;
+  }
+
+  .admin-category-count-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-category-panel-header,
+  .admin-category-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-category-inline-action,
+  .admin-category-actions .btn-primary,
+  .admin-category-actions .btn-secondary,
+  .admin-category-create-choice .btn-primary,
+  .admin-category-create-choice .btn-secondary,
+  .admin-category-create-panel .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .admin-category-count-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-category-node,
+  .admin-category-search-result {
+    min-height: 3rem;
   }
 }
 
