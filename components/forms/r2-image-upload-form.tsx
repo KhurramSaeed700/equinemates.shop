@@ -230,7 +230,7 @@ export const R2ImageUploadForm = forwardRef<
         ? ` ${oversizedImages.length} oversized image${oversizedImages.length === 1 ? " was" : "s were"} left in preview.`
         : "";
       const successMessage = `${uploadSuccessMessage}${skippedOversizedMessage}`;
-      setStatus(successMessage);
+      setStatus("");
       toast.success(successMessage, "Images added to the current product draft.");
       setSelectedImages((currentImages) => {
         const remainingImages = currentImages.filter((image) => {
@@ -333,7 +333,9 @@ export const R2ImageUploadForm = forwardRef<
     ref,
     () => ({
       clear: clearSelectedImages,
-      hasPendingImages: () => selectedImagesRef.current.length > 0,
+      hasPendingImages: () =>
+        selectedImagesRef.current.length > 0 ||
+        activeUploadPromiseRef.current !== null,
       uploadPendingImages,
     }),
     [clearSelectedImages, uploadPendingImages],
@@ -378,7 +380,7 @@ export const R2ImageUploadForm = forwardRef<
     try {
       await uploadPendingImages();
       form.reset();
-    } catch (error) {
+    } catch {
       // uploadPendingImages already sets status and toast feedback.
     }
   };

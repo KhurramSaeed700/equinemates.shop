@@ -3,14 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { SignedIn, UserButton } from "@clerk/nextjs";
+import { SignedIn, UserButton, useUser } from "@clerk/nextjs";
 
-import { CurrencySwitcher } from "@/components/layout/currency-switcher";
 import { SiteHeaderDesktopNav } from "@/components/layout/site-header-desktop-nav";
 import { SiteHeaderMobileDrawer } from "@/components/layout/site-header-mobile-drawer";
 import { SiteSearch } from "@/components/layout/site-search";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { SiteSettings } from "@/components/layout/site-settings";
 import { useCart } from "@/components/providers/cart-provider";
+import { useLanguage } from "@/components/providers/language-provider";
 import { useWishlist } from "@/components/providers/wishlist-provider";
 import type { NavMenu } from "@/lib/catalog";
 import {
@@ -30,7 +30,9 @@ export function SiteHeader({
   shopMenus: NavMenu[];
 }) {
   const TOUCH_NAV_QUERY = "(max-width: 680px)";
+  const { isLoaded, isSignedIn } = useUser();
   const { itemCount } = useCart();
+  const { t } = useLanguage();
   const { productSlugs } = useWishlist();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -106,15 +108,22 @@ export function SiteHeader({
     };
   }, []);
 
+  const userSignedIn = clerkEnabled
+    ? isLoaded
+      ? Boolean(isSignedIn)
+      : initialSignedIn
+    : false;
+
   return (
     <header
       className={
         mobileNavOpen ? "site-header site-header-nav-open" : "site-header"
       }
     >
-      <div className="announcement-bar">
-        <p>
-          Free shipping on orders above 200 USD</p>
+      <div className="announcement-bar" suppressHydrationWarning>
+        <p suppressHydrationWarning>
+          {t("announcement")}
+        </p>
       </div>
 
       <div className="header-utility container">
@@ -126,7 +135,7 @@ export function SiteHeader({
           <Link aria-label="Go to homepage" className="brand-mark" href="/">
             <Image
               alt="Equinemates"
-              className="brand-mark-image brand-mark-image-light"
+              className="brand-mark-image brand-mark-image-full brand-mark-image-light"
               height={52}
               priority
               src="/logo-t.png"
@@ -134,17 +143,33 @@ export function SiteHeader({
             />
             <Image
               alt="Equinemates"
-              className="brand-mark-image brand-mark-image-dark"
+              className="brand-mark-image brand-mark-image-full brand-mark-image-dark"
               height={52}
               priority
               src="/logo-white.png"
               width={240}
             />
+            <Image
+              alt="Equinemates"
+              className="brand-mark-image brand-mark-image-compact brand-mark-image-compact-light-theme"
+              height={44}
+              priority
+              src="/small-logo-dark.jpg"
+              width={44}
+            />
+            <Image
+              alt="Equinemates"
+              className="brand-mark-image brand-mark-image-compact brand-mark-image-compact-dark-theme"
+              height={44}
+              priority
+              src="/small-logo-light.png"
+              width={44}
+            />
           </Link>
         </div>
 
         <div className="header-utility-right">
-          <CurrencySwitcher />
+          <SiteSettings />
           <Link
             aria-label="Wishlist"
             className="icon-link header-wishlist-link"
@@ -157,7 +182,6 @@ export function SiteHeader({
             <CartIcon height={17} width={17} />
             <span className="counter-dot">{itemCount}</span>
           </Link>
-          <ThemeToggle />
           <button
             aria-controls="mobile-site-nav"
             aria-expanded={mobileNavOpen}
@@ -168,7 +192,7 @@ export function SiteHeader({
           >
             {mobileNavOpen ? <CloseIcon height={18} width={18} /> : <MenuIcon height={18} width={18} />}
           </button>
-          {clerkEnabled && initialSignedIn ? (
+          {userSignedIn ? (
             <div className="header-auth-slot">
               <SignedIn>
                 <div className="clerk-user-wrap">
@@ -178,7 +202,7 @@ export function SiteHeader({
             </div>
           ) : (
             <Link className="utility-auth-link header-signin-btn" href="/account">
-              Sign in
+              {t("signIn")}
             </Link>
           )}
         </div>

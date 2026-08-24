@@ -1,7 +1,36 @@
 const REMOTE_IMAGE_PATTERN = /^https?:\/\//i;
+const PRODUCT_IMAGE_FALLBACK_SRC = "/place holder/1.webp";
 
 export function isRemoteImage(src: string): boolean {
   return REMOTE_IMAGE_PATTERN.test(src);
+}
+
+export function isMissingProductImageSrc(src: string | null | undefined): boolean {
+  const trimmedSrc = src?.trim();
+
+  if (!trimmedSrc) {
+    return true;
+  }
+
+  let decodedSrc = trimmedSrc;
+
+  try {
+    decodedSrc = decodeURIComponent(trimmedSrc);
+  } catch {
+    decodedSrc = trimmedSrc;
+  }
+
+  const normalizedSrc = decodedSrc
+    .replace(/\\/g, "/")
+    .toLowerCase();
+
+  return (
+    normalizedSrc.includes("/place holder/") ||
+    normalizedSrc.includes("/placeholder") ||
+    normalizedSrc.includes("placeholder.") ||
+    normalizedSrc.includes("/dummy") ||
+    normalizedSrc.includes("dummy.")
+  );
 }
 
 function getR2ProxyImageSrc(src: string): string | null {
@@ -32,7 +61,7 @@ function getR2ProxyImageSrc(src: string): string | null {
 export function getProductImageSrc(src: string | null | undefined): string {
   const trimmedSrc = src?.trim();
   if (!trimmedSrc) {
-    return "/place holder/1.webp";
+    return PRODUCT_IMAGE_FALLBACK_SRC;
   }
 
   return getR2ProxyImageSrc(trimmedSrc) ?? trimmedSrc;

@@ -5,6 +5,7 @@ import { useCatalogProducts } from "@/components/hooks/useCatalogProducts";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { useMounted } from "@/components/hooks/useMounted";
+import { ProductMedia } from "@/components/ui/product-media";
 import { getProductImageSrc } from "@/lib/image-utils";
 import { Product } from "@/lib/types";
 
@@ -60,7 +61,13 @@ export function FrequentlyBoughtTogether({ product }: { product: Product }) {
       <div className="fbt-row">
         <div className="fbt-main">
           <div className="fbt-card">
-            <img src={getProductImageSrc(product.images[0])} alt={product.name} />
+            <ProductMedia
+              alt={product.name}
+              className="fbt-media"
+              height={72}
+              src={getProductImageSrc(product.images[0])}
+              width={72}
+            />
             <div>
               <strong>{product.name}</strong>
               <p className="tiny">
@@ -80,7 +87,13 @@ export function FrequentlyBoughtTogether({ product }: { product: Product }) {
                   checked={selected.includes(p.slug)}
                   onChange={() => toggle(p.slug)}
                 />
-                <img src={getProductImageSrc(p.images[0])} alt={p.name} />
+                <ProductMedia
+                  alt={p.name}
+                  className="fbt-media"
+                  height={72}
+                  src={getProductImageSrc(p.images[0])}
+                  width={72}
+                />
                 <div className="fbt-related-info">
                   <div className="tiny">{p.name}</div>
                   <div className="tiny strong">

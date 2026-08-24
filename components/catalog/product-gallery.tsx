@@ -1,41 +1,18 @@
 "use client";
 
 import {
-  PointerEvent,
-  TouchEvent,
+  PointerEvent as ReactPointerEvent,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
+import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 
 import { ProductMedia } from "@/components/ui/product-media";
+import { useProductVariationPreview } from "@/components/catalog/product-variation-preview";
 import { getProductImageSrc } from "@/lib/image-utils";
-
-type PanOffset = {
-  x: number;
-  y: number;
-};
-
-type PanDragState = {
-  originX: number;
-  originY: number;
-  pointerId: number;
-  startX: number;
-  startY: number;
-};
-
-type PinchState = {
-  startDistance: number;
-  startZoom: number;
-};
-
-type GalleryTouchList = TouchEvent<HTMLDivElement>["touches"];
-
-const MIN_ZOOM = 1;
-const MAX_ZOOM = 2.6;
-const ZOOM_STEP = 0.25;
 
 export function ProductGallery({
   images,
@@ -44,176 +21,147 @@ export function ProductGallery({
   images: string[];
   name: string;
 }) {
+  const { previewVariation } = useProductVariationPreview();
+  const displayImages = previewVariation?.images ?? images;
+  const displayName = previewVariation?.name ?? name;
   const safeImages = useMemo(
-    () => (images.length > 0 ? images.map(getProductImageSrc) : ["/place holder/1.webp"]),
-    [images],
+    () =>
+      displayImages.length > 0
+        ? displayImages.map(getProductImageSrc)
+        : ["/place holder/1.webp"],
+    [displayImages],
   );
-  const [activeIndex, setActiveIndex] = useState(0);
+  const imageSetKey = previewVariation?.slug ?? "selected-listing";
+  const [activeSelection, setActiveSelection] = useState({
+    imageSetKey: "selected-listing",
+    index: 0,
+  });
+  const activeIndex =
+    activeSelection.imageSetKey === imageSetKey ? activeSelection.index : 0;
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(MIN_ZOOM);
-  const [panOffset, setPanOffset] = useState<PanOffset>({ x: 0, y: 0 });
-  const [isPanning, setIsPanning] = useState(false);
-  const lightboxStageRef = useRef<HTMLDivElement>(null);
-  const lightboxThumbRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const panDragRef = useRef<PanDragState | null>(null);
-  const pinchStateRef = useRef<PinchState | null>(null);
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const [isZooming, setIsZooming] = useState(false);
+  const zoomStageRef = useRef<HTMLDivElement>(null);
+  const galleryButtonRef = useRef<HTMLButtonElement>(null);
+  const lightboxDialogRef = useRef<HTMLDivElement>(null);
+  const lightboxCloseRef = useRef<HTMLButtonElement>(null);
+  const swipeStartXRef = useRef<number | null>(null);
 
-  const clampPanOffset = useCallback((offset: PanOffset, scale = zoomLevel): PanOffset => {
-    const stage = lightboxStageRef.current;
+  const selectImage = useCallback((index: number) => {
+    setActiveSelection({ imageSetKey, index });
+  }, [imageSetKey]);
 
-    if (!stage || scale <= MIN_ZOOM) {
-      return { x: 0, y: 0 };
+  const updateZoomPosition = (
+    event: ReactPointerEvent<HTMLButtonElement>,
+  ) => {
+    if (event.pointerType !== "mouse") {
+      return;
     }
 
-    const { width, height } = stage.getBoundingClientRect();
-    const maxX = (width * (scale - 1)) / 2;
-    const maxY = (height * (scale - 1)) / 2;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const zoomStage = zoomStageRef.current;
+    const image = event.currentTarget.querySelector("img");
 
-    return {
-      x: Math.min(maxX, Math.max(-maxX, offset.x)),
-      y: Math.min(maxY, Math.max(-maxY, offset.y)),
-    };
-  }, [zoomLevel]);
-
-  const prevImage = () => {
-    resetZoom();
-    setActiveIndex((current) =>
-      current === 0 ? safeImages.length - 1 : current - 1,
-    );
-  };
-
-  const nextImage = () => {
-    resetZoom();
-    setActiveIndex((current) =>
-      current === safeImages.length - 1 ? 0 : current + 1,
-    );
-  };
-
-  const resetZoom = useCallback(() => {
-    setZoomLevel(MIN_ZOOM);
-    setPanOffset({ x: 0, y: 0 });
-    panDragRef.current = null;
-    pinchStateRef.current = null;
-    setIsPanning(false);
-  }, []);
-
-  const getTouchDistance = (touches: GalleryTouchList) => {
-    const firstTouch = touches.item(0);
-    const secondTouch = touches.item(1);
-
-    if (!firstTouch || !secondTouch) {
-      return 0;
+    if (!zoomStage || bounds.width <= 0 || bounds.height <= 0) {
+      return;
     }
 
-    return Math.hypot(
-      firstTouch.clientX - secondTouch.clientX,
-      firstTouch.clientY - secondTouch.clientY,
+    const naturalWidth = image?.naturalWidth || bounds.width;
+    const naturalHeight = image?.naturalHeight || bounds.height;
+    const imageScale = Math.min(
+      bounds.width / naturalWidth,
+      bounds.height / naturalHeight,
+    );
+    const renderedImageWidth = naturalWidth * imageScale;
+    const renderedImageHeight = naturalHeight * imageScale;
+    const imageOffsetX = (bounds.width - renderedImageWidth) / 2;
+    const imageOffsetY = (bounds.height - renderedImageHeight) / 2;
+    const previewWidth = Math.min(window.innerWidth * 0.5, bounds.width);
+    const previewHeight = bounds.height;
+    const zoomScale = 2.5;
+    const lensWidth = Math.min(renderedImageWidth, previewWidth / zoomScale);
+    const lensHeight = Math.min(renderedImageHeight, previewHeight / zoomScale);
+    const pointerX = event.clientX - bounds.left;
+    const pointerY = event.clientY - bounds.top;
+    const lensCenterX = Math.min(
+      imageOffsetX + renderedImageWidth - lensWidth / 2,
+      Math.max(imageOffsetX + lensWidth / 2, pointerX),
+    );
+    const lensCenterY = Math.min(
+      imageOffsetY + renderedImageHeight - lensHeight / 2,
+      Math.max(imageOffsetY + lensHeight / 2, pointerY),
+    );
+    const imageX = (lensCenterX - imageOffsetX) / renderedImageWidth;
+    const imageY = (lensCenterY - imageOffsetY) / renderedImageHeight;
+    const zoomedImageWidth = renderedImageWidth * zoomScale;
+    const zoomedImageHeight = renderedImageHeight * zoomScale;
+    const backgroundX = previewWidth / 2 - imageX * zoomedImageWidth;
+    const backgroundY = previewHeight / 2 - imageY * zoomedImageHeight;
+
+    zoomStage.style.setProperty("--product-lens-left", `${lensCenterX}px`);
+    zoomStage.style.setProperty("--product-lens-top", `${lensCenterY}px`);
+    zoomStage.style.setProperty("--product-lens-width", `${lensWidth}px`);
+    zoomStage.style.setProperty("--product-lens-height", `${lensHeight}px`);
+    zoomStage.style.setProperty(
+      "--product-zoom-width",
+      `${zoomedImageWidth}px`,
+    );
+    zoomStage.style.setProperty(
+      "--product-zoom-height",
+      `${zoomedImageHeight}px`,
+    );
+    zoomStage.style.setProperty(
+      "--product-zoom-position-x",
+      `${backgroundX}px`,
+    );
+    zoomStage.style.setProperty(
+      "--product-zoom-position-y",
+      `${backgroundY}px`,
     );
   };
 
-  const selectImage = (index: number) => {
-    resetZoom();
-    setActiveIndex(index);
+  const startZoom = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType !== "mouse") {
+      return;
+    }
+
+    updateZoomPosition(event);
+    setIsZooming(true);
   };
 
-  const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
-    if (lightboxOpen && event.touches.length >= 2) {
-      const startDistance = getTouchDistance(event.touches);
+  const stopZoom = () => {
+    setIsZooming(false);
+  };
 
-      if (startDistance > 0) {
-        event.preventDefault();
-        touchStartRef.current = null;
-        pinchStateRef.current = {
-          startDistance,
-          startZoom: zoomLevel,
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+  };
+
+  const navigateImage = useCallback(
+    (direction: -1 | 1) => {
+      setActiveSelection((currentSelection) => {
+        const currentIndex =
+          currentSelection.imageSetKey === imageSetKey
+            ? currentSelection.index
+            : 0;
+
+        return {
+          imageSetKey,
+          index:
+            (currentIndex + direction + safeImages.length) %
+            safeImages.length,
         };
-        setIsPanning(true);
-      }
-      return;
-    }
+      });
+    },
+    [imageSetKey, safeImages.length],
+  );
 
-    if (lightboxOpen && zoomLevel > MIN_ZOOM) {
-      touchStartRef.current = null;
-      return;
-    }
+  const showPreviousImage = useCallback(() => {
+    navigateImage(-1);
+  }, [navigateImage]);
 
-    const touch = event.touches[0];
-    if (!touch) {
-      return;
-    }
-    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
-  };
-
-  const handleTouchMove = (event: TouchEvent<HTMLDivElement>) => {
-    if (!lightboxOpen || event.touches.length < 2) {
-      return;
-    }
-
-    const pinchState = pinchStateRef.current;
-    const nextDistance = getTouchDistance(event.touches);
-
-    if (!pinchState || nextDistance <= 0) {
-      return;
-    }
-
-    event.preventDefault();
-    const nextZoom = Math.min(
-      MAX_ZOOM,
-      Math.max(MIN_ZOOM, pinchState.startZoom * (nextDistance / pinchState.startDistance)),
-    );
-
-    setZoomLevel(nextZoom);
-    if (nextZoom <= MIN_ZOOM) {
-      setPanOffset({ x: 0, y: 0 });
-      panDragRef.current = null;
-      setIsPanning(false);
-    } else {
-      setPanOffset((current) => clampPanOffset(current, nextZoom));
-    }
-  };
-
-  const handleTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
-    if (pinchStateRef.current) {
-      event.preventDefault();
-      resetZoom();
-      touchStartRef.current = null;
-      return;
-    }
-
-    if (lightboxOpen && zoomLevel > MIN_ZOOM) {
-      touchStartRef.current = null;
-      return;
-    }
-
-    const start = touchStartRef.current;
-    const touch = event.changedTouches[0];
-    touchStartRef.current = null;
-
-    if (!start || !touch) {
-      return;
-    }
-
-    const deltaX = touch.clientX - start.x;
-    const deltaY = touch.clientY - start.y;
-    const swipeThreshold = 45;
-
-    // Only treat mostly-horizontal gestures as gallery swipes.
-    if (Math.abs(deltaX) < swipeThreshold || Math.abs(deltaX) <= Math.abs(deltaY)) {
-      return;
-    }
-
-    if (deltaX < 0) {
-      nextImage();
-    } else {
-      prevImage();
-    }
-  };
-
-  const handleTouchCancel = () => {
-    resetZoom();
-    touchStartRef.current = null;
-  };
+  const showNextImage = useCallback(() => {
+    navigateImage(1);
+  }, [navigateImage]);
 
   useEffect(() => {
     if (!lightboxOpen) {
@@ -221,152 +169,103 @@ export function ProductGallery({
     }
 
     const previousOverflow = document.body.style.overflow;
-    const handleEsc = (event: KeyboardEvent) => {
+    const galleryTrigger = galleryButtonRef.current;
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setLightboxOpen(false);
+        closeLightbox();
+        return;
+      }
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        showPreviousImage();
+        return;
+      }
+
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        showNextImage();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        const focusableElements =
+          lightboxDialogRef.current?.querySelectorAll<HTMLButtonElement>(
+            "button:not([disabled])",
+          );
+
+        if (!focusableElements?.length) {
+          return;
+        }
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
       }
     };
 
     document.body.style.overflow = "hidden";
-    document.addEventListener("keydown", handleEsc);
+    document.addEventListener("keydown", handleKeyDown);
+    lightboxCloseRef.current?.focus();
 
     return () => {
       document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("keydown", handleKeyDown);
+      galleryTrigger?.focus();
     };
-  }, [lightboxOpen]);
+  }, [lightboxOpen, showNextImage, showPreviousImage]);
 
-  useEffect(() => {
-    if (!lightboxOpen) {
-      return;
-    }
-
-    lightboxThumbRefs.current[activeIndex]?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "center",
-    });
-  }, [activeIndex, lightboxOpen]);
-
-  const zoomIn = () => {
-    const nextZoom = Math.min(MAX_ZOOM, zoomLevel + ZOOM_STEP);
-    setZoomLevel(nextZoom);
-    setPanOffset((current) => clampPanOffset(current, nextZoom));
-  };
-
-  const zoomOut = () => {
-    const nextZoom = Math.max(MIN_ZOOM, zoomLevel - ZOOM_STEP);
-    setZoomLevel(nextZoom);
-
-    if (nextZoom <= MIN_ZOOM) {
-      setPanOffset({ x: 0, y: 0 });
-      panDragRef.current = null;
-      setIsPanning(false);
-      return;
-    }
-
-    setPanOffset((current) => clampPanOffset(current, nextZoom));
-  };
-
-  const closeLightbox = () => {
-    resetZoom();
-    setLightboxOpen(false);
-  };
-
-  const handlePanStart = (event: PointerEvent<HTMLDivElement>) => {
-    if (zoomLevel <= MIN_ZOOM) {
-      return;
-    }
-
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    panDragRef.current = {
-      originX: panOffset.x,
-      originY: panOffset.y,
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-    };
-    setIsPanning(true);
-  };
-
-  const handlePanMove = (event: PointerEvent<HTMLDivElement>) => {
-    const dragState = panDragRef.current;
-
-    if (!dragState || dragState.pointerId !== event.pointerId) {
-      return;
-    }
-
-    event.preventDefault();
-    setPanOffset(
-      clampPanOffset({
-        x: dragState.originX + event.clientX - dragState.startX,
-        y: dragState.originY + event.clientY - dragState.startY,
-      }),
-    );
-  };
-
-  const handlePanEnd = (event: PointerEvent<HTMLDivElement>) => {
-    if (panDragRef.current?.pointerId !== event.pointerId) {
-      return;
-    }
-
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-
-    panDragRef.current = null;
-    setIsPanning(false);
-  };
-
-  const activeImage = safeImages[activeIndex] ?? "/place holder/1.webp";
-  const lightboxStageClassName =
-    zoomLevel > MIN_ZOOM
-      ? `product-gallery-lightbox-stage product-gallery-lightbox-stage-pannable${
-          isPanning ? " product-gallery-lightbox-stage-panning" : ""
-        }`
-      : "product-gallery-lightbox-stage";
+  const activeImage =
+    safeImages[activeIndex] ?? safeImages[0] ?? "/place holder/1.webp";
 
   return (
     <div className="product-gallery-component">
-      <div
-        className="product-gallery-main-wrap"
-        onTouchEnd={handleTouchEnd}
-        onTouchStart={handleTouchStart}
-      >
-        <button
-          type="button"
-          aria-label="Previous image"
-          className="gallery-arrow gallery-arrow-left"
-          onClick={prevImage}
-        >
-          <span aria-hidden="true">&lsaquo;</span>
-        </button>
-        <button
-          aria-label="Open image in full screen"
-          className="product-gallery-main-btn"
-          onClick={() => {
-            setZoomLevel(MIN_ZOOM);
-            setLightboxOpen(true);
-          }}
-          type="button"
-        >
-          <ProductMedia
-            alt={name}
-            src={activeImage}
-            width={640}
-            height={420}
-            className="product-gallery-main"
+      <div className="product-gallery-main-stage" ref={zoomStageRef}>
+        <div className="product-gallery-main-wrap">
+          <button
+            aria-label="Open image in full screen"
+            className="product-gallery-main-btn"
+            onClick={() => {
+              stopZoom();
+              setLightboxOpen(true);
+            }}
+            onPointerCancel={stopZoom}
+            onPointerEnter={startZoom}
+            onPointerLeave={stopZoom}
+            onPointerMove={updateZoomPosition}
+            ref={galleryButtonRef}
+            type="button"
+          >
+            <ProductMedia
+              alt={displayName}
+              src={activeImage}
+              width={640}
+              height={420}
+              className="product-gallery-main"
+            />
+            {!isZooming ? (
+              <span aria-hidden="true" className="product-gallery-zoom-hint">
+                Hover to zoom
+              </span>
+            ) : null}
+          </button>
+        </div>
+        {isZooming ? (
+          <div
+            aria-hidden="true"
+            className="product-gallery-zoom-preview"
+            style={{
+              backgroundImage: `url(${JSON.stringify(activeImage)})`,
+            }}
           />
-        </button>
-        <button
-          type="button"
-          aria-label="Next image"
-          className="gallery-arrow gallery-arrow-right"
-          onClick={nextImage}
-        >
-          <span aria-hidden="true">&rsaquo;</span>
-        </button>
+        ) : null}
       </div>
       <div className="product-gallery-thumbs">
         {safeImages.map((img, index) => (
@@ -383,7 +282,7 @@ export function ProductGallery({
           >
             <ProductMedia
               src={img}
-              alt={`${name} image ${index + 1}`}
+              alt={`${displayName} image ${index + 1}`}
               width={120}
               height={90}
             />
@@ -392,116 +291,78 @@ export function ProductGallery({
       </div>
       {lightboxOpen ? (
         <div
+          aria-label={`${displayName} image viewer`}
+          aria-modal="true"
           className="product-gallery-lightbox"
-          onClick={closeLightbox}
+          onPointerDown={(event) => {
+            swipeStartXRef.current = event.clientX;
+          }}
+          onPointerUp={(event) => {
+            const startX = swipeStartXRef.current;
+            swipeStartXRef.current = null;
+
+            if (startX === null) {
+              return;
+            }
+
+            const distance = event.clientX - startX;
+            if (Math.abs(distance) < 50) {
+              return;
+            }
+
+            if (distance > 0) {
+              showPreviousImage();
+            } else {
+              showNextImage();
+            }
+          }}
+          ref={lightboxDialogRef}
+          role="dialog"
         >
-          <div
-            className="product-gallery-lightbox-content"
-            onClick={(event) => event.stopPropagation()}
-            onTouchEnd={handleTouchEnd}
-            onTouchCancel={handleTouchCancel}
-            onTouchMove={handleTouchMove}
-            onTouchStart={handleTouchStart}
+          <button
+            aria-label="Close image viewer"
+            className="product-gallery-lightbox-close"
+            onClick={closeLightbox}
+            ref={lightboxCloseRef}
+            type="button"
           >
-            <div className="product-gallery-lightbox-toolbar">
+            <FiX aria-hidden="true" />
+          </button>
+          <div className="product-gallery-lightbox-content">
+            <ProductMedia
+              alt={`${displayName} image ${activeIndex + 1}`}
+              className="product-gallery-lightbox-single-image"
+              height={1600}
+              key={`${activeImage}-${activeIndex}`}
+              sizes="100vw"
+              src={activeImage}
+              width={2000}
+            />
+          </div>
+          {safeImages.length > 1 ? (
+            <nav
+              aria-label="Image navigation"
+              className="product-gallery-lightbox-controls"
+            >
               <button
-                aria-label="Back to product page gallery"
-                className="product-gallery-lightbox-back"
-                onClick={closeLightbox}
+                aria-label="Show previous image"
+                onClick={showPreviousImage}
                 type="button"
               >
-                Back
+                <FiChevronLeft aria-hidden="true" />
               </button>
-              <div className="product-gallery-lightbox-actions">
-                <button
-                  aria-label="Zoom out image"
-                  className="product-gallery-lightbox-control"
-                  onClick={zoomOut}
-                  type="button"
-                >
-                  -
-                </button>
-                <span className="product-gallery-lightbox-zoom-label">
-                  {Math.round(zoomLevel * 100)}%
-                </span>
-                <button
-                  aria-label="Zoom in image"
-                  className="product-gallery-lightbox-control"
-                  onClick={zoomIn}
-                  type="button"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            <button
-              aria-label="Previous image"
-              className="gallery-arrow gallery-arrow-left"
-              onClick={prevImage}
-              type="button"
-            >
-              {"<"}
-            </button>
-            <div
-              className={lightboxStageClassName}
-              onPointerCancel={handlePanEnd}
-              onPointerDown={handlePanStart}
-              onPointerMove={handlePanMove}
-              onPointerUp={handlePanEnd}
-              ref={lightboxStageRef}
-            >
-              <ProductMedia
-                alt={name}
-                src={activeImage}
-                width={1600}
-                height={1200}
-                className="product-gallery-lightbox-image"
-                style={{
-                  transform: `translate3d(${panOffset.x}px, ${panOffset.y}px, 0) scale(${zoomLevel})`,
-                }}
-              />
-            </div>
-            <div
-              aria-label="Product image thumbnails"
-              className="product-gallery-lightbox-thumbs"
-            >
-              {safeImages.map((img, index) => (
-                <button
-                  aria-current={index === activeIndex ? "true" : undefined}
-                  aria-label={`Show full screen image ${index + 1} of ${
-                    safeImages.length
-                  }`}
-                  className={
-                    index === activeIndex
-                      ? "product-gallery-lightbox-thumb product-gallery-lightbox-thumb-active"
-                      : "product-gallery-lightbox-thumb"
-                  }
-                  key={`lightbox-${img}-${index}`}
-                  onClick={() => selectImage(index)}
-                  ref={(element) => {
-                    lightboxThumbRefs.current[index] = element;
-                  }}
-                  type="button"
-                >
-                  <ProductMedia
-                    alt={`${name} image ${index + 1}`}
-                    className="product-gallery-lightbox-thumb-image"
-                    height={52}
-                    src={img}
-                    width={52}
-                  />
-                </button>
-              ))}
-            </div>
-            <button
-              aria-label="Next image"
-              className="gallery-arrow gallery-arrow-right"
-              onClick={nextImage}
-              type="button"
-            >
-              {">"}
-            </button>
-          </div>
+              <span aria-live="polite">
+                {activeIndex + 1} / {safeImages.length}
+              </span>
+              <button
+                aria-label="Show next image"
+                onClick={showNextImage}
+                type="button"
+              >
+                <FiChevronRight aria-hidden="true" />
+              </button>
+            </nav>
+          ) : null}
         </div>
       ) : null}
     </div>

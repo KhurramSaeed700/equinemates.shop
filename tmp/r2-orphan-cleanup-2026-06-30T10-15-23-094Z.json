@@ -1,0 +1,31 @@
+{
+  "mode": "delete",
+  "generatedAt": "2026-06-30T10:15:23.094Z",
+  "bucketName": "equinemates-data",
+  "activeProducts": 191,
+  "referencedSources": 382,
+  "protectedKeyCount": 0,
+  "bucketObjectCount": 6,
+  "keptObjectCount": 0,
+  "orphanObjectCount": 6,
+  "orphanBytes": 12614953,
+  "deletedCount": 6,
+  "errorCount": 0,
+  "orphanKeys": [
+    "Products/Horse/Bits & Tack/CNC Bits/1000/370863b9c7c9-sts-1186-copy-copyff-rr.jpg",
+    "Products/Horse/Bits & Tack/CNC Bits/1000/3e620ff23980-sts-1189.jpg",
+    "Products/Horse/Bits & Tack/CNC Bits/1000/40b071604f30-mg-5684.jpg",
+    "Products/Horse/Bits & Tack/CNC Bits/1001/20d9afd41f27-sts-3480-copy-copy.jpg",
+    "Products/Horse/Bits & Tack/CNC Bits/1001/ac715693fd9a-artboard-52x.png",
+    "Products/Horse/Bits & Tack/CNC Bits/1001/c7bd2ab09897-sts-3476-copy-copy.jpg"
+  ],
+  "deletedKeys": [
+    "Products/Horse/Bits & Tack/CNC Bits/1000/370863b9c7c9-sts-1186-copy-copyff-rr.jpg",
+    "Products/Horse/Bits & Tack/CNC Bits/1000/3e620ff23980-sts-1189.jpg",
+    "Products/Horse/Bits & Tack/CNC Bits/1000/40b071604f30-mg-5684.jpg",
+    "Products/Horse/Bits & Tack/CNC Bits/1001/20d9afd41f27-sts-3480-copy-copy.jpg",
+    "Products/Horse/Bits & Tack/CNC Bits/1001/ac715693fd9a-artboard-52x.png",
+    "Products/Horse/Bits & Tack/CNC Bits/1001/c7bd2ab09897-sts-3476-copy-copy.jpg"
+  ],
+  "errors": []
+}

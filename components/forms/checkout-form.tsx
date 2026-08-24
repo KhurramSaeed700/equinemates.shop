@@ -41,16 +41,23 @@ export function CheckoutForm() {
         exchangeRateFromPkr?: number;
         exchangeRateUpdatedAt?: string;
         currency?: string;
+        paymentUrl?: string;
       };
 
       if (!response.ok) {
         throw new Error(payload.message ?? "Checkout failed.");
       }
 
+      clearCart();
+      if (payload.paymentUrl) {
+        setStatus("Order created. Redirecting to secure payment...");
+        window.location.href = payload.paymentUrl;
+        return;
+      }
+
       setStatus(
         `${payload.message ?? "Order created."} Order ${payload.orderId} Invoice ${payload.invoiceId}. Locked ${payload.currency} rate: ${payload.exchangeRateFromPkr} (updated ${payload.exchangeRateUpdatedAt ?? "unknown"}).`,
       );
-      clearCart();
       event.currentTarget.reset();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Checkout failed.");

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 export type CategoryStripItem = {
+  count?: number;
   href: string;
   label: string;
 };
@@ -95,7 +96,12 @@ export function CategoryStrip({
         {items.map((item) => (
           <Link className="category-strip-link" href={item.href} key={item.href}>
             <span>{item.label}</span>
-            <FiChevronRight aria-hidden="true" />
+            <span className="category-strip-link-meta">
+              {typeof item.count === "number" ? (
+                <span className="category-strip-count">{item.count}</span>
+              ) : null}
+              <FiChevronRight aria-hidden="true" />
+            </span>
           </Link>
         ))}
       </div>

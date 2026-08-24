@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
@@ -22,6 +24,7 @@ export function ProductPreviewModal({
   isOpen,
   onClose,
 }: ProductPreviewModalProps) {
+  const router = useRouter();
   const { formatFromUsd } = useCurrency();
   const { addToCart } = useCart();
   const { has: hasInWishlist, toggle } = useWishlist();
@@ -34,6 +37,7 @@ export function ProductPreviewModal({
     [product.images],
   );
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const lastImageClickAtRef = useRef(0);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -73,6 +77,23 @@ export function ProductPreviewModal({
 
   const isWishlisted = hasInWishlist(product.slug);
   const activeImage = safeImages[activeImageIndex] ?? "/place holder/1.webp";
+  const productHref = `/products/${product.slug}`;
+
+  const openProductPage = () => {
+    router.push(productHref);
+  };
+
+  const handleImageClick = () => {
+    const clickedAt = Date.now();
+
+    if (clickedAt - lastImageClickAtRef.current <= 450) {
+      lastImageClickAtRef.current = 0;
+      openProductPage();
+      return;
+    }
+
+    lastImageClickAtRef.current = clickedAt;
+  };
 
   return (
     <div className="preview-modal-overlay" onClick={onClose}>
@@ -90,7 +111,11 @@ export function ProductPreviewModal({
         <div className="preview-modal-body">
           <div className="preview-modal-gallery">
             <div className="preview-modal-images">
-              <div className="preview-modal-image-stage">
+              <div
+                className="preview-modal-image-stage"
+                onClick={handleImageClick}
+                title="Open product page"
+              >
                 <ProductMedia
                   alt={`${product.name} image ${activeImageIndex + 1}`}
                   className="preview-modal-image"
@@ -172,8 +197,9 @@ export function ProductPreviewModal({
               <FormattedDescription text={product.shortDescription} />
             </div>
 
-            {isSignedIn ? (
-              <div className="preview-modal-actions">
+            <div className="preview-modal-actions">
+              {isSignedIn ? (
+                <>
                 <button
                   className="btn-primary preview-modal-action-button"
                   onClick={() => addToCart(product, 1)}
@@ -188,8 +214,16 @@ export function ProductPreviewModal({
                 >
                   {isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                 </button>
-              </div>
-            ) : null}
+                </>
+              ) : null}
+              <Link
+                aria-label={`View ${product.name} product page`}
+                className="btn-secondary preview-modal-action-button preview-modal-view-product"
+                href={productHref}
+              >
+                View product page
+              </Link>
+            </div>
           </div>
         </div>
       </div>

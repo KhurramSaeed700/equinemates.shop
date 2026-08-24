@@ -1,0 +1,31 @@
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://172.30.209.216:3000
+- Environments: .env.local, .env
+
+✓ Starting...
+○ Compiling proxy ...
+✓ Ready in 77.2s
+○ Compiling / ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.3.1] injecting env (18) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+✓ Finished writing to filesystem cache in 10.3s
+ GET / 200 in 102s (compile: 72s, proxy.ts: 1595ms, render: 29.1s)
+○ Compiling /products/[slug] ...
+ GET /products/cnc-jr-cow-horse-bit-copper-roller-titanium-barrel-girl 200 in 10.8s (proxy.ts: 17ms)
+○ Compiling /products ...
+ GET /products 200 in 11.6s (compile: 4.5s, proxy.ts: 16ms, render: 7.1s)
+ POST /products 200 in 268ms (compile: 62ms, proxy.ts: 62ms, render: 144ms)
+○ Compiling /api/currency/rates ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (18) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET /api/currency/rates 200 in 4.7s (compile: 4.0s, proxy.ts: 33ms, render: 656ms)
+ GET /api/catalog/products?slugs=cnc-jr-cow-horse-bit-copper-roller-titanium-barrel-girl%2Ccnc-jr-cow-horse-bit-copper-roller-titanium-classic-western%2Cwestern-style-jr-cow-horse-bit-w-copper-roller-western-style 200 in 12.3s (compile: 4.5s, proxy.ts: 26ms, render: 7.8s)
+✓ Finished filesystem cache database compaction in 29.9s
+✓ Finished writing to filesystem cache in 29.0s
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.3.1] injecting env (18) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+ GET / 200 in 7.1s (compile: 2.1s, proxy.ts: 74ms, render: 4.9s)
+ GET /api/currency/rates 200 in 266ms (compile: 50ms, proxy.ts: 22ms, render: 194ms)
+ POST / 200 in 168ms (compile: 96ms, proxy.ts: 21ms, render: 52ms)
+[?25h

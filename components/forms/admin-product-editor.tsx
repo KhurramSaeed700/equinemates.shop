@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   ChangeEvent,
   KeyboardEvent,
@@ -37,7 +38,12 @@ import {
   normalizeRichTextForStorage,
 } from "@/lib/rich-text";
 import { useToast } from "@/lib/use-toast";
-import { CurrencyCode, Product, ProductCategory } from "@/lib/types";
+import {
+  CurrencyCode,
+  Product,
+  ProductCategory,
+  ProductVariant,
+} from "@/lib/types";
 
 type CategoryNode = {
   name: string;
@@ -51,6 +57,7 @@ type ProductSummary = {
   sku: string;
   category: ProductCategory;
   primaryImage: string | null;
+  parentListingId?: string;
 };
 
 type ProductDraft = {
@@ -66,8 +73,16 @@ type ProductDraft = {
   longDescription: string;
   basePriceUsd: string;
   stock: string;
+  amazonSellerSku: string;
+  amazonAsin: string;
+  amazonStoreUrl: string;
+  amazonFulfillableQuantity: string;
+  amazonInventoryUpdatedAt: string;
+  amazonMcfEnabled: boolean;
   tags: string;
   images: string[];
+  bannerImages: string[];
+  variants: ProductVariant[];
   isBestSeller: boolean;
   isNewArrival: boolean;
   careInstructions: string;
@@ -77,6 +92,7 @@ type ProductDraft = {
 type AdminProductEditorProps = {
   categoryTree: CategoryNode[];
   categoryOptions: ProductCategory[];
+  initialMode?: "edit" | "duplicate";
   initialProduct: Product | null;
   initialProducts: ProductSummary[];
   ratesFromPkr: Record<CurrencyCode, number>;
@@ -85,6 +101,7 @@ type AdminProductEditorProps = {
 type ProductResponse = {
   message?: string;
   product?: Product;
+  products?: ProductSummary[];
 };
 
 type ProductDeleteResponse = {
@@ -141,7 +158,14 @@ type CategoryPathMatch = {
 
 const SKU_PREFIX_OPTIONS = ["EQM", "HOR", "PET", "RID", "STA"];
 const DEFAULT_SKU_PREFIX = SKU_PREFIX_OPTIONS[0];
-const SKU_ITEM_NUMBER_MAX_LENGTH = 8;
+const SKU_ITEM_NUMBER_MAX_LENGTH = 24;
+const SUCCESS_REDIRECT_DELAY_MS = 10_000;
+const VARIANT_PRESETS: ProductVariant[] = [
+  { id: "size", label: "Size", options: ["Small", "Medium", "Large"] },
+  { id: "color", label: "Color", options: ["White", "Black", "Brown"] },
+  { id: "style", label: "Style", options: [] },
+  { id: "hand-orientation", label: "Hand Orientation", options: ["Left", "Right"] },
+];
 
 function createSlug(value: string): string {
   return value
@@ -163,7 +187,11 @@ function sanitizeSkuPrefix(value: string): string {
 }
 
 function sanitizeSkuItemNumber(value: string): string {
-  return value.replace(/\D/g, "").slice(0, SKU_ITEM_NUMBER_MAX_LENGTH);
+  return normalizeSku(value)
+    .replace(/[^A-Z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-+/, "")
+    .slice(0, SKU_ITEM_NUMBER_MAX_LENGTH);
 }
 
 function buildSku(prefix: string, itemNumber: string): string {
@@ -171,6 +199,37 @@ function buildSku(prefix: string, itemNumber: string): string {
   const safeItemNumber = sanitizeSkuItemNumber(itemNumber);
 
   return safeItemNumber ? `${safePrefix}-${safeItemNumber}` : "";
+}
+
+function createVariantId(label: string): string {
+  const slug = createSlug(label);
+  return slug || `custom-${Date.now().toString(36)}`;
+}
+
+function parseVariantOptions(value: string): string[] {
+  return Array.from(
+    new Set(
+      value
+        .split(/[,\n]/)
+        .map((option) => option.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
+function normalizeProductVariants(variants: ProductVariant[]): ProductVariant[] {
+  return variants
+    .map((variant) => {
+      const label = variant.label.trim();
+      const options = parseVariantOptions(variant.options.join("\n"));
+
+      return {
+        id: variant.id.trim() || createVariantId(label),
+        label,
+        options,
+      };
+    })
+    .filter((variant) => variant.label && variant.options.length > 0);
 }
 
 function parseSkuParts(value: string): Pick<ProductDraft, "sku" | "skuPrefix" | "skuItemNumber"> {
@@ -300,6 +359,23 @@ function formatCurrency(amount: number | null, currency: "PKR" | "EUR"): string 
   }).format(amount);
 }
 
+function normalizeAmazonAsin(value: string): string {
+  const trimmedValue = value.trim();
+  const dpMatch = trimmedValue.match(/\/dp\/([a-z0-9]{10})/i);
+
+  if (dpMatch?.[1]) {
+    return dpMatch[1].toUpperCase();
+  }
+
+  return trimmedValue.toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function buildAmazonListingUrl(asin: string): string {
+  const normalizedAsin = normalizeAmazonAsin(asin);
+
+  return normalizedAsin ? `https://www.amazon.com/dp/${normalizedAsin}` : "";
+}
+
 function createEmptyDraft(): ProductDraft {
   return {
     originalSlug: "",
@@ -314,8 +390,16 @@ function createEmptyDraft(): ProductDraft {
     longDescription: "",
     basePriceUsd: "",
     stock: "",
+    amazonSellerSku: "",
+    amazonAsin: "",
+    amazonStoreUrl: "",
+    amazonFulfillableQuantity: "",
+    amazonInventoryUpdatedAt: "",
+    amazonMcfEnabled: false,
     tags: "",
     images: [],
+    bannerImages: [],
+    variants: [],
     isBestSeller: false,
     isNewArrival: false,
     careInstructions: "",
@@ -337,8 +421,16 @@ function toDraft(product: Product): ProductDraft {
     longDescription: product.longDescription,
     basePriceUsd: String(product.basePriceUsd),
     stock: String(product.stock),
+    amazonSellerSku: product.amazonSellerSku ?? "",
+    amazonAsin: product.amazonAsin ?? "",
+    amazonStoreUrl: product.amazonStoreUrl ?? "",
+    amazonFulfillableQuantity: String(product.amazonFulfillableQuantity ?? 0),
+    amazonInventoryUpdatedAt: product.amazonInventoryUpdatedAt ?? "",
+    amazonMcfEnabled: product.amazonMcfEnabled,
     tags: product.tags.join(", "),
     images: [...product.images],
+    bannerImages: [...product.bannerImages],
+    variants: normalizeProductVariants(product.variants),
     isBestSeller: product.isBestSeller,
     isNewArrival: product.isNewArrival,
     careInstructions: product.careInstructions ?? "",
@@ -357,7 +449,8 @@ function toSimilarDraft(product: Product): ProductDraft {
     name: similarName,
     sku: buildSku(sourceDraft.skuPrefix, ""),
     skuItemNumber: "",
-    images: [],
+    images: [...sourceDraft.images],
+    variants: [...sourceDraft.variants],
   };
 }
 
@@ -369,6 +462,7 @@ function toSummary(product: Product): ProductSummary {
     sku: product.sku,
     category: product.category,
     primaryImage: product.images[0] ?? null,
+    parentListingId: product.parentListingId,
   };
 }
 
@@ -379,6 +473,7 @@ function sortProducts(products: ProductSummary[]): ProductSummary[] {
 export function AdminProductEditor({
   categoryTree,
   categoryOptions,
+  initialMode = "edit",
   initialProduct,
   initialProducts,
   ratesFromPkr,
@@ -386,18 +481,27 @@ export function AdminProductEditor({
   const toast = useToast();
   const [products, setProducts] = useState(() => sortProducts(initialProducts));
   const [draft, setDraft] = useState<ProductDraft>(() =>
-    initialProduct ? toDraft(initialProduct) : createEmptyDraft(),
+    initialProduct
+      ? initialMode === "duplicate"
+        ? toSimilarDraft(initialProduct)
+        : toDraft(initialProduct)
+      : createEmptyDraft(),
   );
   const [productSearch, setProductSearch] = useState("");
   const [categorySearch, setCategorySearch] = useState("");
   const [isCategoryEditing, setIsCategoryEditing] = useState(
     () => !(initialProduct?.categoryPath.length),
   );
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState(() =>
+    initialProduct && initialMode === "duplicate"
+      ? "Duplicate draft ready. Update the SKU and details before uploading."
+      : "",
+  );
   const [validationFields, setValidationFields] = useState<
     Set<AdminValidationField>
   >(() => new Set());
   const [isSaving, setIsSaving] = useState(false);
+  const [isWaitingForImages, setIsWaitingForImages] = useState(false);
   const [isLoadingProduct, setIsLoadingProduct] = useState(false);
   const [loadingProductSlug, setLoadingProductSlug] = useState("");
   const [deletingProductSlug, setDeletingProductSlug] = useState<string | null>(null);
@@ -405,7 +509,14 @@ export function AdminProductEditor({
   const [productPendingDelete, setProductPendingDelete] =
     useState<ProductSummary | null>(null);
   const [productDeleteError, setProductDeleteError] = useState("");
+  const [savedProductAction, setSavedProductAction] = useState<Product | null>(null);
   const [uploadResetSignal, setUploadResetSignal] = useState(0);
+  const [listingGroupSearch, setListingGroupSearch] = useState("");
+  const [selectedListingIds, setSelectedListingIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [isUpdatingListingGroup, setIsUpdatingListingGroup] = useState(false);
+  const [listingGroupStatus, setListingGroupStatus] = useState("");
   const [skuAvailability, setSkuAvailability] = useState<SkuAvailabilityState>({
     state: "idle",
     checkedSku: "",
@@ -413,6 +524,20 @@ export function AdminProductEditor({
   });
   const skuCheckRequestRef = useRef(0);
   const uploadFormRef = useRef<R2ImageUploadFormHandle>(null);
+  const bannerUploadFormRef = useRef<R2ImageUploadFormHandle>(null);
+  const adminPanelLinkRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    if (!savedProductAction) {
+      return;
+    }
+
+    const redirectTimer = window.setTimeout(() => {
+      adminPanelLinkRef.current?.click();
+    }, SUCCESS_REDIRECT_DELAY_MS);
+
+    return () => window.clearTimeout(redirectTimer);
+  }, [savedProductAction]);
 
   const selectedCategoryPath = splitCategoryPath(draft.categoryPath);
   const categoryPaths = flattenCategoryPaths(categoryTree);
@@ -441,6 +566,45 @@ export function AdminProductEditor({
       })
     : [];
   const visibleProductResults = filteredProducts.slice(0, 8);
+  const currentProductSummary = products.find(
+    (product) => product.slug === draft.originalSlug,
+  );
+  const listingParentSummary = currentProductSummary?.parentListingId
+    ? products.find(
+        (product) => product.id === currentProductSummary.parentListingId,
+      )
+    : currentProductSummary;
+  const listingChildren = listingParentSummary
+    ? products.filter(
+        (product) => product.parentListingId === listingParentSummary.id,
+      )
+    : [];
+  const listingParentIds = new Set(
+    products
+      .map((product) => product.parentListingId)
+      .filter((id): id is string => Boolean(id)),
+  );
+  const normalizedListingGroupSearch = listingGroupSearch.trim().toLowerCase();
+  const listingCandidates =
+    currentProductSummary &&
+    !currentProductSummary.parentListingId &&
+    normalizedListingGroupSearch
+      ? products
+          .filter((product) => {
+            if (
+              product.id === currentProductSummary.id ||
+              product.parentListingId ||
+              listingParentIds.has(product.id)
+            ) {
+              return false;
+            }
+
+            return `${product.name} ${product.sku} ${product.category}`
+              .toLowerCase()
+              .includes(normalizedListingGroupSearch);
+          })
+          .slice(0, 8)
+      : [];
   const basePricePkrPreview = convertUsdToPkr(
     parseDecimalInput(draft.basePriceUsd),
     ratesFromPkr,
@@ -465,7 +629,9 @@ export function AdminProductEditor({
       ? "Enter the product item number before uploading images."
       : "";
   const isEditingProduct = Boolean(draft.originalSlug);
-  const saveButtonLabel = isSaving
+  const saveButtonLabel = isWaitingForImages
+    ? "Waiting for images..."
+    : isSaving
     ? isEditingProduct
       ? "Updating..."
       : "Uploading..."
@@ -505,7 +671,7 @@ export function AdminProductEditor({
 
   const updateDraft = (
     field: keyof ProductDraft,
-    value: string | boolean | string[],
+    value: string | boolean | string[] | ProductVariant[],
   ) => {
     setDraft((currentDraft) => ({
       ...currentDraft,
@@ -645,11 +811,164 @@ export function AdminProductEditor({
       return;
     }
 
+    if (name === "amazonAsin") {
+      const amazonAsin = normalizeAmazonAsin(value);
+
+      setDraft((currentDraft) => ({
+        ...currentDraft,
+        amazonAsin,
+        amazonStoreUrl: buildAmazonListingUrl(amazonAsin),
+      }));
+      return;
+    }
+
     updateDraft(name as keyof ProductDraft, value);
+  };
+
+  useEffect(() => {
+    setListingGroupSearch("");
+    setSelectedListingIds(new Set());
+    setListingGroupStatus("");
+  }, [draft.originalSlug]);
+
+  const toggleListingSelection = (productId: string) => {
+    setSelectedListingIds((currentIds) => {
+      const nextIds = new Set(currentIds);
+      if (nextIds.has(productId)) {
+        nextIds.delete(productId);
+      } else {
+        nextIds.add(productId);
+      }
+      return nextIds;
+    });
+  };
+
+  const updateListingGroup = async (
+    action: "combine-listings" | "uncombine-listings",
+    childProductIds: string[],
+  ) => {
+    if (!listingParentSummary || !childProductIds.length) {
+      const message =
+        action === "combine-listings"
+          ? "Select at least one listing to combine."
+          : "Select a variation to separate.";
+      setListingGroupStatus(message);
+      toast.error("No listings selected", message);
+      return;
+    }
+
+    setIsUpdatingListingGroup(true);
+    setListingGroupStatus(
+      action === "combine-listings"
+        ? "Combining listings..."
+        : "Separating listing...",
+    );
+
+    try {
+      const response = await fetch("/api/admin/products", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action,
+          parentProductId: listingParentSummary.id,
+          childProductIds,
+        }),
+      });
+      const payload = (await response.json()) as ProductResponse;
+
+      if (!response.ok) {
+        throw new Error(payload.message ?? "Could not update the listing group.");
+      }
+
+      if (payload.products) {
+        setProducts(sortProducts(payload.products));
+      }
+      setSelectedListingIds(new Set());
+      setListingGroupSearch("");
+      const message = payload.message ?? "Listing group updated.";
+      setListingGroupStatus(message);
+      toast.success("Listing group updated", message);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Could not update the listing group.";
+      setListingGroupStatus(message);
+      toast.error("Listing group update failed", message);
+    } finally {
+      setIsUpdatingListingGroup(false);
+    }
   };
 
   const onCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
     updateDraft(event.currentTarget.name as keyof ProductDraft, event.currentTarget.checked);
+  };
+
+  const addVariantPreset = (preset: ProductVariant) => {
+    setDraft((currentDraft) => {
+      const alreadyAdded = currentDraft.variants.some(
+        (variant) =>
+          variant.id === preset.id ||
+          variant.label.trim().toLowerCase() === preset.label.toLowerCase(),
+      );
+
+      if (alreadyAdded) {
+        return currentDraft;
+      }
+
+      return {
+        ...currentDraft,
+        variants: [...currentDraft.variants, { ...preset, options: [...preset.options] }],
+      };
+    });
+  };
+
+  const addCustomVariant = () => {
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      variants: [
+        ...currentDraft.variants,
+        {
+          id: `custom-${Date.now().toString(36)}`,
+          label: "",
+          options: [],
+        },
+      ],
+    }));
+  };
+
+  const updateVariant = (
+    variantId: string,
+    field: "label" | "options",
+    value: string,
+  ) => {
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      variants: currentDraft.variants.map((variant) => {
+        if (variant.id !== variantId) {
+          return variant;
+        }
+
+        if (field === "label") {
+          return {
+            ...variant,
+            label: value,
+          };
+        }
+
+        return {
+          ...variant,
+          options: [value],
+        };
+      }),
+    }));
+  };
+
+  const removeVariant = (variantId: string) => {
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      variants: currentDraft.variants.filter((variant) => variant.id !== variantId),
+    }));
   };
 
   const setCategoryPath = (path: string[]) => {
@@ -684,6 +1003,7 @@ export function AdminProductEditor({
     setIsLoadingProduct(true);
     setLoadingProductSlug(slug);
     setStatus("");
+    setSavedProductAction(null);
 
     try {
       const response = await fetch(`/api/admin/products?slug=${encodeURIComponent(slug)}`);
@@ -712,6 +1032,7 @@ export function AdminProductEditor({
     setIsLoadingProduct(true);
     setLoadingProductSlug(slug);
     setStatus("");
+    setSavedProductAction(null);
 
     try {
       const response = await fetch(`/api/admin/products?slug=${encodeURIComponent(slug)}`);
@@ -741,19 +1062,22 @@ export function AdminProductEditor({
     }
   };
 
-  const startNewProduct = () => {
-    setDraft(createEmptyDraft());
+  const onProductSearchSelect = (slug: string) => {
+    void loadProduct(slug);
+  };
+
+  const copySavedProductListing = (product: Product) => {
+    setDraft(toSimilarDraft(product));
     setProductSearch("");
     setCategorySearch("");
-    setIsCategoryEditing(true);
+    setIsCategoryEditing(false);
     setUploadResetSignal((currentSignal) => currentSignal + 1);
     setValidationFields(new Set());
     resetSkuAvailability();
-    setStatus("Creating a new product draft.");
-  };
-
-  const onProductSearchSelect = (slug: string) => {
-    void loadProduct(slug);
+    setStatus("");
+    setSavedProductAction(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    toast.success("Duplicate draft ready", "Update the SKU and upload when ready.");
   };
 
   const onProductDelete = async (product: ProductSummary) => {
@@ -893,8 +1217,27 @@ export function AdminProductEditor({
     setStatus("Primary image updated for the current draft.");
   };
 
+  const removeBannerImage = (imageUrl: string) => {
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      bannerImages: currentDraft.bannerImages.filter(
+        (url) => url !== imageUrl,
+      ),
+    }));
+    setStatus("Banner removed from the current product draft.");
+  };
+
   const onSave = async () => {
     setStatus("");
+
+    const uploadForm = uploadFormRef.current;
+    const bannerUploadForm = bannerUploadFormRef.current;
+    const hasPendingImageUploads = Boolean(uploadForm?.hasPendingImages());
+    const hasPendingBannerUploads = Boolean(
+      bannerUploadForm?.hasPendingImages(),
+    );
+    const hasImagesReadyAtSave =
+      draft.images.length > 0 || hasPendingImageUploads;
 
     const missingRequiredFields: AdminValidationField[] = [];
     if (!draft.name.trim()) {
@@ -921,7 +1264,7 @@ export function AdminProductEditor({
     if (!getRichTextPlainText(draft.careInstructions)) {
       missingRequiredFields.push("careInstructions");
     }
-    if (!hasImagesReady) {
+    if (!hasImagesReadyAtSave) {
       missingRequiredFields.push("images");
     }
 
@@ -939,22 +1282,30 @@ export function AdminProductEditor({
       return;
     }
 
-    if (!skuIsKnownAvailable) {
-      const skuAvailable = await checkSkuAvailability();
-      if (!skuAvailable) {
-        setStatus("Resolve SKU availability before saving.");
-        return;
-      }
-    }
-
     setIsSaving(true);
+    setIsWaitingForImages(
+      hasPendingImageUploads || hasPendingBannerUploads,
+    );
 
     try {
-      if (uploadFormRef.current?.hasPendingImages()) {
-        setStatus("Uploading product images to R2 before saving...");
+      if (hasPendingImageUploads || hasPendingBannerUploads) {
+        setStatus("Waiting for product media to finish uploading to R2...");
       }
 
-      const uploadedImages = await uploadFormRef.current?.uploadPendingImages();
+      const [uploadedImages, uploadedBanners] = await Promise.all([
+        uploadForm?.uploadPendingImages(),
+        bannerUploadForm?.uploadPendingImages(),
+      ]);
+      setIsWaitingForImages(false);
+
+      if (!skuIsKnownAvailable) {
+        const skuAvailable = await checkSkuAvailability();
+        if (!skuAvailable) {
+          setStatus("Resolve SKU availability before saving.");
+          return;
+        }
+      }
+
       const uploadedImageUrls =
         uploadedImages
           ?.map((upload) => upload.url)
@@ -962,6 +1313,16 @@ export function AdminProductEditor({
       const imagesForSave = [
         ...draft.images,
         ...uploadedImageUrls.filter((url) => !draft.images.includes(url)),
+      ];
+      const uploadedBannerUrls =
+        uploadedBanners
+          ?.map((upload) => upload.url)
+          .filter((url): url is string => Boolean(url)) ?? [];
+      const bannerImagesForSave = [
+        ...draft.bannerImages,
+        ...uploadedBannerUrls.filter(
+          (url) => !draft.bannerImages.includes(url),
+        ),
       ];
 
       const response = await fetch("/api/admin/products", {
@@ -980,11 +1341,21 @@ export function AdminProductEditor({
           basePricePkr: basePricePkrPreview !== null ? Math.round(basePricePkrPreview) : NaN,
           compareAtPricePkr: null,
           stock: draft.stock.trim() ? Number(draft.stock) : 0,
+          amazonSellerSku: draft.amazonSellerSku,
+          amazonAsin: draft.amazonAsin,
+          amazonStoreUrl: buildAmazonListingUrl(draft.amazonAsin),
+          amazonFulfillableQuantity: draft.amazonFulfillableQuantity.trim()
+            ? Number(draft.amazonFulfillableQuantity)
+            : 0,
+          amazonInventoryUpdatedAt: draft.amazonInventoryUpdatedAt || undefined,
+          amazonMcfEnabled: draft.amazonMcfEnabled,
           tags: draft.tags
             .split(",")
             .map((tag) => tag.trim())
             .filter(Boolean),
           images: imagesForSave,
+          bannerImages: bannerImagesForSave,
+          variants: normalizeProductVariants(draft.variants),
           isBestSeller: draft.isBestSeller,
           isNewArrival: draft.isNewArrival,
           careInstructions: normalizeRichTextForStorage(draft.careInstructions),
@@ -1016,6 +1387,7 @@ export function AdminProductEditor({
       resetSkuAvailability();
       const successMessage = payload.message ?? "Product saved.";
       setStatus(successMessage);
+      setSavedProductAction(savedProduct);
       toast.success(successMessage, savedProduct.name);
     } catch (error) {
       const errorMessage =
@@ -1023,6 +1395,7 @@ export function AdminProductEditor({
       setStatus(errorMessage);
       toast.error("Product upload failed", errorMessage);
     } finally {
+      setIsWaitingForImages(false);
       setIsSaving(false);
     }
   };
@@ -1065,6 +1438,37 @@ export function AdminProductEditor({
                 {deletingProductSlug === productPendingDelete.slug
                   ? "Removing..."
                   : "Yes"}
+              </Button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {savedProductAction ? (
+        <div
+          aria-labelledby="admin-upload-success-title"
+          aria-modal="true"
+          className="admin-confirm-overlay"
+          role="dialog"
+        >
+          <section className="admin-confirm-dialog admin-upload-success-dialog">
+            <p className="admin-success-kicker">Product uploaded</p>
+            <h3 id="admin-upload-success-title">{savedProductAction.name}</h3>
+            <div className="admin-success-actions">
+              <Link
+                aria-label="Return to the admin panel automatically in 10 seconds"
+                className="btn-secondary admin-success-redirect-btn"
+                href="/admin"
+                onClick={() => setSavedProductAction(null)}
+                ref={adminPanelLinkRef}
+              >
+                <span>Admin panel</span>
+              </Link>
+              <Button
+                onClick={() => copySavedProductListing(savedProductAction)}
+                variant="primary"
+              >
+                Copy listing
               </Button>
             </div>
           </section>
@@ -1257,7 +1661,7 @@ export function AdminProductEditor({
                       skuIsKnownDuplicate || missingSku ? "is-invalid" : undefined
                     }
                     id="admin-product-sku-item"
-                    inputMode="numeric"
+                    inputMode="text"
                     maxLength={SKU_ITEM_NUMBER_MAX_LENGTH}
                     name="skuItemNumber"
                     onChange={(event) =>
@@ -1339,6 +1743,54 @@ export function AdminProductEditor({
                 value={draft.stock}
               />
             </Field>
+            <div className="admin-amazon-fields full-width">
+              <Field>
+                <FieldLabel htmlFor="admin-product-amazon-seller-sku">
+                  Amazon Seller SKU
+                </FieldLabel>
+                <Input
+                  id="admin-product-amazon-seller-sku"
+                  name="amazonSellerSku"
+                  onChange={onTextChange}
+                  placeholder="Amazon Seller SKU"
+                  value={draft.amazonSellerSku}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="admin-product-amazon-asin">
+                  Amazon ASIN
+                </FieldLabel>
+                <Input
+                  id="admin-product-amazon-asin"
+                  name="amazonAsin"
+                  onChange={onTextChange}
+                  placeholder="ASIN"
+                  value={draft.amazonAsin}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="admin-product-amazon-stock">
+                  Amazon Stock
+                </FieldLabel>
+                <Input
+                  id="admin-product-amazon-stock"
+                  inputMode="numeric"
+                  name="amazonFulfillableQuantity"
+                  onChange={onTextChange}
+                  placeholder="0"
+                  value={draft.amazonFulfillableQuantity}
+                />
+              </Field>
+              <label className="checkbox-label">
+                <input
+                  checked={draft.amazonMcfEnabled}
+                  name="amazonMcfEnabled"
+                  onChange={onCheckboxChange}
+                  type="checkbox"
+                />
+                <span>Use Amazon fallback when local stock is unavailable</span>
+              </label>
+            </div>
             <div className="admin-price-flags-row full-width">
               <div className="price-info-card admin-field-price-preview">
                 <strong>Base Price Preview</strong>
@@ -1514,6 +1966,15 @@ export function AdminProductEditor({
             ) : (
               <div className="admin-taxonomy-stepper">
                 <div className="admin-taxonomy-step-card">
+                  {selectedCategoryPath.length > 0 ? (
+                    <div
+                      aria-live="polite"
+                      className="admin-taxonomy-live-path"
+                    >
+                      <span>Current path</span>
+                      <strong>{selectedCategoryPath.join(" > ")}</strong>
+                    </div>
+                  ) : null}
                   {activeCategoryOptions.length > 0 ? (
                     <div className="admin-taxonomy-options">
                       {activeCategoryOptions.map((node) => {
@@ -1549,6 +2010,262 @@ export function AdminProductEditor({
           </div>
         </section>
       </div>
+
+      <section className="admin-editor-panel admin-variant-manager">
+        <div className="admin-panel-header">
+          <div>
+            <h3>Variation options</h3>
+          </div>
+          <div className="admin-variant-presets">
+            {VARIANT_PRESETS.map((preset) => {
+              const isAdded = draft.variants.some(
+                (variant) =>
+                  variant.id === preset.id ||
+                  variant.label.trim().toLowerCase() === preset.label.toLowerCase(),
+              );
+
+              return (
+                <Button
+                  disabled={isAdded}
+                  key={preset.id}
+                  onClick={() => addVariantPreset(preset)}
+                  size="compact"
+                  variant="secondary"
+                >
+                  {isAdded ? `${preset.label} added` : `Add ${preset.label}`}
+                </Button>
+              );
+            })}
+            <Button onClick={addCustomVariant} size="compact" variant="secondary">
+              Add custom
+            </Button>
+          </div>
+        </div>
+
+        {draft.variants.length > 0 ? (
+          <div className="admin-variant-grid">
+            {draft.variants.map((variant, index) => (
+              <article className="admin-variant-card" key={variant.id}>
+                <Field>
+                  <FieldLabel htmlFor={`admin-variant-label-${variant.id}`}>
+                    Option name
+                  </FieldLabel>
+                  <Input
+                    id={`admin-variant-label-${variant.id}`}
+                    onChange={(event) =>
+                      updateVariant(variant.id, "label", event.currentTarget.value)
+                    }
+                    placeholder={index === 0 ? "Size" : "Option name"}
+                    value={variant.label}
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor={`admin-variant-options-${variant.id}`}>
+                    Values
+                  </FieldLabel>
+                  <Input
+                    id={`admin-variant-options-${variant.id}`}
+                    onChange={(event) =>
+                      updateVariant(variant.id, "options", event.currentTarget.value)
+                    }
+                    placeholder={
+                      variant.id === "style"
+                        ? "Classic, Western, Modern"
+                        : "Small, Medium, Large"
+                    }
+                    value={variant.options.join(", ")}
+                  />
+                </Field>
+                <Button
+                  className="admin-variant-remove"
+                  onClick={() => removeVariant(variant.id)}
+                  size="compact"
+                  variant="secondary"
+                >
+                  Remove
+                </Button>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="admin-variant-empty">No variation options added.</p>
+        )}
+      </section>
+
+      <section className="admin-editor-panel admin-listing-group-manager">
+        <div className="admin-panel-header">
+          <div>
+            <h3>Combined listing</h3>
+            <p>
+              Use one existing listing as the parent. Its descriptions are shared,
+              while every variation keeps its own title, identifiers, images,
+              price, and stock.
+            </p>
+          </div>
+        </div>
+
+        {!currentProductSummary ? (
+          <p className="admin-listing-group-empty">
+            Save or load an existing product before combining listings.
+          </p>
+        ) : currentProductSummary.parentListingId && listingParentSummary ? (
+          <div className="admin-listing-group-child-notice">
+            <div>
+              <strong>This listing is a variation of {listingParentSummary.name}.</strong>
+              <span>
+                Open the parent to add or separate other listing variations.
+              </span>
+            </div>
+            <Button
+              disabled={isUpdatingListingGroup}
+              onClick={() => onProductSearchSelect(listingParentSummary.slug)}
+              size="compact"
+              variant="secondary"
+            >
+              Open parent listing
+            </Button>
+          </div>
+        ) : listingParentSummary ? (
+          <div className="admin-listing-group-content">
+            <div className="admin-listing-group-members">
+              <article className="admin-listing-group-row is-parent">
+                <span className="admin-listing-group-thumb">
+                  {listingParentSummary.primaryImage ? (
+                    <ProductMedia
+                      alt=""
+                      height={64}
+                      sizes="56px"
+                      src={getProductImageSrc(listingParentSummary.primaryImage)}
+                      width={64}
+                    />
+                  ) : (
+                    <span aria-hidden="true">No image</span>
+                  )}
+                </span>
+                <span className="admin-listing-group-copy">
+                  <strong>{listingParentSummary.name}</strong>
+                  <small>{listingParentSummary.sku}</small>
+                </span>
+                <span className="admin-listing-group-badge">Parent</span>
+              </article>
+
+              {listingChildren.map((product) => (
+                <article className="admin-listing-group-row" key={product.id}>
+                  <span className="admin-listing-group-thumb">
+                    {product.primaryImage ? (
+                      <ProductMedia
+                        alt=""
+                        height={64}
+                        sizes="56px"
+                        src={getProductImageSrc(product.primaryImage)}
+                        width={64}
+                      />
+                    ) : (
+                      <span aria-hidden="true">No image</span>
+                    )}
+                  </span>
+                  <span className="admin-listing-group-copy">
+                    <strong>{product.name}</strong>
+                    <small>{product.sku}</small>
+                  </span>
+                  <Button
+                    disabled={isUpdatingListingGroup}
+                    onClick={() =>
+                      void updateListingGroup("uncombine-listings", [product.id])
+                    }
+                    size="compact"
+                    variant="secondary"
+                  >
+                    {isUpdatingListingGroup ? "Working..." : "Separate"}
+                  </Button>
+                </article>
+              ))}
+            </div>
+
+            <div className="admin-listing-group-add">
+              <Field>
+                <FieldLabel htmlFor="admin-listing-group-search">
+                  Add existing listings as variations
+                </FieldLabel>
+                <Input
+                  autoComplete="off"
+                  id="admin-listing-group-search"
+                  onChange={(event) => setListingGroupSearch(event.currentTarget.value)}
+                  placeholder="Search by product title, item number, or category"
+                  value={listingGroupSearch}
+                />
+                <FieldDescription>
+                  The currently loaded product stays as the parent listing.
+                </FieldDescription>
+              </Field>
+
+              {normalizedListingGroupSearch ? (
+                <div className="admin-listing-group-results">
+                  {listingCandidates.length ? (
+                    listingCandidates.map((product) => (
+                      <label className="admin-listing-group-candidate" key={product.id}>
+                        <input
+                          checked={selectedListingIds.has(product.id)}
+                          disabled={isUpdatingListingGroup}
+                          onChange={() => toggleListingSelection(product.id)}
+                          type="checkbox"
+                        />
+                        <span className="admin-listing-group-thumb">
+                          {product.primaryImage ? (
+                            <ProductMedia
+                              alt=""
+                              height={64}
+                              sizes="56px"
+                              src={getProductImageSrc(product.primaryImage)}
+                              width={64}
+                            />
+                          ) : (
+                            <span aria-hidden="true">No image</span>
+                          )}
+                        </span>
+                        <span className="admin-listing-group-copy">
+                          <strong>{product.name}</strong>
+                          <small>
+                            {product.sku} · {product.category}
+                          </small>
+                        </span>
+                      </label>
+                    ))
+                  ) : (
+                    <p className="admin-listing-group-empty">
+                      No available standalone listings match that search.
+                    </p>
+                  )}
+                </div>
+              ) : null}
+
+              <div className="admin-listing-group-actions">
+                <Button
+                  disabled={isUpdatingListingGroup || !selectedListingIds.size}
+                  onClick={() =>
+                    void updateListingGroup(
+                      "combine-listings",
+                      Array.from(selectedListingIds),
+                    )
+                  }
+                  variant="primary"
+                >
+                  {isUpdatingListingGroup
+                    ? "Combining listings..."
+                    : `Combine ${selectedListingIds.size || "selected"} listing${
+                        selectedListingIds.size === 1 ? "" : "s"
+                      }`}
+                </Button>
+                {listingGroupStatus ? (
+                  <p aria-live="polite" className="admin-listing-group-status">
+                    {listingGroupStatus}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </section>
 
       <section className="admin-editor-panel admin-image-manager">
         <div className="admin-panel-header">
@@ -1655,6 +2372,79 @@ export function AdminProductEditor({
                     <span>{deletingImageUrl === imageUrl ? "Removing..." : "Remove"}</span>
                   </Button>
                 </div>
+              </article>
+            ))}
+          </div>
+        ) : null}
+      </section>
+
+      <section className="admin-editor-panel admin-banner-manager">
+        <div className="admin-panel-header">
+          <div>
+            <h3>Upload product page banners</h3>
+            <p>
+              Add wide lifestyle or promotional images. They appear below the
+              product information and reviews.
+            </p>
+          </div>
+        </div>
+
+        <div className="admin-image-tools">
+          <div className="admin-upload-card admin-banner-upload-card">
+            <R2ImageUploadForm
+              ref={bannerUploadFormRef}
+              autoUpload
+              disabled={!uploadFolder}
+              disabledMessage={uploadDisabledMessage}
+              hideFolderField
+              initialFolder={uploadFolder ? `${uploadFolder}/banners` : ""}
+              multiple
+              resetSignal={uploadResetSignal}
+              showUploadButton={false}
+              onUploaded={(payload) => {
+                if (!payload.url) {
+                  return;
+                }
+
+                setDraft((currentDraft) => ({
+                  ...currentDraft,
+                  bannerImages: currentDraft.bannerImages.includes(
+                    payload.url as string,
+                  )
+                    ? currentDraft.bannerImages
+                    : [...currentDraft.bannerImages, payload.url as string],
+                }));
+                setStatus("Banner attached to the current product draft.");
+              }}
+              showUploadedPreview={false}
+            />
+          </div>
+        </div>
+
+        {draft.bannerImages.length ? (
+          <div className="admin-banner-grid">
+            {draft.bannerImages.map((imageUrl, index) => (
+              <article className="admin-banner-card" key={imageUrl}>
+                <span className="admin-image-badge">
+                  Banner {index + 1}
+                </span>
+                <ProductMedia
+                  alt={`${draft.name || "Product"} banner ${index + 1}`}
+                  className="admin-banner-preview"
+                  height={360}
+                  sizes="(max-width: 720px) 100vw, 680px"
+                  src={getProductImageSrc(imageUrl)}
+                  width={1200}
+                />
+                <Button
+                  className="admin-image-meta-btn"
+                  onClick={() => removeBannerImage(imageUrl)}
+                  size="compact"
+                  variant="secondary"
+                >
+                  <FiTrash2 />
+                  <span>Remove</span>
+                </Button>
               </article>
             ))}
           </div>

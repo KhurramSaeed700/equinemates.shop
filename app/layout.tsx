@@ -38,6 +38,46 @@ const themeInitScript = `
   })();
 `;
 
+const languageInitScript = `
+  (() => {
+    try {
+      const supported = ["en", "de", "fr", "es", "ar", "ur"];
+      const storedLanguage = window.localStorage.getItem("equinemates-language");
+      const isAdminRoute = window.location.pathname === "/admin" ||
+        window.location.pathname.startsWith("/admin/") ||
+        window.location.pathname === "/super-admin" ||
+        window.location.pathname.startsWith("/super-admin/");
+      const language = isAdminRoute
+        ? "en"
+        : supported.includes(storedLanguage) ? storedLanguage : "en";
+      document.documentElement.lang = language;
+      document.documentElement.dir = language === "ar" || language === "ur" ? "rtl" : "ltr";
+    } catch {
+      document.documentElement.lang = "en";
+      document.documentElement.dir = "ltr";
+    }
+  })();
+`;
+
+const accessibilityInitScript = `
+  (() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("equinemates-accessibility-v1") || "{}");
+      const root = document.documentElement;
+      root.dataset.a11yFont = saved.fontSize === "large" ? "large" : "normal";
+      root.dataset.a11yMotor = String(Boolean(saved.motor));
+      root.dataset.a11yColorBlind = String(Boolean(saved.colorBlind));
+      root.dataset.a11yVision = String(Boolean(saved.vision));
+      root.dataset.a11yCognitive = String(Boolean(saved.cognitive));
+      root.dataset.a11yEpileptic = String(Boolean(saved.epilepticSafe));
+      root.dataset.a11yAdhd = String(Boolean(saved.adhdFriendly));
+      root.dataset.a11yContrast = String([0, 1, 2].includes(saved.contrast) ? saved.contrast : 0);
+      root.dataset.a11ySaturation = String([0, 1, 2].includes(saved.saturation) ? saved.saturation : 0);
+      root.dataset.a11yLinks = String(Boolean(saved.highlightLinks));
+    } catch {}
+  })();
+`;
+
 const clerkAppearance = {
   variables: {
     borderRadius: "0.85rem",
@@ -134,6 +174,8 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: languageInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: accessibilityInitScript }} />
       </head>
       <body className={`${sora.variable} ${plexSans.variable}`}>
         <ClerkProvider

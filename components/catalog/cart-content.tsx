@@ -9,6 +9,8 @@ import { PeopleAlsoBought } from "./people-also-bought";
 import { RecentlyViewedSection } from "./recently-viewed";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
+import { ProductMedia } from "@/components/ui/product-media";
+import { getProductImageSrc } from "@/lib/image-utils";
 import { useUser } from "@clerk/nextjs";
 
 export function CartContent() {
@@ -109,10 +111,12 @@ export function CartContent() {
                     className="review-item cart-item"
                     key={item.productSlug}
                   >
-                    <img
-                      src={imageSrc}
+                    <ProductMedia
                       alt={item.name}
                       className="cart-item-image"
+                      height={80}
+                      src={getProductImageSrc(imageSrc)}
+                      width={80}
                     />
                     <div className="cart-item-details">
                       <div className="action-row">

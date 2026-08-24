@@ -1,4 +1,6 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
 import { isClerkEnabledFromKey } from "@/lib/clerk";
 import {
@@ -15,6 +17,113 @@ type AdminAccessResult = {
   primaryEmail: string | null;
   role: AdminRole | null;
 };
+
+const ADMIN_SESSION_COOKIE = "equinemates_admin_session";
+const ADMIN_SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
+
+function getAdminSessionSecret() {
+  return (
+    process.env.ADMIN_SESSION_SECRET?.trim() ||
+    process.env.CLERK_SECRET_KEY?.trim() ||
+    ""
+  );
+}
+
+function signAdminSessionPayload(payload: string) {
+  const secret = getAdminSessionSecret();
+
+  if (!secret) {
+    return "";
+  }
+
+  return createHmac("sha256", secret).update(payload).digest("base64url");
+}
+
+function createAdminSessionCookieValue(access: AdminAccessResult) {
+  if (!access.isAuthorized || !access.primaryEmail || !access.role) {
+    return "";
+  }
+
+  const expiresAt = Date.now() + ADMIN_SESSION_MAX_AGE_SECONDS * 1000;
+  const payload = Buffer.from(
+    JSON.stringify({
+      email: access.primaryEmail,
+      expiresAt,
+      role: access.role,
+    }),
+  ).toString("base64url");
+  const signature = signAdminSessionPayload(payload);
+
+  return signature ? `${payload}.${signature}` : "";
+}
+
+async function getAccessFromAdminSessionCookie(): Promise<AdminAccessResult | null> {
+  const cookieStore = await cookies();
+  const cookieValue = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
+
+  if (!cookieValue) {
+    return null;
+  }
+
+  const [payload, signature] = cookieValue.split(".");
+  const expectedSignature = signAdminSessionPayload(payload ?? "");
+
+  if (!payload || !signature || !expectedSignature) {
+    return null;
+  }
+
+  try {
+    const signatureBuffer = Buffer.from(signature);
+    const expectedSignatureBuffer = Buffer.from(expectedSignature);
+
+    if (
+      signatureBuffer.length !== expectedSignatureBuffer.length ||
+      !timingSafeEqual(signatureBuffer, expectedSignatureBuffer)
+    ) {
+      return null;
+    }
+
+    const session = JSON.parse(
+      Buffer.from(payload, "base64url").toString("utf8"),
+    ) as {
+      email?: unknown;
+      expiresAt?: unknown;
+      role?: unknown;
+    };
+
+    if (
+      typeof session.email !== "string" ||
+      typeof session.expiresAt !== "number" ||
+      Date.now() >= session.expiresAt ||
+      (session.role !== "ADMIN" && session.role !== "SUPER_ADMIN")
+    ) {
+      return null;
+    }
+
+    const access = await getAccessForEmails([session.email]);
+
+    return access.isAuthorized ? access : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function setAdminSessionCookie(access: AdminAccessResult) {
+  const cookieValue = createAdminSessionCookieValue(access);
+
+  if (!cookieValue) {
+    return;
+  }
+
+  const cookieStore = await cookies();
+  cookieStore.set(ADMIN_SESSION_COOKIE, cookieValue, {
+    httpOnly: true,
+    maxAge: ADMIN_SESSION_MAX_AGE_SECONDS,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+}
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error && error.message.trim()) {
@@ -79,7 +188,30 @@ function collectEmailsFromClaims(claims: unknown): string[] {
     .filter(Boolean);
 }
 
-async function getAccessForEmails(emails: string[]): Promise<AdminAccessResult> {
+function collectEmailsFromUser(
+  user:
+    | {
+        emailAddresses: Array<{ emailAddress: string }>;
+        primaryEmailAddress?: { emailAddress: string } | null;
+      }
+    | null
+    | undefined,
+): string[] {
+  if (!user) {
+    return [];
+  }
+
+  const primaryEmail = user.primaryEmailAddress?.emailAddress.toLowerCase();
+  const emails = user.emailAddresses.map((entry) =>
+    entry.emailAddress.toLowerCase(),
+  );
+
+  return Array.from(
+    new Set((primaryEmail ? [primaryEmail, ...emails] : emails).filter(Boolean)),
+  );
+}
+
+export async function getAccessForEmails(emails: string[]): Promise<AdminAccessResult> {
   const uniqueEmails = Array.from(new Set(emails));
   const primaryEmail = uniqueEmails[0] ?? null;
 
@@ -167,6 +299,12 @@ export async function getAdminAccess(): Promise<AdminAccessResult> {
   const { userId, sessionClaims } = authResult;
 
   if (!userId) {
+    const cookieAccess = await getAccessFromAdminSessionCookie();
+
+    if (cookieAccess) {
+      return cookieAccess;
+    }
+
     return {
       isAuthorized: false,
       isAuthenticated: false,
@@ -177,17 +315,35 @@ export async function getAdminAccess(): Promise<AdminAccessResult> {
     };
   }
 
-  let user: Awaited<ReturnType<typeof currentUser>>;
+  let emails: string[] = [];
 
   try {
-    user = await currentUser();
+    emails = collectEmailsFromUser(await currentUser());
   } catch (error) {
     logClerkAuthError("Clerk currentUser() failed.", error);
+  }
+
+  if (!emails.length) {
+    try {
+      const client = await clerkClient();
+      emails = collectEmailsFromUser(await client.users.getUser(userId));
+    } catch (error) {
+      logClerkAuthError("Clerk users.getUser() fallback failed.", error);
+    }
+  }
+
+  if (!emails.length) {
 
     const claimEmails = collectEmailsFromClaims(sessionClaims);
 
     if (claimEmails.length) {
       return await getAccessForEmails(claimEmails);
+    }
+
+    const cookieAccess = await getAccessFromAdminSessionCookie();
+
+    if (cookieAccess) {
+      return cookieAccess;
     }
 
     return {
@@ -201,9 +357,5 @@ export async function getAdminAccess(): Promise<AdminAccessResult> {
     };
   }
 
-  const emails =
-    user?.emailAddresses.map((entry) => entry.emailAddress.toLowerCase()) ?? [];
-  const primaryEmail = user?.primaryEmailAddress?.emailAddress.toLowerCase();
-
-  return await getAccessForEmails(primaryEmail ? [primaryEmail, ...emails] : emails);
+  return await getAccessForEmails(emails);
 }

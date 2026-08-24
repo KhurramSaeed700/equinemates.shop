@@ -27,8 +27,8 @@ export function ProductGrid({
         <p className="auth-gate-hint auth-gate-hint-banner tiny">
           <Link className="text-link" href="/account">
             Sign in
-          </Link>{" "}
-          to unlock cart and wishlist actions.
+          </Link>
+          <span>to unlock cart and wishlist actions.</span>
         </p>
       ) : null}
       <div className="product-grid">

@@ -1,4 +1,4 @@
-import { Product, ProductCategory } from "@/lib/types";
+import { Product, ProductCategory, ProductVariant } from "@/lib/types";
 
 const CATALOG_MARKDOWN = String.raw`# Shop Structure
 
@@ -788,6 +788,7 @@ function createCuratedProducts(): Product[] {
     basePricePkr: toUsdToPkr(product.basePriceUsd),
     compareAtPricePkr: toUsdToPkr(product.basePriceUsd * 1.12),
     images: [...product.images],
+    bannerImages: [],
     variants: [],
     rating: 0,
     reviewCount: 0,
@@ -797,6 +798,8 @@ function createCuratedProducts(): Product[] {
     isNewArrival: Boolean(product.isNewArrival),
     relatedSlugs: [],
     stock: product.stock,
+    amazonFulfillableQuantity: 0,
+    amazonMcfEnabled: false,
     careInstructions: product.careInstructions,
     shippingInfo: product.shippingInfo,
   }));
@@ -832,6 +835,7 @@ function createProductsFromLeaves(leaves: LeafCategory[]): Product[] {
         basePricePkr: toUsdToPkr(usd),
         compareAtPricePkr: toUsdToPkr(usd * 1.1),
         images: imagesForCategory(leaf.path, i),
+        bannerImages: [],
         variants: [],
         rating: 0,
         reviewCount: 0,
@@ -841,6 +845,8 @@ function createProductsFromLeaves(leaves: LeafCategory[]): Product[] {
         isNewArrival: i === 2,
         relatedSlugs: [],
         stock: 35 + i * 10,
+        amazonFulfillableQuantity: 0,
+        amazonMcfEnabled: false,
       });
       sequence += 1;
     }
@@ -951,7 +957,9 @@ export interface AdminProductSummary {
   name: string;
   sku: string;
   category: ProductCategory;
+  categoryPath: string[];
   primaryImage: string | null;
+  parentListingId?: string;
 }
 
 export interface AdminProductInput {
@@ -967,8 +975,16 @@ export interface AdminProductInput {
   basePricePkr: number;
   compareAtPricePkr?: number;
   images: string[];
+  bannerImages: string[];
+  variants: ProductVariant[];
   tags: string[];
   stock: number;
+  amazonSellerSku?: string;
+  amazonAsin?: string;
+  amazonStoreUrl?: string;
+  amazonFulfillableQuantity?: number;
+  amazonInventoryUpdatedAt?: string;
+  amazonMcfEnabled?: boolean;
   isBestSeller: boolean;
   isNewArrival: boolean;
   careInstructions?: string;

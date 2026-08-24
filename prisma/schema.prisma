@@ -50,6 +50,7 @@ model Category {
   level       Int
   path        String
   parentId    String?
+  sortOrder   Int       @default(0)
   parent      Category? @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
   children    Category[] @relation("CategoryTree")
   products    Product[]
@@ -57,6 +58,7 @@ model Category {
   updatedAt   DateTime  @updatedAt
 
   @@index([parentId])
+  @@index([parentId, sortOrder])
   @@index([level])
 }
 
@@ -73,16 +75,26 @@ model Product {
   rating            Decimal        @default(0) @db.Decimal(3, 2)
   reviewCount       Int            @default(0)
   images            String[]
+  bannerImages      String[]       @default([])
   variants          Json?
   tags              String[]
   isBestSeller      Boolean        @default(false)
   isNewArrival      Boolean        @default(false)
   stock             Int            @default(0)
+  amazonSellerSku   String?
+  amazonAsin        String?
+  amazonStoreUrl    String?
+  amazonFulfillableQuantity Int     @default(0)
+  amazonInventoryUpdatedAt DateTime?
+  amazonMcfEnabled  Boolean        @default(false)
   careInstructions  String?
   shippingInfo      String?
   isActive          Boolean        @default(true)
   categoryId        String
   category          Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  parentListingId   String?
+  parentListing     Product?        @relation("CombinedProductListings", fields: [parentListingId], references: [id], onDelete: SetNull)
+  childListings     Product[]       @relation("CombinedProductListings")
   orderItems        OrderItem[]
   wishlistItems     WishlistItem[]
   cartItems         CartItem[]
@@ -92,6 +104,7 @@ model Product {
   updatedAt         DateTime       @updatedAt
 
   @@index([categoryId])
+  @@index([parentListingId])
   @@index([name])
   @@index([isActive, isBestSeller, isNewArrival])
 }
@@ -168,6 +181,13 @@ model Order {
   totalPkr          Int
   paymentMethod     String?
   paymentStatus     String?
+  paymentProvider   String?
+  paymentProviderSessionId String?
+  paymentProviderPaymentIntentId String?
+  paymentCheckoutUrl String?
+  fulfillmentSource String?
+  fulfillmentStatus String?
+  amazonFulfillmentOrderId String?
   exchangeRateFromPkr Float?
   exchangeRateUpdatedAt DateTime?
   exchangeRateStale Boolean     @default(false)
@@ -198,6 +218,8 @@ model OrderItem {
   unitPricePkr Int
   quantity     Int
   lineTotalPkr Int
+  fulfillmentSource String?
+  amazonSellerSku String?
   order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product      Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
 

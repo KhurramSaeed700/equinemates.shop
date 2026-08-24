@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SignedIn, UserButton } from "@clerk/nextjs";
+import { SignedIn, UserButton, useUser } from "@clerk/nextjs";
 import {
   Dispatch,
   RefObject,
@@ -9,10 +9,8 @@ import {
   useSyncExternalStore,
 } from "react";
 import { createPortal } from "react-dom";
-import { FiMoon, FiSun } from "react-icons/fi";
-
 import { useCart } from "@/components/providers/cart-provider";
-import { useTheme } from "@/components/providers/theme-provider";
+import { useLanguage } from "@/components/providers/language-provider";
 import { useWishlist } from "@/components/providers/wishlist-provider";
 import {
   CartIcon,
@@ -48,16 +46,20 @@ export function SiteHeaderMobileDrawer({
     () => true,
     () => false,
   );
-  const { isDark, toggleTheme } = useTheme();
+  const { t } = useLanguage();
   const { itemCount } = useCart();
   const { productSlugs } = useWishlist();
+  const { isLoaded, isSignedIn } = useUser();
 
   if (!isMounted) {
     return null;
   }
 
-  const themeLabel = isDark ? "Switch to light mode" : "Switch to dark mode";
-  const themeActionText = isDark ? "Light mode" : "Dark mode";
+  const userSignedIn = clerkEnabled
+    ? isLoaded
+      ? Boolean(isSignedIn)
+      : initialSignedIn
+    : false;
 
   return createPortal(
     <div
@@ -77,7 +79,7 @@ export function SiteHeaderMobileDrawer({
       >
         <div className="mobile-nav-drawer-head">
           <div className="mobile-nav-drawer-head-main">
-            {clerkEnabled && initialSignedIn ? (
+            {userSignedIn ? (
               <div className="mobile-nav-account-slot">
                 <SignedIn>
                   <UserButton />
@@ -89,7 +91,7 @@ export function SiteHeaderMobileDrawer({
                 href="/account"
                 onClick={() => setMobileNavOpen(false)}
               >
-                Sign in
+                {t("signIn")}
               </Link>
             )}
           </div>
@@ -115,7 +117,7 @@ export function SiteHeaderMobileDrawer({
               <span className="mobile-nav-quick-action-icon">
                 <HeartIcon aria-hidden="true" height={16} width={16} />
               </span>
-              <span className="mobile-nav-quick-action-label">Wishlist</span>
+              <span className="mobile-nav-quick-action-label">{t("wishlist")}</span>
               <span
                 aria-label={`${productSlugs.length} wishlist items`}
                 className="mobile-nav-quick-action-count"
@@ -134,7 +136,7 @@ export function SiteHeaderMobileDrawer({
               <span className="mobile-nav-quick-action-icon">
                 <CartIcon aria-hidden="true" height={16} width={16} />
               </span>
-              <span className="mobile-nav-quick-action-label">Cart</span>
+              <span className="mobile-nav-quick-action-label">{t("cart")}</span>
               <span
                 aria-label={`${itemCount} cart items`}
                 className="mobile-nav-quick-action-count"
@@ -142,23 +144,6 @@ export function SiteHeaderMobileDrawer({
                 {itemCount}
               </span>
             </Link>
-            <button
-              aria-label={themeLabel}
-              className="mobile-nav-quick-action"
-              onClick={toggleTheme}
-              type="button"
-            >
-              <span className="mobile-nav-quick-action-icon">
-                {isDark ? (
-                  <FiSun aria-hidden="true" height={16} width={16} />
-                ) : (
-                  <FiMoon aria-hidden="true" height={16} width={16} />
-                )}
-              </span>
-              <span className="mobile-nav-quick-action-label">
-                {themeActionText}
-              </span>
-            </button>
           </div>
           {shopMenus.map((menu) => (
             <div
@@ -199,7 +184,7 @@ export function SiteHeaderMobileDrawer({
                     setOpenMenu(null);
                   }}
                 >
-                  Shop All {menu.label}
+                  {t("shopAll")} {menu.label}
                 </Link>
                 {menu.columns.map((column) => (
                   <div

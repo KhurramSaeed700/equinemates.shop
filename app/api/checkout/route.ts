@@ -85,6 +85,7 @@ export async function POST(request: Request) {
       shippingAddress: body.shippingAddress,
       paymentMethod: body.paymentMethod,
       currency: selectedCurrency,
+      siteUrl: new URL(request.url).origin,
       user: {
         clerkId: userId,
         email: email.toLowerCase(),
@@ -93,7 +94,9 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({
-      message: "Checkout completed and invoice generated.",
+      message: order.paymentUrl
+        ? "Order created. Redirecting to secure payment."
+        : "Checkout completed and invoice generated.",
       ...order,
     });
   } catch (error) {

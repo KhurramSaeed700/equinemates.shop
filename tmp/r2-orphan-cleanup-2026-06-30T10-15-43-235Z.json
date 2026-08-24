@@ -1,0 +1,17 @@
+{
+  "mode": "dry-run",
+  "generatedAt": "2026-06-30T10:15:43.235Z",
+  "bucketName": "equinemates-data",
+  "activeProducts": 191,
+  "referencedSources": 382,
+  "protectedKeyCount": 0,
+  "bucketObjectCount": 0,
+  "keptObjectCount": 0,
+  "orphanObjectCount": 0,
+  "orphanBytes": 0,
+  "deletedCount": 0,
+  "errorCount": 0,
+  "orphanKeys": [],
+  "deletedKeys": [],
+  "errors": []
+}

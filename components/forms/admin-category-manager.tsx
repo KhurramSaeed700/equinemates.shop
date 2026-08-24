@@ -1,11 +1,20 @@
 "use client";
 
-import { type KeyboardEvent, useEffect, useMemo, useState } from "react";
 import {
+  type FormEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  FiArrowDown,
+  FiArrowUp,
   FiChevronRight,
   FiChevronsUp,
+  FiCornerUpLeft,
   FiEdit3,
   FiFolderPlus,
+  FiLoader,
   FiPlus,
   FiRefreshCw,
   FiSearch,
@@ -13,18 +22,15 @@ import {
 } from "react-icons/fi";
 
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import type { AdminCategoryTreeNode } from "@/lib/server/catalog-categories";
+import type { AdminProductSummary } from "@/lib/catalog";
 import { useToast } from "@/lib/use-toast";
 
 type AdminCategoryManagerProps = {
   initialCategories: AdminCategoryTreeNode[];
+  initialProducts: AdminProductSummary[];
 };
 
 type CategoryOption = AdminCategoryTreeNode & {
@@ -36,7 +42,45 @@ type CategoryApiResponse = {
   message?: string;
 };
 
-type CreateCategoryMode = "category" | "child" | null;
+type BusyAction =
+  | "refresh"
+  | "rename"
+  | "add-main"
+  | "add-child"
+  | "move"
+  | "promote"
+  | "order-up"
+  | "order-down"
+  | "delete"
+  | "bulk-move"
+  | null;
+
+type CategoryTool =
+  | "rename"
+  | "add-child"
+  | "hierarchy"
+  | "order"
+  | "products"
+  | "remove"
+  | "create-main"
+  | null;
+
+const busyActionLabels: Record<Exclude<BusyAction, null>, string> = {
+  refresh: "Refreshing categories...",
+  rename: "Renaming category...",
+  "add-main": "Adding main category...",
+  "add-child": "Adding child category...",
+  move: "Moving category...",
+  promote: "Moving category up one level...",
+  "order-up": "Moving category up...",
+  "order-down": "Moving category down...",
+  delete: "Removing category...",
+  "bulk-move": "Moving selected products...",
+};
+
+function normalizeName(value: string) {
+  return value.trim().replace(/\s+/g, " ");
+}
 
 function flattenCategories(nodes: AdminCategoryTreeNode[]): CategoryOption[] {
   const items: CategoryOption[] = [];
@@ -61,27 +105,31 @@ function findCategoryById(
       return node;
     }
 
-    const childMatch = findCategoryById(node.children, id);
-    if (childMatch) {
-      return childMatch;
+    const match = findCategoryById(node.children, id);
+    if (match) {
+      return match;
     }
   }
 
   return null;
 }
 
-function findParentId(
+function findCategoryByPath(
   nodes: AdminCategoryTreeNode[],
-  id: string,
-): string | null {
+  path: string[],
+): AdminCategoryTreeNode | null {
   for (const node of nodes) {
-    if (node.children.some((child) => child.id === id)) {
-      return node.id;
+    const pathMatches =
+      node.path.length === path.length &&
+      node.path.every((segment, index) => segment === path[index]);
+
+    if (pathMatches) {
+      return node;
     }
 
-    const parentId = findParentId(node.children, id);
-    if (parentId) {
-      return parentId;
+    const match = findCategoryByPath(node.children, path);
+    if (match) {
+      return match;
     }
   }
 
@@ -102,6 +150,7 @@ function findAncestorIds(
       ...ancestors,
       node.id,
     ]);
+
     if (childAncestors.length > 0) {
       return childAncestors;
     }
@@ -110,40 +159,45 @@ function findAncestorIds(
   return [];
 }
 
-function flattenVisibleCategories(
-  nodes: AdminCategoryTreeNode[],
-  expandedIds: Set<string>,
-): AdminCategoryTreeNode[] {
-  const items: AdminCategoryTreeNode[] = [];
-
-  for (const node of nodes) {
-    items.push(node);
-
-    if (expandedIds.has(node.id)) {
-      items.push(...flattenVisibleCategories(node.children, expandedIds));
-    }
-  }
-
-  return items;
-}
-
-function collectDescendantIds(node: AdminCategoryTreeNode | null): Set<string> {
+function collectExpandableIds(nodes: AdminCategoryTreeNode[]): Set<string> {
   const ids = new Set<string>();
 
-  if (!node) {
-    return ids;
+  for (const node of nodes) {
+    if (node.children.length > 0) {
+      ids.add(node.id);
+    }
+
+    for (const childId of collectExpandableIds(node.children)) {
+      ids.add(childId);
+    }
   }
 
-  const visit = (item: AdminCategoryTreeNode) => {
-    ids.add(item.id);
-
-    for (const child of item.children) {
-      visit(child);
-    }
-  };
-
-  visit(node);
   return ids;
+}
+
+function collectDescendantIds(node: AdminCategoryTreeNode): Set<string> {
+  const ids = new Set<string>();
+
+  for (const child of node.children) {
+    ids.add(child.id);
+
+    for (const descendantId of collectDescendantIds(child)) {
+      ids.add(descendantId);
+    }
+  }
+
+  return ids;
+}
+
+function getSiblings(
+  nodes: AdminCategoryTreeNode[],
+  category: AdminCategoryTreeNode,
+) {
+  if (!category.parentId) {
+    return nodes;
+  }
+
+  return findCategoryById(nodes, category.parentId)?.children ?? [];
 }
 
 function getProductCountLabel(count: number) {
@@ -154,116 +208,7 @@ function getInitialSelectedId(categories: AdminCategoryTreeNode[]) {
   return flattenCategories(categories)[0]?.id ?? "";
 }
 
-function CategoryParentPicker({
-  categories,
-  currentParentId,
-  fieldId,
-  label,
-  onChange,
-}: {
-  categories: CategoryOption[];
-  currentParentId: string;
-  fieldId: string;
-  label: string;
-  onChange: (parentId: string) => void;
-}) {
-  const [query, setQuery] = useState("");
-  const selectedParent =
-    categories.find((category) => category.id === currentParentId) ?? null;
-  const normalizedQuery = query.trim().toLowerCase();
-  const results = normalizedQuery
-    ? categories
-        .filter((category) =>
-          `${category.name} ${category.label}`
-            .toLowerCase()
-            .includes(normalizedQuery),
-        )
-        .slice(0, 8)
-    : [];
-  const selectedLabel = selectedParent?.label ?? "Main category";
-
-  function selectParent(parentId: string) {
-    onChange(parentId);
-    setQuery("");
-  }
-
-  return (
-    <Field>
-      <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>
-      <div className="admin-parent-picker">
-        <div className="admin-parent-current">
-          <span>Current parent</span>
-          <strong title={selectedLabel}>{selectedLabel}</strong>
-        </div>
-
-        <Button
-          aria-pressed={!currentParentId}
-          className={
-            currentParentId
-              ? "admin-parent-main-button"
-              : "admin-parent-main-button is-active"
-          }
-          onClick={() => selectParent("")}
-          size="compact"
-          variant="secondary"
-        >
-          Main category
-        </Button>
-
-        <label className="admin-parent-search" htmlFor={fieldId}>
-          <FiSearch aria-hidden="true" />
-          <Input
-            className="admin-parent-search-input"
-            id={fieldId}
-            onChange={(event) => setQuery(event.currentTarget.value)}
-            placeholder="Search parent category"
-            value={query}
-          />
-        </label>
-
-        {normalizedQuery ? (
-          <div
-            aria-label={`${label} search results`}
-            className="admin-parent-results"
-            role="listbox"
-          >
-            {results.length > 0 ? (
-              results.map((category) => (
-                <button
-                  aria-selected={category.id === currentParentId}
-                  className={
-                    category.id === currentParentId
-                      ? "admin-parent-result is-selected"
-                      : "admin-parent-result"
-                  }
-                  key={category.id}
-                  onClick={() => selectParent(category.id)}
-                  role="option"
-                  type="button"
-                >
-                  <span className="admin-parent-result-copy">
-                    <strong>{category.name}</strong>
-                    <small>{category.label}</small>
-                  </span>
-                  <span
-                    className="admin-parent-result-count"
-                    title={getProductCountLabel(category.totalProductCount)}
-                  >
-                    {category.totalProductCount}
-                  </span>
-                </button>
-              ))
-            ) : (
-              <p className="tiny admin-parent-empty">No parent matches.</p>
-            )}
-          </div>
-        ) : null}
-      </div>
-    </Field>
-  );
-}
-
-function CategoryNodeButton({
+function TreeRow({
   expandedIds,
   node,
   onSelect,
@@ -278,14 +223,15 @@ function CategoryNodeButton({
 }) {
   const hasChildren = node.children.length > 0;
   const isExpanded = expandedIds.has(node.id);
+  const isSelected = selectedId === node.id;
 
   return (
     <>
       <button
         aria-expanded={hasChildren ? isExpanded : undefined}
-        aria-selected={node.id === selectedId}
+        aria-selected={isSelected}
         className={
-          node.id === selectedId
+          isSelected
             ? "admin-category-node admin-category-node-active"
             : "admin-category-node"
         }
@@ -298,16 +244,16 @@ function CategoryNodeButton({
           }
         }}
         role="treeitem"
-        style={{ paddingLeft: `${0.52 + node.level * 0.86}rem` }}
+        style={{ paddingLeft: `${0.5 + node.level * 0.9}rem` }}
         type="button"
       >
         <span
+          aria-hidden="true"
           className={
             isExpanded
               ? "admin-category-node-disclosure is-expanded"
               : "admin-category-node-disclosure"
           }
-          aria-hidden="true"
         >
           {hasChildren ? <FiChevronRight /> : null}
         </span>
@@ -319,9 +265,10 @@ function CategoryNodeButton({
           {node.totalProductCount}
         </span>
       </button>
+
       {isExpanded
         ? node.children.map((child) => (
-            <CategoryNodeButton
+            <TreeRow
               expandedIds={expandedIds}
               key={child.id}
               node={child}
@@ -337,38 +284,37 @@ function CategoryNodeButton({
 
 export function AdminCategoryManager({
   initialCategories,
+  initialProducts,
 }: AdminCategoryManagerProps) {
   const toast = useToast();
   const [categories, setCategories] = useState(initialCategories);
+  const [products, setProducts] = useState(initialProducts);
   const [selectedId, setSelectedId] = useState(() =>
     getInitialSelectedId(initialCategories),
   );
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
   const [search, setSearch] = useState("");
   const [editName, setEditName] = useState("");
-  const [editParentId, setEditParentId] = useState("");
-  const [createName, setCreateName] = useState("");
-  const [createParentId, setCreateParentId] = useState("");
-  const [createMode, setCreateMode] = useState<CreateCategoryMode>(null);
+  const [mainName, setMainName] = useState("");
+  const [childName, setChildName] = useState("");
+  const [moveParentId, setMoveParentId] = useState("");
+  const [busyAction, setBusyAction] = useState<BusyAction>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState("");
   const [status, setStatus] = useState("");
   const [formError, setFormError] = useState("");
-  const [pendingDeleteId, setPendingDeleteId] = useState("");
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isSavingEdit, setIsSavingEdit] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [bulkTargetId, setBulkTargetId] = useState("");
+  const [activeTool, setActiveTool] = useState<CategoryTool>(null);
 
-  const flatCategories = useMemo(() => flattenCategories(categories), [categories]);
+  const flatCategories = useMemo(
+    () => flattenCategories(categories),
+    [categories],
+  );
   const selectedCategory = useMemo(
     () => findCategoryById(categories, selectedId),
     [categories, selectedId],
-  );
-  const selectedDescendantIds = useMemo(
-    () => collectDescendantIds(selectedCategory),
-    [selectedCategory],
-  );
-  const parentOptions = flatCategories.filter(
-    (category) => !selectedDescendantIds.has(category.id),
   );
   const normalizedSearch = search.trim().toLowerCase();
   const searchResults = normalizedSearch
@@ -376,10 +322,38 @@ export function AdminCategoryManager({
         category.label.toLowerCase().includes(normalizedSearch),
       )
     : [];
-  const visibleCategories = useMemo(
-    () => flattenVisibleCategories(categories, expandedIds),
-    [categories, expandedIds],
+  const selectedDescendantIds = useMemo(
+    () =>
+      selectedCategory ? collectDescendantIds(selectedCategory) : new Set<string>(),
+    [selectedCategory],
   );
+  const parentOptions = selectedCategory
+    ? flatCategories.filter(
+        (category) =>
+          category.id !== selectedCategory.id &&
+          !selectedDescendantIds.has(category.id),
+      )
+    : [];
+  const siblings = selectedCategory
+    ? getSiblings(categories, selectedCategory)
+    : [];
+  const siblingIndex = selectedCategory
+    ? siblings.findIndex((category) => category.id === selectedCategory.id)
+    : -1;
+  const selectedParent = selectedCategory?.parentId
+    ? findCategoryById(categories, selectedCategory.parentId)
+    : null;
+  const grandParentId = selectedParent?.parentId ?? "";
+  const isBusy = busyAction !== null;
+  const selectedCategoryProducts = selectedCategory
+    ? products.filter(
+        (product) =>
+          product.categoryPath.join(" > ") === selectedCategory.path.join(" > "),
+      )
+    : [];
+  const bulkDestinationOptions = selectedCategory
+    ? flatCategories.filter((category) => category.id !== selectedCategory.id)
+    : flatCategories;
 
   useEffect(() => {
     if (!flatCategories.length) {
@@ -395,40 +369,89 @@ export function AdminCategoryManager({
   useEffect(() => {
     if (!selectedCategory) {
       setEditName("");
-      setEditParentId("");
+      setChildName("");
+      setMoveParentId("");
+      setPendingDeleteId("");
       return;
     }
 
     setEditName(selectedCategory.name);
-    setEditParentId(selectedCategory.parentId ?? "");
-    if (createMode === "child") {
-      setCreateParentId(selectedCategory.id);
-    }
+    setChildName("");
+    setMoveParentId(selectedCategory.parentId ?? "");
     setPendingDeleteId("");
-  }, [createMode, selectedCategory]);
+    setSelectedProductIds(new Set());
+    setBulkTargetId("");
+    setActiveTool(null);
+  }, [selectedCategory]);
 
-  useEffect(() => {
-    const availableIds = new Set(flatCategories.map((category) => category.id));
-
-    setExpandedIds((currentIds) => {
-      const nextIds = new Set(
-        Array.from(currentIds).filter((id) => availableIds.has(id)),
-      );
-
-      return nextIds.size === currentIds.size ? currentIds : nextIds;
+  function toggleProductSelection(productId: string) {
+    setSelectedProductIds((currentIds) => {
+      const nextIds = new Set(currentIds);
+      if (nextIds.has(productId)) {
+        nextIds.delete(productId);
+      } else {
+        nextIds.add(productId);
+      }
+      return nextIds;
     });
-  }, [flatCategories]);
+  }
 
-  useEffect(() => {
-    if (!selectedId) {
+  async function bulkMoveProducts() {
+    if (!selectedProductIds.size) {
       return;
     }
 
-    const selectedElement = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-category-id]"),
-    ).find((element) => element.dataset.categoryId === selectedId);
-    selectedElement?.scrollIntoView({ block: "nearest" });
-  }, [expandedIds, normalizedSearch, selectedId]);
+    if (!bulkTargetId) {
+      const message = "Choose a destination category before moving products.";
+      setFormError(message);
+      setStatus("");
+      toast.error("Destination category required.", message);
+      return;
+    }
+
+    setBusyAction("bulk-move");
+    setFormError("");
+
+    try {
+      const response = await fetch("/api/admin/products", {
+        body: JSON.stringify({
+          action: "bulk-category-move",
+          categoryId: bulkTargetId,
+          productIds: Array.from(selectedProductIds),
+        }),
+        headers: { "Content-Type": "application/json" },
+        method: "PATCH",
+      });
+      const payload = (await response.json()) as CategoryApiResponse & {
+        products?: AdminProductSummary[];
+      };
+
+      if (!response.ok) {
+        throw new Error(payload.message ?? "Could not move products.");
+      }
+
+      if (payload.categories) {
+        setCategories(payload.categories);
+      }
+      if (payload.products) {
+        setProducts(payload.products);
+      }
+      setSelectedProductIds(new Set());
+      setBulkTargetId("");
+      setStatus(payload.message ?? "Products moved.");
+      toast.success(payload.message ?? "Products moved.");
+    } catch (error) {
+      handleActionError(error, "Could not move products.");
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  function selectCategory(id: string) {
+    setSelectedId(id);
+    setFormError("");
+    setStatus("");
+  }
 
   function toggleCategory(id: string) {
     setExpandedIds((currentIds) => {
@@ -444,101 +467,25 @@ export function AdminCategoryManager({
     });
   }
 
-  function selectCategoryFromKeyboard(id: string) {
-    setSelectedId(id);
-    setPendingDeleteId("");
-  }
+  function expandPath(tree: AdminCategoryTreeNode[], id: string) {
+    const ancestorIds = findAncestorIds(tree, id);
 
-  function expandCategoryPath(id: string, includeCategory = false) {
-    const pathIds = findAncestorIds(categories, id);
-    if (includeCategory) {
-      pathIds.push(id);
-    }
-
-    if (!pathIds.length) {
+    if (!ancestorIds.length) {
       return;
     }
 
     setExpandedIds((currentIds) => {
       const nextIds = new Set(currentIds);
-      for (const pathId of pathIds) {
-        nextIds.add(pathId);
+
+      for (const ancestorId of ancestorIds) {
+        nextIds.add(ancestorId);
       }
+
       return nextIds;
     });
   }
 
-  function onCategorySearchKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-    const activeCategories = normalizedSearch ? searchResults : visibleCategories;
-    const activeIndex = activeCategories.findIndex(
-      (category) => category.id === selectedId,
-    );
-    const hierarchyCategory = normalizedSearch
-      ? activeCategories[activeIndex === -1 ? 0 : activeIndex]
-      : selectedCategory;
-
-    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      if (!activeCategories.length) {
-        return;
-      }
-
-      event.preventDefault();
-      const fallbackIndex = event.key === "ArrowDown" ? -1 : activeCategories.length;
-      const nextIndex =
-        event.key === "ArrowDown"
-          ? Math.min(
-              (activeIndex === -1 ? fallbackIndex : activeIndex) + 1,
-              activeCategories.length - 1,
-            )
-          : Math.max((activeIndex === -1 ? fallbackIndex : activeIndex) - 1, 0);
-
-      selectCategoryFromKeyboard(activeCategories[nextIndex].id);
-      return;
-    }
-
-    if (event.key === "ArrowRight") {
-      if (!hierarchyCategory || hierarchyCategory.children.length === 0) {
-        return;
-      }
-
-      event.preventDefault();
-      setSearch("");
-      expandCategoryPath(hierarchyCategory.id, true);
-      selectCategoryFromKeyboard(hierarchyCategory.children[0].id);
-      return;
-    }
-
-    if (event.key === "ArrowLeft") {
-      if (!hierarchyCategory) {
-        return;
-      }
-
-      event.preventDefault();
-      setSearch("");
-
-      const parentId = findParentId(categories, hierarchyCategory.id);
-      if (parentId) {
-        expandCategoryPath(parentId);
-        setExpandedIds((currentIds) => {
-          const nextIds = new Set(currentIds);
-          nextIds.delete(hierarchyCategory.id);
-          return nextIds;
-        });
-        selectCategoryFromKeyboard(parentId);
-        return;
-      }
-
-      if (expandedIds.has(hierarchyCategory.id)) {
-        setExpandedIds((currentIds) => {
-          const nextIds = new Set(currentIds);
-          nextIds.delete(hierarchyCategory.id);
-          return nextIds;
-        });
-      }
-    }
-  }
-
-  async function readCategoryResponse(response: Response): Promise<CategoryApiResponse> {
+  async function readCategoryResponse(response: Response) {
     const payload = (await response.json()) as CategoryApiResponse;
 
     if (!response.ok) {
@@ -556,8 +503,14 @@ export function AdminCategoryManager({
     return payload;
   }
 
+  function handleActionError(error: unknown, fallbackMessage: string) {
+    const message = error instanceof Error ? error.message : fallbackMessage;
+    setFormError(message);
+    toast.error(fallbackMessage, message);
+  }
+
   async function refreshCategories() {
-    setIsRefreshing(true);
+    setBusyAction("refresh");
     setFormError("");
 
     try {
@@ -565,23 +518,22 @@ export function AdminCategoryManager({
         cache: "no-store",
       });
       const payload = await readCategoryResponse(response);
-      setStatus(payload.message ?? "Categories refreshed.");
+      toast.success(payload.message ?? "Categories refreshed.");
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Could not refresh categories.";
-      setFormError(message);
-      toast.error("Could not refresh categories.", message);
+      handleActionError(error, "Could not refresh categories.");
     } finally {
-      setIsRefreshing(false);
+      setBusyAction(null);
     }
   }
 
-  async function onEditSubmit() {
+  async function renameCategory(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
     if (!selectedCategory) {
       return;
     }
 
-    setIsSavingEdit(true);
+    setBusyAction("rename");
     setFormError("");
 
     try {
@@ -589,69 +541,169 @@ export function AdminCategoryManager({
         body: JSON.stringify({
           id: selectedCategory.id,
           name: editName,
-          parentId: editParentId || null,
+          parentId: selectedCategory.parentId ?? null,
         }),
         headers: { "Content-Type": "application/json" },
         method: "PATCH",
       });
       const payload = await readCategoryResponse(response);
-      if (editParentId) {
-        setExpandedIds((currentIds) => new Set(currentIds).add(editParentId));
-      }
       toast.success(payload.message ?? "Category updated.");
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Could not update category.";
-      setFormError(message);
-      toast.error("Could not update category.", message);
+      handleActionError(error, "Could not update category.");
     } finally {
-      setIsSavingEdit(false);
+      setBusyAction(null);
     }
   }
 
-  async function onCreateSubmit() {
-    if (!createMode) {
+  async function addMainCategory(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const nextName = normalizeName(mainName);
+    if (!nextName) {
       return;
     }
 
-    setIsCreating(true);
+    setBusyAction("add-main");
     setFormError("");
 
     try {
       const response = await fetch("/api/admin/categories", {
         body: JSON.stringify({
-          name: createName,
-          parentId: createParentId || null,
+          name: nextName,
+          parentId: null,
         }),
         headers: { "Content-Type": "application/json" },
         method: "POST",
       });
       const payload = await readCategoryResponse(response);
-      if (createParentId) {
-        setExpandedIds((currentIds) => new Set(currentIds).add(createParentId));
+      const createdCategory = payload.categories
+        ? findCategoryByPath(payload.categories, [nextName])
+        : null;
+
+      if (createdCategory) {
+        setSelectedId(createdCategory.id);
       }
-      setCreateName("");
-      setCreateMode(null);
-      setCreateParentId("");
+
+      setMainName("");
       toast.success(payload.message ?? "Category created.");
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Could not create category.";
-      setFormError(message);
-      toast.error("Could not create category.", message);
+      handleActionError(error, "Could not create category.");
     } finally {
-      setIsCreating(false);
+      setBusyAction(null);
     }
   }
 
-  function openCreateForm(mode: Exclude<CreateCategoryMode, null>) {
-    setCreateMode(mode);
-    setCreateName("");
+  async function addChildCategory(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!selectedCategory) {
+      return;
+    }
+
+    const nextName = normalizeName(childName);
+    if (!nextName) {
+      return;
+    }
+
+    setBusyAction("add-child");
     setFormError("");
-    setCreateParentId(mode === "child" ? selectedCategory?.id ?? "" : "");
+
+    try {
+      const response = await fetch("/api/admin/categories", {
+        body: JSON.stringify({
+          name: nextName,
+          parentId: selectedCategory.id,
+        }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      });
+      const payload = await readCategoryResponse(response);
+      const createdCategory = payload.categories
+        ? findCategoryByPath(payload.categories, [...selectedCategory.path, nextName])
+        : null;
+
+      setExpandedIds((currentIds) => new Set(currentIds).add(selectedCategory.id));
+
+      if (createdCategory) {
+        setSelectedId(createdCategory.id);
+        if (payload.categories) {
+          expandPath(payload.categories, createdCategory.id);
+        }
+      }
+
+      setChildName("");
+      toast.success(payload.message ?? "Category created.");
+    } catch (error) {
+      handleActionError(error, "Could not create category.");
+    } finally {
+      setBusyAction(null);
+    }
   }
 
-  async function onDeleteSubmit() {
+  async function moveCategory(parentId: string | null, action: BusyAction = "move") {
+    if (!selectedCategory) {
+      return;
+    }
+
+    setBusyAction(action);
+    setFormError("");
+
+    try {
+      const response = await fetch("/api/admin/categories", {
+        body: JSON.stringify({
+          id: selectedCategory.id,
+          name: selectedCategory.name,
+          parentId,
+        }),
+        headers: { "Content-Type": "application/json" },
+        method: "PATCH",
+      });
+      const payload = await readCategoryResponse(response);
+
+      if (parentId) {
+        setExpandedIds((currentIds) => new Set(currentIds).add(parentId));
+      }
+
+      if (payload.categories) {
+        expandPath(payload.categories, selectedCategory.id);
+      }
+
+      toast.success(payload.message ?? "Category moved.");
+    } catch (error) {
+      handleActionError(error, "Could not move category.");
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function reorderCategory(direction: "up" | "down") {
+    if (!selectedCategory) {
+      return;
+    }
+
+    setBusyAction(direction === "up" ? "order-up" : "order-down");
+    setFormError("");
+
+    try {
+      const response = await fetch("/api/admin/categories", {
+        body: JSON.stringify({
+          action: "reorder",
+          direction,
+          id: selectedCategory.id,
+        }),
+        headers: { "Content-Type": "application/json" },
+        method: "PATCH",
+      });
+      const payload = await readCategoryResponse(response);
+      toast.success(payload.message ?? "Category order updated.");
+    } catch (error) {
+      handleActionError(error, "Could not update category order.");
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function deleteCategory() {
     if (!selectedCategory || selectedCategory.totalProductCount > 0) {
       return;
     }
@@ -661,68 +713,91 @@ export function AdminCategoryManager({
       return;
     }
 
-    setIsDeleting(true);
+    const fallbackSelectionId = selectedCategory.parentId;
+    setBusyAction("delete");
     setFormError("");
 
     try {
       const response = await fetch(
         `/api/admin/categories?id=${encodeURIComponent(selectedCategory.id)}`,
-        {
-          method: "DELETE",
-        },
+        { method: "DELETE" },
       );
       const payload = await readCategoryResponse(response);
-      setSelectedId("");
+      const nextCategories = payload.categories ?? [];
+      const fallbackSelection =
+        (fallbackSelectionId
+          ? findCategoryById(nextCategories, fallbackSelectionId)
+          : null) ?? flattenCategories(nextCategories)[0] ?? null;
+
+      setSelectedId(fallbackSelection?.id ?? "");
       setPendingDeleteId("");
       toast.success(payload.message ?? "Category removed.");
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Could not remove category.";
-      setFormError(message);
-      toast.error("Could not remove category.", message);
+      handleActionError(error, "Could not remove category.");
     } finally {
-      setIsDeleting(false);
+      setBusyAction(null);
     }
   }
 
+  const totalProductCount = categories.reduce(
+    (total, category) => total + category.totalProductCount,
+    0,
+  );
+  const canDeleteSelected = Boolean(
+    selectedCategory && selectedCategory.totalProductCount === 0,
+  );
+  const hasExpandedCategories = expandedIds.size > 0;
+
   return (
-    <div className="admin-category-manager">
+    <div aria-busy={isBusy} className="admin-category-manager">
       <section className="admin-editor-panel admin-category-browser">
         <div className="admin-panel-header admin-category-panel-header">
           <div>
             <h3>Categories</h3>
             <p className="tiny">
               {flatCategories.length} categories -{" "}
-              {getProductCountLabel(
-                categories.reduce(
-                  (total, category) => total + category.totalProductCount,
-                  0,
-                ),
-              )}
+              {getProductCountLabel(totalProductCount)}
             </p>
           </div>
           <div className="admin-category-header-actions">
             <Button
-              aria-label="Collapse all categories"
+              aria-label={
+                hasExpandedCategories
+                  ? "Collapse all categories"
+                  : "Expand all categories"
+              }
               className="admin-category-icon-button"
-              disabled={expandedIds.size === 0}
-              onClick={() => setExpandedIds(new Set())}
+              onClick={() =>
+                setExpandedIds(
+                  hasExpandedCategories
+                    ? new Set()
+                    : collectExpandableIds(categories),
+                )
+              }
               size="icon"
-              title="Collapse all"
+              title={hasExpandedCategories ? "Collapse all" : "Expand all"}
               variant="icon"
             >
-              <FiChevronsUp aria-hidden="true" />
+              {hasExpandedCategories ? (
+                <FiChevronsUp aria-hidden="true" />
+              ) : (
+                <FiChevronRight aria-hidden="true" />
+              )}
             </Button>
             <Button
               aria-label="Refresh categories"
               className="admin-category-icon-button"
-              disabled={isRefreshing}
+              disabled={isBusy}
               onClick={() => void refreshCategories()}
               size="icon"
               title="Refresh categories"
               variant="icon"
             >
-              <FiRefreshCw aria-hidden="true" />
+              {busyAction === "refresh" ? (
+                <FiLoader aria-hidden="true" className="admin-category-spinner" />
+              ) : (
+                <FiRefreshCw aria-hidden="true" />
+              )}
             </Button>
           </div>
         </div>
@@ -733,7 +808,6 @@ export function AdminCategoryManager({
             aria-label="Search categories"
             className="admin-category-search-input"
             onChange={(event) => setSearch(event.currentTarget.value)}
-            onKeyDown={onCategorySearchKeyDown}
             placeholder="Search categories"
             value={search}
           />
@@ -752,7 +826,7 @@ export function AdminCategoryManager({
                   }
                   data-category-id={category.id}
                   key={category.id}
-                  onClick={() => setSelectedId(category.id)}
+                  onClick={() => selectCategory(category.id)}
                   role="treeitem"
                   type="button"
                 >
@@ -768,11 +842,11 @@ export function AdminCategoryManager({
             )
           ) : categories.length > 0 ? (
             categories.map((category) => (
-              <CategoryNodeButton
+              <TreeRow
                 expandedIds={expandedIds}
                 key={category.id}
                 node={category}
-                onSelect={setSelectedId}
+                onSelect={selectCategory}
                 onToggle={toggleCategory}
                 selectedId={selectedId}
               />
@@ -791,178 +865,424 @@ export function AdminCategoryManager({
                 <h3>{selectedCategory.name}</h3>
                 <p className="tiny">{selectedCategory.path.join(" > ")}</p>
               </div>
+              <div className="admin-category-quick-stats">
+                <span>{getProductCountLabel(selectedCategory.totalProductCount)}</span>
+                <span>{selectedCategory.children.length} subcategories</span>
+              </div>
             </div>
 
-            <div className="admin-category-count-grid">
-              <article className="admin-category-count-tile">
-                <span>Nested Products</span>
-                <strong>{selectedCategory.totalProductCount}</strong>
-              </article>
-              <article className="admin-category-count-tile">
-                <span>Subcategories</span>
-                <strong>{selectedCategory.children.length}</strong>
-              </article>
-            </div>
-
-            <div className="admin-category-form-grid">
-              <Field>
-                <FieldLabel htmlFor="admin-category-name">Name</FieldLabel>
-                <Input
-                  id="admin-category-name"
-                  onChange={(event) => setEditName(event.currentTarget.value)}
-                  value={editName}
-                />
-              </Field>
-              <CategoryParentPicker
-                categories={parentOptions}
-                currentParentId={editParentId}
-                fieldId="admin-category-parent"
-                label="Parent"
-                onChange={setEditParentId}
-              />
-            </div>
-
-            <div className="admin-category-actions">
-              <Button
-                disabled={isSavingEdit || !editName.trim()}
-                onClick={() => void onEditSubmit()}
-                variant="primary"
+            {busyAction ? (
+              <div
+                aria-live="polite"
+                className="admin-category-busy-status"
+                role="status"
               >
-                <FiEdit3 aria-hidden="true" />
-                <span>{isSavingEdit ? "Saving..." : "Save changes"}</span>
-              </Button>
-              <Button
-                className={
-                  pendingDeleteId === selectedCategory.id
-                    ? "admin-category-danger-button is-confirming"
-                    : "admin-category-danger-button"
-                }
-                disabled={isDeleting || selectedCategory.totalProductCount > 0}
-                onClick={() => void onDeleteSubmit()}
-                title={
-                  selectedCategory.totalProductCount > 0
-                    ? "Move products out before deleting"
-                    : "Remove category"
-                }
-                variant="secondary"
-              >
-                <FiTrash2 aria-hidden="true" />
-                <span>
-                  {isDeleting
-                    ? "Removing..."
-                    : pendingDeleteId === selectedCategory.id
-                      ? "Confirm remove"
-                      : "Remove"}
-                </span>
-              </Button>
-            </div>
-
-            {selectedCategory.totalProductCount > 0 ? (
-              <FieldDescription className="admin-category-delete-note">
-                {getProductCountLabel(selectedCategory.totalProductCount)} inside this branch.
-              </FieldDescription>
+                <FiLoader aria-hidden="true" className="admin-category-spinner" />
+                <span>{busyActionLabels[busyAction]}</span>
+              </div>
             ) : null}
+
+            <div className="admin-category-tool-layout">
+              <nav aria-label="Category actions" className="admin-category-tool-menu">
+                {[
+                  ["rename", "Rename"],
+                  ["add-child", "Add child"],
+                  ["hierarchy", "Hierarchy"],
+                  ["order", "Order"],
+                  ["products", "Move products"],
+                  ["remove", "Remove"],
+                  ["create-main", "Create main category"],
+                ].map(([tool, label]) => (
+                  <button
+                    aria-pressed={activeTool === tool}
+                    className={
+                      activeTool === tool
+                        ? "admin-category-tool-button is-active"
+                        : "admin-category-tool-button"
+                    }
+                    disabled={isBusy}
+                    key={tool}
+                    onClick={() => setActiveTool(tool as CategoryTool)}
+                    type="button"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </nav>
+
+              <div className="admin-category-tool-content">
+                {!activeTool ? (
+                  <div className="admin-category-tool-placeholder">
+                    <strong>Choose an action</strong>
+                    <p>Select one of the options to manage this category.</p>
+                  </div>
+                ) : null}
+
+            {activeTool === "rename" ? (
+              <form
+              className="admin-category-simple-section"
+              onSubmit={renameCategory}
+            >
+              <div className="admin-category-section-heading">
+                <h4>Rename</h4>
+              </div>
+              <div className="admin-category-action-grid">
+                <Field>
+                  <FieldLabel htmlFor="admin-category-name">Name</FieldLabel>
+                  <Input
+                    disabled={isBusy}
+                    id="admin-category-name"
+                    onChange={(event) => setEditName(event.currentTarget.value)}
+                    value={editName}
+                  />
+                </Field>
+                <Button
+                  disabled={isBusy || !editName.trim()}
+                  type="submit"
+                  variant="primary"
+                >
+                  {busyAction === "rename" ? (
+                    <FiLoader aria-hidden="true" className="admin-category-spinner" />
+                  ) : (
+                    <FiEdit3 aria-hidden="true" />
+                  )}
+                  <span>{busyAction === "rename" ? "Renaming..." : "Rename"}</span>
+                </Button>
+              </div>
+              </form>
+            ) : null}
+
+            {activeTool === "add-child" ? (
+              <form
+              className="admin-category-simple-section"
+              onSubmit={addChildCategory}
+            >
+              <div className="admin-category-section-heading">
+                <h4>Add Child</h4>
+                <p>{selectedCategory.path.join(" > ")}</p>
+              </div>
+              <div className="admin-category-action-grid">
+                <Field>
+                  <FieldLabel htmlFor="admin-category-child-name">
+                    Child category name
+                  </FieldLabel>
+                  <Input
+                    disabled={isBusy}
+                    id="admin-category-child-name"
+                    onChange={(event) => setChildName(event.currentTarget.value)}
+                    value={childName}
+                  />
+                </Field>
+                <Button
+                  disabled={isBusy || !childName.trim()}
+                  type="submit"
+                  variant="primary"
+                >
+                  {busyAction === "add-child" ? (
+                    <FiLoader aria-hidden="true" className="admin-category-spinner" />
+                  ) : (
+                    <FiFolderPlus aria-hidden="true" />
+                  )}
+                  <span>
+                    {busyAction === "add-child" ? "Adding..." : "Add child"}
+                  </span>
+                </Button>
+              </div>
+              </form>
+            ) : null}
+
+            {activeTool === "hierarchy" ? (
+              <div className="admin-category-simple-section">
+              <div className="admin-category-section-heading">
+                <h4>Hierarchy</h4>
+              </div>
+              <div className="admin-category-action-grid">
+                <Field>
+                  <FieldLabel htmlFor="admin-category-parent">
+                    Move under
+                  </FieldLabel>
+                  <select
+                    className="ui-select admin-category-parent-select"
+                    id="admin-category-parent"
+                    disabled={isBusy}
+                    onChange={(event) =>
+                      setMoveParentId(event.currentTarget.value)
+                    }
+                    value={moveParentId}
+                  >
+                    <option value="">Main category</option>
+                    {parentOptions.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Button
+                  disabled={
+                    isBusy ||
+                    moveParentId === (selectedCategory.parentId ?? "")
+                  }
+                  onClick={() => void moveCategory(moveParentId || null)}
+                  variant="primary"
+                >
+                  {busyAction === "move" ? (
+                    <FiLoader aria-hidden="true" className="admin-category-spinner" />
+                  ) : (
+                    <FiCornerUpLeft aria-hidden="true" />
+                  )}
+                  <span>{busyAction === "move" ? "Moving..." : "Move"}</span>
+                </Button>
+              </div>
+              <div className="admin-category-actions">
+                {selectedCategory.parentId ? (
+                  <Button
+                    disabled={isBusy}
+                    onClick={() =>
+                      void moveCategory(grandParentId || null, "promote")
+                    }
+                    size="compact"
+                    variant="secondary"
+                  >
+                    {busyAction === "promote" ? (
+                      <FiLoader aria-hidden="true" className="admin-category-spinner" />
+                    ) : (
+                      <FiCornerUpLeft aria-hidden="true" />
+                    )}
+                    <span>
+                      {busyAction === "promote"
+                        ? "Moving..."
+                        : grandParentId
+                          ? "Move up one level"
+                          : "Make main category"}
+                    </span>
+                  </Button>
+                ) : null}
+              </div>
+              </div>
+            ) : null}
+
+            {activeTool === "order" ? (
+              <div className="admin-category-simple-section">
+              <div className="admin-category-section-heading">
+                <h4>Order</h4>
+              </div>
+              <div className="admin-category-actions">
+                <Button
+                  disabled={isBusy || siblingIndex <= 0}
+                  onClick={() => void reorderCategory("up")}
+                  variant="secondary"
+                >
+                  {busyAction === "order-up" ? (
+                    <FiLoader aria-hidden="true" className="admin-category-spinner" />
+                  ) : (
+                    <FiArrowUp aria-hidden="true" />
+                  )}
+                  <span>{busyAction === "order-up" ? "Moving..." : "Move up"}</span>
+                </Button>
+                <Button
+                  disabled={
+                    isBusy ||
+                    siblingIndex === -1 ||
+                    siblingIndex >= siblings.length - 1
+                  }
+                  onClick={() => void reorderCategory("down")}
+                  variant="secondary"
+                >
+                  {busyAction === "order-down" ? (
+                    <FiLoader aria-hidden="true" className="admin-category-spinner" />
+                  ) : (
+                    <FiArrowDown aria-hidden="true" />
+                  )}
+                  <span>
+                    {busyAction === "order-down" ? "Moving..." : "Move down"}
+                  </span>
+                </Button>
+              </div>
+              </div>
+            ) : null}
+
+            {activeTool === "products" ? (
+              <div className="admin-category-simple-section">
+              <div className="admin-category-section-heading">
+                <h4>Products in this category</h4>
+                <p>{selectedCategoryProducts.length} direct products</p>
+              </div>
+              {selectedCategoryProducts.length ? (
+                <>
+                  <div className="admin-category-product-list">
+                    <label className="admin-category-product-select-all">
+                      <input
+                        checked={
+                          selectedProductIds.size === selectedCategoryProducts.length
+                        }
+                        disabled={isBusy}
+                        onChange={(event) =>
+                          setSelectedProductIds(
+                            event.currentTarget.checked
+                              ? new Set(selectedCategoryProducts.map((product) => product.id))
+                              : new Set(),
+                          )
+                        }
+                        type="checkbox"
+                      />
+                      Select all
+                    </label>
+                    {selectedCategoryProducts.map((product) => (
+                      <label className="admin-category-product-row" key={product.id}>
+                        <input
+                          checked={selectedProductIds.has(product.id)}
+                          disabled={isBusy}
+                          onChange={() => toggleProductSelection(product.id)}
+                          type="checkbox"
+                        />
+                        <span>
+                          <strong>{product.name}</strong>
+                          <small>{product.sku}</small>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="admin-category-action-grid">
+                    <Field>
+                      <FieldLabel htmlFor="admin-product-bulk-category">
+                        Move selected to
+                      </FieldLabel>
+                      <select
+                        className="ui-select"
+                        disabled={isBusy}
+                        id="admin-product-bulk-category"
+                        onChange={(event) => {
+                          setBulkTargetId(event.currentTarget.value);
+                          setFormError("");
+                        }}
+                        value={bulkTargetId}
+                      >
+                        <option value="">Choose destination</option>
+                        {bulkDestinationOptions.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.label}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Button
+                      disabled={isBusy || !selectedProductIds.size}
+                      onClick={() => void bulkMoveProducts()}
+                      variant="primary"
+                    >
+                      {busyAction === "bulk-move" ? (
+                        <FiLoader aria-hidden="true" className="admin-category-spinner" />
+                      ) : (
+                        <FiCornerUpLeft aria-hidden="true" />
+                      )}
+                      <span>
+                        {busyAction === "bulk-move"
+                          ? "Moving..."
+                          : `Move ${selectedProductIds.size || "selected"}`}
+                      </span>
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <p className="admin-category-product-empty">
+                  No products are assigned directly to this category.
+                </p>
+              )}
+              </div>
+            ) : null}
+
+            {activeTool === "remove" ? (
+              <div className="admin-category-simple-section">
+              <div className="admin-category-section-heading">
+                <h4>Remove</h4>
+                {selectedCategory.totalProductCount > 0 ? (
+                  <p>{getProductCountLabel(selectedCategory.totalProductCount)} inside this branch.</p>
+                ) : null}
+              </div>
+              <div className="admin-category-actions">
+                <Button
+                  className={
+                    pendingDeleteId === selectedCategory.id
+                      ? "admin-category-danger-button is-confirming"
+                      : "admin-category-danger-button"
+                  }
+                  disabled={isBusy || !canDeleteSelected}
+                  onClick={() => void deleteCategory()}
+                  variant="secondary"
+                >
+                  {busyAction === "delete" ? (
+                    <FiLoader aria-hidden="true" className="admin-category-spinner" />
+                  ) : (
+                    <FiTrash2 aria-hidden="true" />
+                  )}
+                  <span>
+                    {busyAction === "delete"
+                      ? "Removing..."
+                      : pendingDeleteId === selectedCategory.id
+                        ? "Confirm remove"
+                        : "Remove"}
+                  </span>
+                </Button>
+              </div>
+              </div>
+            ) : null}
+
+            {activeTool === "create-main" ? (
+              <form
+              className="admin-category-simple-section"
+              onSubmit={addMainCategory}
+            >
+              <div className="admin-category-section-heading">
+                <h4>Create main category</h4>
+                <p>Adds a new top-level category</p>
+              </div>
+              <div className="admin-category-action-grid">
+                <Field>
+                  <FieldLabel htmlFor="admin-category-main-name">
+                    Category name
+                  </FieldLabel>
+                  <Input
+                    disabled={isBusy}
+                    id="admin-category-main-name"
+                    onChange={(event) => setMainName(event.currentTarget.value)}
+                    placeholder="Enter category name"
+                    value={mainName}
+                  />
+                </Field>
+                <Button
+                  disabled={isBusy || !mainName.trim()}
+                  type="submit"
+                  variant="primary"
+                >
+                  {busyAction === "add-main" ? (
+                    <FiLoader
+                      aria-hidden="true"
+                      className="admin-category-spinner"
+                    />
+                  ) : (
+                    <FiPlus aria-hidden="true" />
+                  )}
+                  <span>
+                    {busyAction === "add-main"
+                      ? "Creating..."
+                      : "Create main category"}
+                  </span>
+                </Button>
+              </div>
+              </form>
+            ) : null}
+
+                {formError ? <FieldError>{formError}</FieldError> : null}
+                {status ? <p className="form-status">{status}</p> : null}
+              </div>
+            </div>
           </>
         ) : (
           <div className="empty-state admin-inline-state">
             <p>Select a category.</p>
           </div>
         )}
-      </section>
-
-      <section className="admin-editor-panel admin-category-create-panel">
-        <div className="admin-panel-header">
-          <div>
-            <h3>
-              {createMode === "child"
-                ? "Add Child"
-                : createMode === "category"
-                  ? "Add Category"
-                  : "Create Categories"}
-            </h3>
-            <p className="tiny">
-              {createMode === "child"
-                ? findCategoryById(categories, createParentId)?.path.join(" > ") ??
-                  selectedCategory?.path.join(" > ") ??
-                  "Select a category first"
-                : createMode === "category"
-                  ? "Main category"
-                  : "Choose what you want to add."}
-            </p>
-          </div>
-        </div>
-
-        <div className="admin-category-create-choice">
-          <Button
-            aria-pressed={createMode === "child"}
-            disabled={!selectedCategory}
-            onClick={() => openCreateForm("child")}
-            variant={createMode === "child" ? "primary" : "secondary"}
-          >
-            <FiFolderPlus aria-hidden="true" />
-            <span>Add Child</span>
-          </Button>
-          <Button
-            aria-pressed={createMode === "category"}
-            onClick={() => openCreateForm("category")}
-            variant={createMode === "category" ? "primary" : "secondary"}
-          >
-            <FiPlus aria-hidden="true" />
-            <span>Add Category</span>
-          </Button>
-        </div>
-
-        {createMode ? (
-          <div className="admin-category-form-grid">
-            <Field>
-              <FieldLabel htmlFor="admin-category-create-name">
-                {createMode === "child" ? "Child category name" : "Category name"}
-              </FieldLabel>
-              <Input
-                id="admin-category-create-name"
-                onChange={(event) => setCreateName(event.currentTarget.value)}
-                value={createName}
-              />
-            </Field>
-            {createMode === "category" ? (
-              <CategoryParentPicker
-                categories={flatCategories}
-                currentParentId={createParentId}
-                fieldId="admin-category-create-parent"
-                label="Parent"
-                onChange={setCreateParentId}
-              />
-            ) : (
-              <div className="admin-create-parent-summary">
-                <span>Parent</span>
-                <strong>
-                  {findCategoryById(categories, createParentId)?.path.join(" > ") ??
-                    "Selected category"}
-                </strong>
-              </div>
-            )}
-          </div>
-        ) : null}
-
-        {createMode ? (
-          <Button
-            disabled={isCreating || !createName.trim()}
-            onClick={() => void onCreateSubmit()}
-            variant="primary"
-          >
-            <FiPlus aria-hidden="true" />
-            <span>
-              {isCreating
-                ? "Adding..."
-                : createMode === "child"
-                  ? "Add child"
-                  : "Add category"}
-            </span>
-          </Button>
-        ) : null}
-
-        {formError ? <FieldError>{formError}</FieldError> : null}
-        {status ? <p className="form-status">{status}</p> : null}
       </section>
     </div>
   );

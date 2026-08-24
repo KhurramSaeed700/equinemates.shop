@@ -5,6 +5,7 @@ import {
   createAdminCategory,
   deleteAdminCategory,
   getAdminCategoryTree,
+  reorderAdminCategory,
   updateAdminCategory,
 } from "@/lib/server/catalog-categories";
 import { getAdminAccess } from "@/lib/server/admin-auth";
@@ -104,10 +105,31 @@ export async function PATCH(request: Request) {
 
   try {
     const body = (await request.json()) as {
+      action?: string;
+      direction?: string;
       id?: string;
       name?: string;
       parentId?: string | null;
     };
+
+    if (body.action === "reorder") {
+      if (body.direction !== "up" && body.direction !== "down") {
+        throw new Error("Category order direction is invalid.");
+      }
+
+      const categories = await reorderAdminCategory({
+        id: String(body.id ?? ""),
+        direction: body.direction,
+      });
+
+      revalidateCatalogAdminPaths();
+
+      return NextResponse.json({
+        categories,
+        message: "Category order updated.",
+      });
+    }
+
     const categories = await updateAdminCategory({
       id: String(body.id ?? ""),
       name: String(body.name ?? ""),

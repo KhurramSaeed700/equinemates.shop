@@ -10,6 +10,18 @@ export interface ProductVariant {
   options: string[];
 }
 
+export interface ProductListingVariation {
+  id: string;
+  slug: string;
+  name: string;
+  sku: string;
+  amazonSellerSku?: string;
+  amazonAsin?: string;
+  images: string[];
+  basePriceUsd: number;
+  stock: number;
+}
+
 export interface ProductReview {
   id: string;
   author: string;
@@ -32,6 +44,7 @@ export interface Product {
   basePricePkr: number;
   compareAtPricePkr?: number;
   images: string[];
+  bannerImages: string[];
   variants: ProductVariant[];
   rating: number;
   reviewCount: number;
@@ -41,8 +54,17 @@ export interface Product {
   isNewArrival: boolean;
   relatedSlugs: string[];
   stock: number;
+  amazonSellerSku?: string;
+  amazonAsin?: string;
+  amazonStoreUrl?: string;
+  amazonFulfillableQuantity: number;
+  amazonInventoryUpdatedAt?: string;
+  amazonMcfEnabled: boolean;
   careInstructions?: string;
   shippingInfo?: string;
+  parentListingId?: string;
+  listingParentSlug?: string;
+  listingVariations?: ProductListingVariation[];
 }
 
 export interface Address {

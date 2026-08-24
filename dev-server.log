@@ -1,0 +1,46 @@
+▲ Next.js 16.1.6 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://172.30.209.216:3000
+- Environments: .env.local, .env
+
+✓ Starting...
+✓ Ready in 18.4s
+○ Compiling proxy ...
+○ Compiling /admin ...
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (18) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+ GET /admin 200 in 58s (compile: 51s, proxy.ts: 205ms, render: 6.7s)
+ GET / 200 in 75s (compile: 39.9s, proxy.ts: 21.2s, render: 13.5s)
+ POST / 200 in 252ms (compile: 19ms, proxy.ts: 176ms, render: 57ms)
+○ Compiling /api/currency/rates ...
+ GET /api/currency/rates 200 in 6.7s (compile: 5.4s, proxy.ts: 1154ms, render: 146ms)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (18) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ GET / 200 in 16.9s (compile: 197ms, proxy.ts: 25ms, render: 16.6s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (18) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ GET / 200 in 13.1s (compile: 866ms, proxy.ts: 1053ms, render: 11.2s)
+○ Compiling /products ...
+ GET / 200 in 115s (compile: 961ms, proxy.ts: 32.7s, render: 81s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (18) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ POST / 200 in 811ms (compile: 108ms, proxy.ts: 448ms, render: 255ms)
+○ Compiling /products ...
+ GET /products?category=Horse&path=Horse+%3E+Bits+%26+Tack+%3E+CNC+Bits 200 in 3.1min (compile: 2.1min, proxy.ts: 54s, render: 9.9s)
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (18) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+ GET /api/currency/rates 200 in 10.0s (compile: 8.2s, proxy.ts: 707ms, render: 1042ms)
+ GET / 200 in 11.0s (compile: 146ms, proxy.ts: 1521ms, render: 9.3s)
+ GET /account 200 in 16.0s (compile: 8.2s, proxy.ts: 4.0s, render: 3.8s)
+ GET /api/currency/rates 200 in 85ms (compile: 23ms, proxy.ts: 43ms, render: 19ms)
+ GET /api/currency/rates 200 in 84ms (compile: 26ms, proxy.ts: 38ms, render: 20ms)
+ POST /account 200 in 127ms (compile: 22ms, proxy.ts: 67ms, render: 38ms)
+ POST / 200 in 157ms (compile: 74ms, proxy.ts: 47ms, render: 36ms)
+ GET /api/currency/rates 200 in 10.7s (compile: 567ms, proxy.ts: 8.9s, render: 1183ms)
+ GET /api/currency/rates 200 in 19.1s (compile: 503ms, proxy.ts: 17.9s, render: 673ms)
+ GET /api/currency/rates 200 in 1173ms (compile: 18ms, proxy.ts: 1134ms, render: 22ms)
+ GET /api/currency/rates 200 in 1175ms (compile: 9ms, proxy.ts: 1143ms, render: 23ms)
+ GET /api/currency/rates 200 in 2.8s (compile: 169ms, proxy.ts: 1527ms, render: 1088ms)
+ GET /api/currency/rates 200 in 1061ms (compile: 156ms, proxy.ts: 720ms, render: 185ms)
+[?25h
+[ELIFECYCLE] Command failed with exit code 4294967295.

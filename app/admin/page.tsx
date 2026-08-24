@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { AdminAccessRetry } from "@/components/admin/admin-access-retry";
 import { AdminWorkspaceShell } from "@/components/admin/admin-workspace-shell";
 import { AdminProductEditor } from "@/components/forms/admin-product-editor";
 import { getAdminAccess } from "@/lib/server/admin-auth";
@@ -7,6 +8,7 @@ import {
   getCategoryOptions,
   getCategoryTree,
   getAdminProductSummaries,
+  getProductBySlug,
 } from "@/lib/server/catalog-products";
 import { getCurrencyRates } from "@/lib/server/currency-service";
 import { getR2ConfigurationStatus } from "@/lib/server/r2-config";
@@ -19,27 +21,44 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage() {
+type AdminPageProps = {
+  searchParams: Promise<{
+    mode?: string | string[];
+    product?: string | string[];
+  }>;
+};
+
+export default async function AdminPage({ searchParams }: AdminPageProps) {
   const adminAccess = await getAdminAccess();
 
   if (!adminAccess.isAuthorized) {
-    return (
-      <section className="panel">
-        <h2>Admin Access Required</h2>
-        <p>Sign in with an admin account to continue.</p>
-      </section>
-    );
+    return <AdminAccessRetry message={adminAccess.reason} />;
   }
 
-  const [productSummaries, categoryTree, categoryOptions, rates, r2Configuration] =
+  const query = await searchParams;
+  const requestedProductSlug = Array.isArray(query.product)
+    ? query.product[0]
+    : query.product;
+  const requestedMode = Array.isArray(query.mode) ? query.mode[0] : query.mode;
+  const initialMode = requestedMode === "duplicate" ? "duplicate" : "edit";
+  const [
+    productSummaries,
+    categoryTree,
+    categoryOptions,
+    rates,
+    r2Configuration,
+    initialProduct,
+  ] =
     await Promise.all([
       getAdminProductSummaries(),
       getCategoryTree(),
       getCategoryOptions(),
       getCurrencyRates(),
       Promise.resolve(getR2ConfigurationStatus()),
+      requestedProductSlug
+        ? getProductBySlug(requestedProductSlug)
+        : Promise.resolve(undefined),
     ]);
-  const initialProduct = null;
 
   return (
     <AdminWorkspaceShell
@@ -59,7 +78,8 @@ export default async function AdminPage() {
         <AdminProductEditor
           categoryTree={categoryTree}
           categoryOptions={categoryOptions}
-          initialProduct={initialProduct}
+          initialMode={initialMode}
+          initialProduct={initialProduct ?? null}
           initialProducts={productSummaries}
           ratesFromPkr={rates.rates}
         />

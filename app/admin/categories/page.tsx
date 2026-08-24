@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { AdminAccessRetry } from "@/components/admin/admin-access-retry";
 import { AdminWorkspaceShell } from "@/components/admin/admin-workspace-shell";
 import { AdminCategoryManager } from "@/components/forms/admin-category-manager";
 import {
@@ -20,12 +21,7 @@ export default async function AdminCategoriesPage() {
   const adminAccess = await getAdminAccess();
 
   if (!adminAccess.isAuthorized) {
-    return (
-      <section className="panel">
-        <h2>Admin Access Required</h2>
-        <p>Sign in with an admin account to continue.</p>
-      </section>
-    );
+    return <AdminAccessRetry message={adminAccess.reason} />;
   }
 
   let categoryTree: Awaited<ReturnType<typeof getAdminCategoryTree>>;
@@ -60,7 +56,10 @@ export default async function AdminCategoriesPage() {
         { label: "Products", value: productSummaries.length },
       ]}
     >
-      <AdminCategoryManager initialCategories={categoryTree} />
+      <AdminCategoryManager
+        initialCategories={categoryTree}
+        initialProducts={productSummaries}
+      />
     </AdminWorkspaceShell>
   );
 }

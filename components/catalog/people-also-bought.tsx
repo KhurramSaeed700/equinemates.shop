@@ -5,6 +5,7 @@ import { useCatalogProducts } from "@/components/hooks/useCatalogProducts";
 import { useCart } from "@/components/providers/cart-provider";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { useMounted } from "@/components/hooks/useMounted";
+import { ProductMedia } from "@/components/ui/product-media";
 import { getProductImageSrc } from "@/lib/image-utils";
 import { CartItem } from "@/lib/types";
 
@@ -34,10 +35,12 @@ export function PeopleAlsoBought({ items }: PeopleAlsoBoughtProps) {
         {related.map((product) => (
           <article className="product-card rec" key={product.id}>
             <Link href={`/products/${product.slug}`} className="product-link">
-              <img
+              <ProductMedia
                 alt={product.name}
                 className="product-image"
+                height={320}
                 src={getProductImageSrc(product.images[0])}
+                width={320}
               />
               <p className="product-meta small">{product.category}</p>
               <h3>{product.name}</h3>

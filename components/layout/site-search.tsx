@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useDeferredValue, useEffect, useState } from "react";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import { SearchIcon } from "@/components/ui/icons";
 import { ProductMedia } from "@/components/ui/product-media";
 import { getProductImageSrc } from "@/lib/image-utils";
@@ -17,6 +18,7 @@ type SearchSuggestion = {
 };
 
 export function SiteSearch() {
+  const { t } = useLanguage();
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
@@ -63,11 +65,11 @@ export function SiteSearch() {
       <form className="search-form" onSubmit={handleSubmit}>
         <SearchIcon width={16} height={16} />
         <input
-          aria-label="Search by name or SKU"
+          aria-label={t("search")}
           onBlur={() => window.setTimeout(() => setFocused(false), 120)}
           onChange={(event) => setQuery(event.target.value)}
           onFocus={() => setFocused(true)}
-          placeholder="Search name or SKU"
+          placeholder={t("search")}
           type="search"
           value={query}
         />
@@ -97,7 +99,7 @@ export function SiteSearch() {
               </Link>
             ))
           ) : (
-            <p>No matching products</p>
+            <p>{t("noMatchingProducts")}</p>
           )}
         </div>
       ) : null}

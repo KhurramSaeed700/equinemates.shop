@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Dispatch, RefObject, SetStateAction } from "react";
 
+import { useLanguage } from "@/components/providers/language-provider";
 import type { NavMenu } from "@/lib/catalog";
 
 interface SiteHeaderDesktopNavProps {
@@ -30,11 +31,12 @@ export function SiteHeaderDesktopNav({
   closeTimerRef,
   touchNavQuery,
 }: SiteHeaderDesktopNavProps) {
+  const { t } = useLanguage();
   const isTouchLikeDevice = () =>
     window.matchMedia("(hover: none), (pointer: coarse)").matches;
 
   return (
-    <nav aria-label="Main navigation" className="site-nav">
+    <nav aria-label={t("mainNavigation")} className="site-nav">
       <div className="container nav-inner" ref={navRef}>
         {shopMenus.map((menu) => (
           <div
@@ -139,7 +141,7 @@ export function SiteHeaderDesktopNav({
                 href={menu.href}
                 onClick={() => setOpenMenu(null)}
               >
-                Shop All {menu.label}
+                {t("shopAll")} {menu.label}
               </Link>
               {menu.columns.map((column) => (
                 <div

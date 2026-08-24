@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AccessibilityMenu } from "@/components/accessibility/accessibility-menu";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -113,6 +114,7 @@ export async function SiteFooter() {
               {item.label}
             </Link>
           ))}
+          <AccessibilityMenu />
         </div>
       </div>
 

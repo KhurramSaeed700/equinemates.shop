@@ -9,6 +9,7 @@ export type AdminCategoryTreeNode = {
   level: number;
   path: string[];
   parentId: string | null;
+  sortOrder: number;
   directProductCount: number;
   totalProductCount: number;
   children: AdminCategoryTreeNode[];
@@ -21,6 +22,7 @@ type CategoryRow = {
   level: number;
   path: string;
   parentId: string | null;
+  sortOrder: number;
 };
 
 type ProductCategoryReferenceRow = {
@@ -47,6 +49,7 @@ type SqlExecutor = Pick<typeof prisma, "$executeRaw" | "$queryRawUnsafe">;
 
 const productColumnExistsCache = new Map<string, boolean>();
 const tableExistsCache = new Map<string, boolean>();
+let categorySortOrderColumnReady = false;
 
 function normalizeCategoryName(value: string): string {
   return value.trim().replace(/\s+/g, " ");
@@ -139,6 +142,27 @@ async function productColumnExists(columnName: string): Promise<boolean> {
   }
 }
 
+async function ensureCategorySortOrderColumn() {
+  if (categorySortOrderColumnReady) {
+    return;
+  }
+
+  try {
+    await prisma.$executeRaw`
+      ALTER TABLE "Category"
+      ADD COLUMN IF NOT EXISTS "sortOrder" INTEGER NOT NULL DEFAULT 0
+    `;
+    await prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "Category_parentId_sortOrder_idx"
+      ON "Category" ("parentId", "sortOrder")
+    `;
+    categorySortOrderColumnReady = true;
+  } catch (error) {
+    console.error("Could not prepare category sort order column.", error);
+    throw new Error("Could not prepare category ordering.");
+  }
+}
+
 async function getProductColumnFlags(): Promise<ProductColumnFlags> {
   const [category, categoryId, categoryPath, isActive] = await Promise.all([
     productColumnExists("category"),
@@ -156,22 +180,60 @@ async function getProductColumnFlags(): Promise<ProductColumnFlags> {
 }
 
 async function getStoredCategoryRows(): Promise<CategoryRow[]> {
+  await ensureCategorySortOrderColumn();
+
   try {
-    return await prisma.category.findMany({
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        level: true,
-        path: true,
-        parentId: true,
-      },
-      orderBy: [{ level: "asc" }, { path: "asc" }],
-    });
+    return await prisma.$queryRaw<CategoryRow[]>`
+      SELECT
+        id,
+        name,
+        slug,
+        level,
+        path,
+        "parentId",
+        "sortOrder"
+      FROM "Category"
+      ORDER BY
+        level ASC,
+        COALESCE("parentId", '') ASC,
+        "sortOrder" ASC,
+        name ASC
+    `;
   } catch (error) {
     console.error("Could not load admin categories.", error);
     throw new Error("Could not load admin categories.");
   }
+}
+
+function sameParentId(left: string | null, right: string | null): boolean {
+  return (left ?? null) === (right ?? null);
+}
+
+function compareCategoryRowsByOrder(left: CategoryRow, right: CategoryRow) {
+  return left.sortOrder - right.sortOrder || left.name.localeCompare(right.name);
+}
+
+function getOrderedSiblingRows(
+  rows: CategoryRow[],
+  parentId: string | null,
+): CategoryRow[] {
+  return rows
+    .filter((row) => sameParentId(row.parentId, parentId))
+    .sort(compareCategoryRowsByOrder);
+}
+
+function getNextSortOrder(
+  rows: CategoryRow[],
+  parentId: string | null,
+  excludeId?: string,
+) {
+  const siblingOrders = rows
+    .filter(
+      (row) => row.id !== excludeId && sameParentId(row.parentId, parentId),
+    )
+    .map((row) => row.sortOrder);
+
+  return siblingOrders.length > 0 ? Math.max(...siblingOrders) + 1 : 0;
 }
 
 async function getProductCategoryReferences({
@@ -311,6 +373,7 @@ function buildAdminCategoryTree(
       level: row.level,
       path: splitStoredPath(row.path),
       parentId: row.parentId,
+      sortOrder: row.sortOrder,
       directProductCount: counts.direct,
       totalProductCount: counts.total,
       children: [],
@@ -335,7 +398,10 @@ function buildAdminCategoryTree(
   }
 
   const sortNodes = (nodes: AdminCategoryTreeNode[]) => {
-    nodes.sort((left, right) => left.name.localeCompare(right.name));
+    nodes.sort(
+      (left, right) =>
+        left.sortOrder - right.sortOrder || left.name.localeCompare(right.name),
+    );
     for (const node of nodes) {
       sortNodes(node.children);
     }
@@ -485,6 +551,7 @@ export async function createAdminCategory({
   }
 
   const now = new Date();
+  const sortOrder = getNextSortOrder(categories, parent?.id ?? null);
 
   await prisma.$executeRaw`
     INSERT INTO "Category" (
@@ -494,6 +561,7 @@ export async function createAdminCategory({
       level,
       path,
       "parentId",
+      "sortOrder",
       "createdAt",
       "updatedAt"
     )
@@ -504,6 +572,7 @@ export async function createAdminCategory({
       ${path.length - 1},
       ${path.join(" > ")},
       ${parent?.id ?? null},
+      ${sortOrder},
       ${now},
       ${now}
     )
@@ -555,6 +624,10 @@ export async function updateAdminCategory({
   }
 
   const newPath = [...parentPath, normalizedName];
+  const parentChanged = !sameParentId(category.parentId, nextParentId);
+  const nextSortOrder = parentChanged
+    ? getNextSortOrder(categories, nextParentId, category.id)
+    : category.sortOrder;
   const subtree = categories.filter((item) =>
     isPathPrefix(splitStoredPath(item.path), oldPath),
   );
@@ -573,6 +646,7 @@ export async function updateAdminCategory({
       level: updatedPath.length - 1,
       path: updatedPath.join(" > "),
       parentId: item.id === category.id ? nextParentId : item.parentId,
+      sortOrder: item.id === category.id ? nextSortOrder : item.sortOrder,
     };
   });
   const pathMoves: CategoryPathMove[] = nextRows.map((nextRow) => {
@@ -618,12 +692,75 @@ export async function updateAdminCategory({
           level = ${nextRow.level},
           path = ${nextRow.path},
           "parentId" = ${nextRow.parentId},
+          "sortOrder" = ${nextRow.sortOrder},
           "updatedAt" = ${now}
         WHERE id = ${nextRow.id}
       `;
     }
 
     await syncProductCategoryPaths(transaction, pathMoves);
+  });
+
+  return getAdminCategoryTree();
+}
+
+export async function reorderAdminCategory({
+  id,
+  direction,
+}: {
+  id: string;
+  direction: "up" | "down";
+}): Promise<AdminCategoryTreeNode[]> {
+  const categoryId = id.trim();
+
+  if (!categoryId) {
+    throw new Error("Category id is required.");
+  }
+
+  if (direction !== "up" && direction !== "down") {
+    throw new Error("Category order direction is invalid.");
+  }
+
+  const categories = await getStoredCategoryRows();
+  const category = categories.find((item) => item.id === categoryId);
+
+  if (!category) {
+    throw new Error("Category was not found.");
+  }
+
+  const siblings = getOrderedSiblingRows(categories, category.parentId);
+  const currentIndex = siblings.findIndex((item) => item.id === category.id);
+  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+  if (
+    currentIndex === -1 ||
+    targetIndex < 0 ||
+    targetIndex >= siblings.length
+  ) {
+    return getAdminCategoryTree();
+  }
+
+  const swappedSibling = siblings[targetIndex];
+  const now = new Date();
+
+  await prisma.$transaction(async (transaction) => {
+    for (const [index, sibling] of siblings.entries()) {
+      let sortOrder = index;
+
+      if (sibling.id === category.id) {
+        sortOrder = targetIndex;
+      } else if (sibling.id === swappedSibling.id) {
+        sortOrder = currentIndex;
+      }
+
+      await transaction.$executeRaw`
+        UPDATE "Category"
+        SET
+          "sortOrder" = ${sortOrder},
+          "updatedAt" = ${now}
+        WHERE id = ${sibling.id}
+      `;
+    }
   });
 
   return getAdminCategoryTree();

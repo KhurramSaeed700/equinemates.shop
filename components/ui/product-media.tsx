@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 
-import { isRemoteImage } from "@/lib/image-utils";
+import { isMissingProductImageSrc, isRemoteImage } from "@/lib/image-utils";
 
 type ProductMediaProps = {
   alt: string;
@@ -24,6 +24,31 @@ export function ProductMedia({
   style,
   width,
 }: ProductMediaProps) {
+  if (isMissingProductImageSrc(src)) {
+    return (
+      <div
+        aria-label={alt}
+        className={["product-image-fallback", className]
+          .filter(Boolean)
+          .join(" ")}
+        role="img"
+        style={style}
+      >
+        <Image
+          alt=""
+          aria-hidden="true"
+          className="product-image-fallback-logo"
+          height={180}
+          src="/small-logo-dark.jpg"
+          width={260}
+        />
+        <span className="product-image-fallback-text">
+          Image coming soon.
+        </span>
+      </div>
+    );
+  }
+
   if (isRemoteImage(src) || src.startsWith("/api/r2-images/")) {
     return (
       <img

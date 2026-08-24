@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { AdminAccessRetry } from "@/components/admin/admin-access-retry";
 import { AdminAccessManager } from "@/components/forms/admin-access-manager";
 import { getAdminAccess } from "@/lib/server/admin-auth";
 import {
@@ -30,10 +31,9 @@ export default async function SuperAdminPage() {
 
   if (!adminAccess.isAuthorized) {
     return (
-      <section className="panel super-admin-auth-panel">
-        <h2>Admin Access Required</h2>
-        <p>Sign in with an admin account to continue.</p>
-      </section>
+      <div className="super-admin-auth-panel">
+        <AdminAccessRetry message={adminAccess.reason} />
+      </div>
     );
   }
 

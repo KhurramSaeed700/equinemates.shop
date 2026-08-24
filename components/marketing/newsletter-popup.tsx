@@ -1,13 +1,16 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 import { useMounted } from "@/components/hooks/useMounted";
+import { Button } from "@/components/ui/button";
+import { CloseIcon } from "@/components/ui/icons";
 import { useToast } from "@/lib/use-toast";
 
-const NEWSLETTER_POPUP_STORAGE_KEY = "equinemates-newsletter-popup-v2";
+const NEWSLETTER_POPUP_STORAGE_KEY = "equinemates-newsletter-popup-v3";
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -122,32 +125,56 @@ export function NewsletterPopup() {
   return (
     <div
       aria-labelledby="newsletter-popup-title"
-      aria-modal="true"
       className="newsletter-popup-overlay"
       role="dialog"
     >
       <div className="newsletter-popup-panel">
-        <button
+        <Button
           aria-label="Close newsletter popup"
           className="newsletter-popup-close"
           onClick={closePopup}
-          type="button"
+          size="icon"
+          variant="icon"
         >
-          &times;
-        </button>
+          <CloseIcon aria-hidden="true" />
+        </Button>
 
         <div className="newsletter-popup-grid">
-          <section className="newsletter-popup-promo">
-            <p className="newsletter-popup-kicker">Clearance</p>
-            <h2 id="newsletter-popup-title">Fresh markdowns are live.</h2>
-            <Link className="btn-secondary newsletter-popup-link" href="/products">
-              Shop clearance
-            </Link>
+          <section aria-label="Clearance collection" className="newsletter-popup-promo">
+            <div className="newsletter-popup-image newsletter-popup-image-main">
+              <Image
+                alt="Equestrian standing beside a dark bay horse"
+                className="newsletter-popup-promo-image"
+                fill
+                sizes="(max-width: 700px) 46vw, 210px"
+                src="/newsletter/welcome-equestrian.png"
+              />
+            </div>
+            <div className="newsletter-popup-image newsletter-popup-image-secondary">
+              <Image
+                alt="Rider crossing an autumn field on horseback"
+                className="newsletter-popup-promo-image"
+                fill
+                sizes="(max-width: 700px) 46vw, 210px"
+                src="/home banners/banner-2.webp"
+              />
+            </div>
+            <div className="newsletter-popup-sale">
+              <p className="newsletter-popup-kicker">Clearance</p>
+              <h2>Fresh markdowns are live.</h2>
+              <Link className="newsletter-popup-link" href="/products?sort=price-asc">
+                Shop clearance
+              </Link>
+            </div>
           </section>
 
           <section className="newsletter-popup-signup">
             <p className="newsletter-popup-kicker">Newsletter</p>
-            <h3>Get sale alerts first.</h3>
+            <h3 id="newsletter-popup-title">Get sale alerts first.</h3>
+            <p>
+              New reductions, stable essentials, and private offers—straight to
+              your inbox.
+            </p>
 
             <form className="newsletter-popup-form" onSubmit={handleSubmit}>
               <label className="visually-hidden" htmlFor="newsletter-popup-email">
@@ -165,7 +192,17 @@ export function NewsletterPopup() {
                 {isSubmitting ? "Joining..." : "Join now"}
               </button>
             </form>
-
+            <button
+              className="newsletter-popup-dismiss"
+              onClick={closePopup}
+              type="button"
+            >
+              No thanks
+            </button>
+            <p className="newsletter-popup-fineprint">
+              By submitting, you agree to receive Equinemates emails. You can
+              unsubscribe at any time.
+            </p>
           </section>
         </div>
       </div>

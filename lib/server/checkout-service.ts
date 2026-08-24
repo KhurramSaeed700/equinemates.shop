@@ -3,6 +3,11 @@ import { randomUUID } from "node:crypto";
 import { convertFromPkr } from "@/lib/currency";
 import { prisma } from "@/lib/prisma";
 import { getCurrencyRates } from "@/lib/server/currency-service";
+import { buildFulfillmentPlan } from "@/lib/server/fulfillment-service";
+import {
+  createStripeCheckoutSession,
+  isPaymentGatewayConfigured,
+} from "@/lib/server/payment-gateway";
 import { CartItem, CurrencyCode } from "@/lib/types";
 
 const PAYMENT_METHODS = ["bank_transfer", "card", "wallet"] as const;
@@ -14,6 +19,7 @@ interface CheckoutInput {
   shippingAddress: string;
   paymentMethod: PaymentMethod;
   currency: CurrencyCode;
+  siteUrl: string;
   user: {
     clerkId: string;
     email: string;
@@ -47,6 +53,13 @@ export async function createCheckout(input: CheckoutInput) {
     throw new Error(`Exchange rate for ${input.currency} is unavailable.`);
   }
 
+  const needsHostedPayment =
+    input.paymentMethod === "card" || input.paymentMethod === "wallet";
+
+  if (needsHostedPayment && !isPaymentGatewayConfigured()) {
+    throw new Error("Card checkout is not configured yet. Add Stripe keys or choose bank transfer.");
+  }
+
   const savedOrder = await prisma.$transaction(async (tx) => {
     const user = await tx.user.upsert({
       where: { clerkId: input.user.clerkId },
@@ -76,14 +89,28 @@ export async function createCheckout(input: CheckoutInput) {
         sku: true,
         name: true,
         basePricePkr: true,
+        stock: true,
+        amazonSellerSku: true,
+        amazonFulfillableQuantity: true,
+        amazonMcfEnabled: true,
       },
     });
     const productsBySlug = new Map(
       products.map((product) => [product.slug, product]),
     );
+    const fulfillmentPlan = buildFulfillmentPlan({
+      items: input.items.map((item) => ({
+        productSlug: item.productSlug,
+        quantity: item.quantity,
+      })),
+      productsBySlug,
+    });
     const orderItems = input.items.map((item) => {
       const product = productsBySlug.get(item.productSlug);
       const quantity = Math.floor(item.quantity);
+      const fulfillmentRoute = fulfillmentPlan.items.find(
+        (route) => route.productSlug === item.productSlug,
+      );
 
       if (!product || !Number.isFinite(quantity) || quantity <= 0) {
         throw new Error(`${item.name} is no longer available for checkout.`);
@@ -100,6 +127,8 @@ export async function createCheckout(input: CheckoutInput) {
         sku: product.sku,
         unitPricePkr: product.basePricePkr,
         lineTotalPkr: product.basePricePkr * quantity,
+        fulfillmentSource: fulfillmentRoute?.source ?? "LOCAL",
+        amazonSellerSku: fulfillmentRoute?.amazonSellerSku ?? null,
       };
     });
     const subtotalPkr = orderItems.reduce(
@@ -120,8 +149,7 @@ export async function createCheckout(input: CheckoutInput) {
       input.currency,
       rateSnapshot.rates,
     );
-    const notes =
-      "Payment-ready architecture enabled. Connect card and bank gateways for production settlement.";
+    const notes = fulfillmentPlan.message;
     const order = await tx.order.create({
       data: {
         currency: input.currency,
@@ -148,8 +176,17 @@ export async function createCheckout(input: CheckoutInput) {
         "paymentMethod" = ${input.paymentMethod},
         "paymentStatus" = ${
           input.paymentMethod === "card" || input.paymentMethod === "wallet"
-            ? "authorized"
+            ? "pending"
             : "pending"
+        },
+        "paymentProvider" = ${
+          input.paymentMethod === "card" || input.paymentMethod === "wallet"
+            ? "stripe"
+            : null
+        },
+        "fulfillmentSource" = ${fulfillmentPlan.source},
+        "fulfillmentStatus" = ${
+          fulfillmentPlan.status === "READY" ? "pending" : "needs_configuration"
         },
         "exchangeRateFromPkr" = ${exchangeRateFromPkr},
         "exchangeRateUpdatedAt" = ${new Date(rateSnapshot.updatedAt)},
@@ -168,17 +205,51 @@ export async function createCheckout(input: CheckoutInput) {
       invoiceId,
       notes,
       orderId: order.orderNumber,
-      paymentStatus:
-        input.paymentMethod === "card" || input.paymentMethod === "wallet"
-          ? "authorized"
-          : "pending",
+      paymentStatus: "pending",
       shippingFeePkr,
       subtotalInCurrency,
       subtotalPkr,
       totalInCurrency,
       totalPkr,
+      fulfillmentPlan,
     };
   });
+  let paymentUrl: string | undefined;
+  let paymentProviderSessionId: string | undefined;
+
+  if (needsHostedPayment) {
+    const checkout = await createStripeCheckoutSession({
+      orderId: savedOrder.orderId,
+      invoiceId: savedOrder.invoiceId,
+      currency: input.currency,
+      totalAmount: savedOrder.totalInCurrency,
+      customerEmail: input.user.email,
+      siteUrl: input.siteUrl,
+      lineItems: input.items.map((item) => ({
+        name: item.name,
+        quantity: Math.max(1, Math.floor(item.quantity)),
+        unitAmount: Math.max(
+          1,
+          Math.round(
+            convertFromPkr(item.unitPricePkr, input.currency, rateSnapshot.rates) * 100,
+          ),
+        ),
+      })),
+    });
+
+    paymentUrl = checkout.url;
+    paymentProviderSessionId = checkout.sessionId;
+
+    await prisma.$executeRaw`
+      UPDATE "Order"
+      SET
+        "paymentProvider" = ${checkout.provider},
+        "paymentProviderSessionId" = ${checkout.sessionId},
+        "paymentCheckoutUrl" = ${checkout.url},
+        "paymentStatus" = ${"pending_payment"}
+      WHERE "orderNumber" = ${savedOrder.orderId}
+    `;
+  }
 
   return {
     invoiceId: savedOrder.invoiceId,
@@ -197,6 +268,10 @@ export async function createCheckout(input: CheckoutInput) {
     shippingAddress: input.shippingAddress,
     shippingCity: input.shippingCity,
     paymentStatus: savedOrder.paymentStatus,
+    paymentUrl,
+    paymentProviderSessionId,
+    fulfillmentSource: savedOrder.fulfillmentPlan.source,
+    fulfillmentStatus: savedOrder.fulfillmentPlan.status,
     notes: savedOrder.notes,
   };
 }
