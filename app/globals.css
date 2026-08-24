@@ -7050,28 +7050,27 @@ html[data-theme="dark"] .admin-success-redirect-btn:hover {
 /* Storefront accessibility menu and persistent access preferences. */
 .footer-accessibility-trigger {
   position: fixed;
-  top: 50%;
-  left: 0;
+  right: 0;
+  bottom: max(1rem, env(safe-area-inset-bottom));
   z-index: 5500;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 58px;
-  height: 70px;
+  width: 44px;
+  height: 48px;
   padding: 0;
   border: 1px solid #79cbe4;
-  border-left: 0;
+  border-right: 0;
   background: #006b8f;
   color: #006b8f;
   font: inherit;
-  transform: translateY(-50%);
   cursor: pointer;
 }
 
 .footer-accessibility-icon {
   display: inline-flex;
-  width: 38px;
-  height: 38px;
+  width: 28px;
+  height: 28px;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
@@ -7079,8 +7078,8 @@ html[data-theme="dark"] .admin-success-redirect-btn:hover {
 }
 
 .footer-accessibility-icon svg {
-  width: 30px;
-  height: 30px;
+  width: 22px;
+  height: 22px;
 }
 
 .footer-accessibility-trigger:hover {
@@ -7404,18 +7403,18 @@ html[data-a11y-links="true"] a {
 
 @media (max-width: 540px) {
   .footer-accessibility-trigger {
-    width: 50px;
-    height: 60px;
+    width: 44px;
+    height: 48px;
   }
 
   .footer-accessibility-icon {
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
   }
 
   .footer-accessibility-icon svg {
-    width: 27px;
-    height: 27px;
+    width: 22px;
+    height: 22px;
   }
 
   .accessibility-needs-grid {
