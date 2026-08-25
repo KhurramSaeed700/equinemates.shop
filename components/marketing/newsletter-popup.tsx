@@ -141,22 +141,13 @@ export function NewsletterPopup() {
 
         <div className="newsletter-popup-grid">
           <section aria-label="Clearance collection" className="newsletter-popup-promo">
-            <div className="newsletter-popup-image newsletter-popup-image-main">
+            <div className="newsletter-popup-image">
               <Image
                 alt="Equestrian standing beside a dark bay horse"
                 className="newsletter-popup-promo-image"
                 fill
-                sizes="(max-width: 700px) 46vw, 210px"
+                sizes="(max-width: 700px) calc(100vw - 1.5rem), 310px"
                 src="/newsletter/welcome-equestrian.png"
-              />
-            </div>
-            <div className="newsletter-popup-image newsletter-popup-image-secondary">
-              <Image
-                alt="Rider crossing an autumn field on horseback"
-                className="newsletter-popup-promo-image"
-                fill
-                sizes="(max-width: 700px) 46vw, 210px"
-                src="/home banners/banner-2.webp"
               />
             </div>
             <div className="newsletter-popup-sale">

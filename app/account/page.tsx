@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import {
   SignIn,
   SignedIn,
@@ -10,7 +11,7 @@ import { isClerkEnabledFromKey } from "@/lib/clerk";
 
 export const metadata: Metadata = {
   title: "Account",
-  description: "Manage your account securely with Clerk authentication.",
+  description: "Sign in to manage your Equinemates account, orders, and saved items.",
 };
 
 export default function AccountPage() {
@@ -32,12 +33,31 @@ export default function AccountPage() {
   }
 
   return (
-    <section className="panel clerk-account-panel">
+    <section className="clerk-account-panel">
       <SignedOut>
-        <SignIn routing="hash" />
+        <div className="account-auth-shell">
+          <aside className="account-auth-story">
+            <Image
+              alt="English riding bits and bridles arranged in a tack room"
+              className="account-auth-image"
+              fill
+              priority
+              sizes="(max-width: 800px) 100vw, 560px"
+              src="/account/login-tack-background.jpg"
+            />
+          </aside>
+
+          <div className="account-auth-form-column">
+            <div className="clerk-signin-frame">
+              <SignIn routing="hash" />
+            </div>
+          </div>
+        </div>
       </SignedOut>
       <SignedIn>
-        <UserProfile routing="hash" />
+        <div className="clerk-profile-frame">
+          <UserProfile routing="hash" />
+        </div>
       </SignedIn>
     </section>
   );
