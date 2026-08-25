@@ -7111,13 +7111,13 @@ html[data-theme="dark"] .admin-success-redirect-btn:hover {
 
 .accessibility-menu-panel {
   position: absolute;
-  inset: 0 auto 0 0;
+  inset: 0 0 0 auto;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   width: min(32rem, calc(100vw - 1rem));
   color: #202823;
   background: #f3f4f2;
-  box-shadow: 1.5rem 0 4rem rgba(0, 0, 0, 0.35);
+  box-shadow: -1.5rem 0 4rem rgba(0, 0, 0, 0.35);
 }
 
 .accessibility-menu-header {
