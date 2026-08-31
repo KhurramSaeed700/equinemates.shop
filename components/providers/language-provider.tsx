@@ -157,6 +157,7 @@ const storefrontPhrases: Record<Exclude<LanguageCode, "en">, Record<string, stri
   de: {
     "About Equinemates": "Über Equinemates",
     "Add to Cart": "In den Warenkorb",
+    "Buy Now": "Jetzt kaufen",
     "Add to favorites": "Zu Favoriten hinzufügen",
     "Add to wishlist": "Zur Wunschliste hinzufügen",
     "All Categories": "Alle Kategorien",
@@ -252,6 +253,7 @@ const storefrontPhrases: Record<Exclude<LanguageCode, "en">, Record<string, stri
   fr: {
     "About Equinemates": "À propos d’Equinemates",
     "Add to Cart": "Ajouter au panier",
+    "Buy Now": "Acheter maintenant",
     "All Categories": "Toutes les catégories",
     "All options": "Toutes les options",
     "All products": "Tous les produits",
@@ -301,6 +303,7 @@ const storefrontPhrases: Record<Exclude<LanguageCode, "en">, Record<string, stri
   es: {
     "About Equinemates": "Acerca de Equinemates",
     "Add to Cart": "Añadir al carrito",
+    "Buy Now": "Comprar ahora",
     "All Categories": "Todas las categorías",
     "All options": "Todas las opciones",
     "All products": "Todos los productos",
@@ -350,6 +353,7 @@ const storefrontPhrases: Record<Exclude<LanguageCode, "en">, Record<string, stri
   ar: {
     "About Equinemates": "عن Equinemates",
     "Add to Cart": "أضف إلى السلة",
+    "Buy Now": "اشتر الآن",
     "All Categories": "جميع الفئات",
     "All options": "جميع الخيارات",
     "All products": "جميع المنتجات",
@@ -399,6 +403,7 @@ const storefrontPhrases: Record<Exclude<LanguageCode, "en">, Record<string, stri
   ur: {
     "About Equinemates": "Equinemates کے بارے میں",
     "Add to Cart": "کارٹ میں شامل کریں",
+    "Buy Now": "ابھی خریدیں",
     "Add to favorites": "پسندیدہ میں شامل کریں",
     "Add to wishlist": "پسندیدہ فہرست میں شامل کریں",
     "All Categories": "تمام زمرے",

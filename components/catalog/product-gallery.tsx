@@ -75,8 +75,32 @@ export function ProductGallery({
     const renderedImageHeight = naturalHeight * imageScale;
     const imageOffsetX = (bounds.width - renderedImageWidth) / 2;
     const imageOffsetY = (bounds.height - renderedImageHeight) / 2;
-    const previewWidth = Math.min(window.innerWidth * 0.5, bounds.width);
-    const previewHeight = bounds.height;
+    const viewportGap = 16;
+    let previewLeft = bounds.right + viewportGap;
+    let availablePreviewWidth =
+      window.innerWidth - previewLeft - viewportGap;
+    let previewWidth = Math.min(bounds.width, availablePreviewWidth);
+
+    if (availablePreviewWidth < Math.min(320, bounds.width * 0.5)) {
+      previewWidth = Math.min(
+        bounds.width,
+        window.innerWidth - viewportGap * 2,
+      );
+      previewLeft = Math.max(
+        viewportGap,
+        window.innerWidth - previewWidth - viewportGap,
+      );
+      availablePreviewWidth = previewWidth;
+    }
+
+    const previewTop = Math.max(viewportGap, bounds.top);
+    const previewHeight = Math.max(
+      1,
+      Math.min(
+        bounds.height,
+        window.innerHeight - previewTop - viewportGap,
+      ),
+    );
     const zoomScale = 2.5;
     const lensWidth = Math.min(renderedImageWidth, previewWidth / zoomScale);
     const lensHeight = Math.min(renderedImageHeight, previewHeight / zoomScale);
@@ -101,6 +125,22 @@ export function ProductGallery({
     zoomStage.style.setProperty("--product-lens-top", `${lensCenterY}px`);
     zoomStage.style.setProperty("--product-lens-width", `${lensWidth}px`);
     zoomStage.style.setProperty("--product-lens-height", `${lensHeight}px`);
+    zoomStage.style.setProperty(
+      "--product-zoom-preview-left",
+      `${previewLeft}px`,
+    );
+    zoomStage.style.setProperty(
+      "--product-zoom-preview-top",
+      `${previewTop}px`,
+    );
+    zoomStage.style.setProperty(
+      "--product-zoom-preview-width",
+      `${Math.max(1, Math.min(previewWidth, availablePreviewWidth))}px`,
+    );
+    zoomStage.style.setProperty(
+      "--product-zoom-preview-height",
+      `${Math.max(1, previewHeight)}px`,
+    );
     zoomStage.style.setProperty(
       "--product-zoom-width",
       `${zoomedImageWidth}px`,
@@ -250,11 +290,6 @@ export function ProductGallery({
               height={420}
               className="product-gallery-main"
             />
-            {!isZooming ? (
-              <span aria-hidden="true" className="product-gallery-zoom-hint">
-                Hover to zoom
-              </span>
-            ) : null}
           </button>
         </div>
         {isZooming ? (

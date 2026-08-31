@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 
 import { useCart } from "@/components/providers/cart-provider";
@@ -28,6 +29,7 @@ export function ProductDetailActions({
   product: Product;
 }) {
   const { addToCart } = useCart();
+  const router = useRouter();
   const { formatFromUsd } = useCurrency();
   const { has, toggle } = useWishlist();
   const { isSignedIn } = useUser();
@@ -80,11 +82,37 @@ export function ProductDetailActions({
     setQuantity((current) => current + 1);
   };
 
+  const addSelectedProductToCart = () => {
+    if (!isSignedIn) {
+      router.push("/account");
+      return false;
+    }
+
+    addToCart(product, quantity);
+    return true;
+  };
+
+  const buyNow = () => {
+    if (addSelectedProductToCart()) {
+      router.push("/cart");
+    }
+  };
+
   return (
     <>
       <section ref={actionsRef} className="panel product-detail-actions">
         <div className="product-detail-title-row">
-          <h1 className="product-detail-purchase-title">{displayName}</h1>
+          <h1
+            className="product-detail-purchase-title"
+            style={{
+              fontSize: "clamp(1.55rem, 2.1vw, 2.25rem)",
+              letterSpacing: 0,
+              lineHeight: 1.08,
+              maxWidth: "22ch",
+            }}
+          >
+            {displayName}
+          </h1>
           {isSignedIn ? (
             <button
               aria-label={
@@ -110,18 +138,18 @@ export function ProductDetailActions({
         {displayAsin ? (
           <p className="product-detail-meta">ASIN: {displayAsin}</p>
         ) : null}
-        <p className="product-price highlight">{formatFromUsd(displayPriceUsd)}</p>
+        <p
+          className="product-price highlight"
+          style={{ fontSize: "clamp(1.25rem, 1.5vw, 1.55rem)" }}
+        >
+          {formatFromUsd(displayPriceUsd)}
+        </p>
         <p className="product-tax-shipping-note">
           Tax included. Shipping calculated at checkout.
         </p>
         <p className="product-detail-meta">
           Rating {product.rating.toFixed(1)}/5 ({product.reviewCount} reviews)
         </p>
-        <FormattedDescription
-          className="product-detail-summary"
-          text={product.shortDescription}
-        />
-
         {listingVariations.length > 1 ? (
           <div className="product-listing-variations">
             <p className="product-listing-variations-label">
@@ -247,26 +275,37 @@ export function ProductDetailActions({
           </div>
         </label>
 
-        {isSignedIn ? (
-          <div className="action-row">
-            <button
-              className="btn-primary strong-cta"
-              disabled={!isInStock && !hasAmazonFallback}
-              onClick={() => addToCart(product, quantity)}
-              type="button"
-            >
-              Add to Cart
-            </button>
-          </div>
-        ) : null}
+        <div className="product-purchase-actions">
+          <button
+            className="btn-secondary strong-cta"
+            disabled={!isInStock && !hasAmazonFallback}
+            onClick={addSelectedProductToCart}
+            type="button"
+          >
+            Add to Cart
+          </button>
+          <button
+            className="btn-primary strong-cta"
+            disabled={!isInStock && !hasAmazonFallback}
+            onClick={buyNow}
+            type="button"
+          >
+            Buy Now
+          </button>
+        </div>
         {!isSignedIn ? (
           <p className="auth-gate-hint tiny">
             <Link className="text-link" href="/account">
               Sign in
             </Link>{" "}
-            to add this product to cart or wishlist.
+            to purchase this product or add it to your wishlist.
           </p>
         ) : null}
+
+        <FormattedDescription
+          className="product-detail-summary"
+          text={product.shortDescription}
+        />
 
         <FrequentlyBoughtTogether product={product} />
 
