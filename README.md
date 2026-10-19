@@ -123,6 +123,31 @@ Fill the placeholder values in `.env.local`, then open `http://localhost:3000`.
 Keep real secrets in `.env.local` locally or in Vercel environment variables for
 deployed environments.
 
+## Production Sign-In (Clerk)
+
+The development badge reflects the Clerk instance selected by the API keys; it
+is not controlled by the sign-in page styles or Next.js build mode.
+
+1. In the Clerk dashboard, select **Equinemates Shop → Production** and confirm
+   the primary domain. The existing instance is configured for `equinemates.com`.
+   If using a different domain, complete Clerk's domain and DNS setup first.
+2. Confirm the frontend API, account portal, email DNS records, and SSL
+   certificates are verified. Configure your own Google and Apple OAuth
+   credentials for the providers you enable in production.
+3. Copy the production instance's API keys into the **Production** environment
+   of the `equinemates-shop` Vercel project:
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`: starts with `pk_live_`.
+   - `CLERK_SECRET_KEY`: starts with `sk_live_`.
+4. Redeploy the site so the new publishable key is included in the frontend
+   bundle. Test email and social sign-in, sign-out, and the account page on the
+   configured domain.
+
+Keep `pk_test_` and `sk_test_` keys for localhost development. Clerk production
+keys validate the domain and do not work at `localhost:3000`. Do not commit API
+keys or hide the development badge as a substitute for switching instances.
+
+Official guide: https://clerk.com/docs/guides/development/deployment/production
+
 ## Cloudflare R2 Image Uploads
 
 This project now includes an admin product editor at `/admin` that sends product

@@ -45,9 +45,27 @@ export default function AccountPage() {
               sizes="(max-width: 800px) 100vw, 560px"
               src="/account/login-tack-background.jpg"
             />
+            <div className="account-auth-story-content">
+              <p className="account-auth-kicker">Your Equinemates account</p>
+              <h1>Ready for your next ride.</h1>
+              <p className="account-auth-story-description">
+                Everything you need for horse, rider, and stable, together in
+                one place.
+              </p>
+              <ul className="account-auth-benefits">
+                <li><span aria-hidden="true">✓</span> View your orders</li>
+                <li><span aria-hidden="true">✓</span> Keep your favorites close</li>
+                <li><span aria-hidden="true">✓</span> Manage your delivery details</li>
+              </ul>
+            </div>
           </aside>
 
           <div className="account-auth-form-column">
+            <div className="account-auth-intro">
+              <p className="account-auth-kicker">Welcome back</p>
+              <h2>Sign in to Equinemates</h2>
+              <p>Access your orders, saved items, and account details.</p>
+            </div>
             <div className="clerk-signin-frame">
               <SignIn routing="hash" />
             </div>

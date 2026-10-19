@@ -146,7 +146,7 @@ export function NewsletterPopup() {
                 alt="Equestrian standing beside a dark bay horse"
                 className="newsletter-popup-promo-image"
                 fill
-                sizes="(max-width: 700px) calc(100vw - 1.5rem), 310px"
+                sizes="(max-width: 700px) calc(100vw - 1.5rem), 432px"
                 src="/newsletter/welcome-equestrian.png"
               />
             </div>

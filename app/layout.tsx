@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { IBM_Plex_Sans, Sora } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -197,6 +198,7 @@ export default async function RootLayout({
             </div>
           </AppProviders>
         </ClerkProvider>
+        <Analytics />
       </body>
     </html>
   );
